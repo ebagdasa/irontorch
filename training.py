@@ -14,15 +14,41 @@ from utils.utils import *
 logger = logging.getLogger('logger')
 
 
+def get_percentage(params, train_dataset, batch):
+    count = 0
+    for i, x in enumerate(batch.indices):
+        if train_dataset.true_targets[x].item() != params.backdoor_label and \
+            batch.aux[i].item() == 1:
+            count += 1
+
+    return count
+
+
 def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     criterion = hlpr.task.criterion
     model.train()
 
     for i, data in tqdm(enumerate(train_loader)):
         batch = hlpr.task.get_batch(i, data)
-        model.zero_grad()
+        optimizer.zero_grad(set_to_none=True)
         loss = hlpr.attack.compute_blind_loss(model, criterion, batch, attack)
+        attack_percent = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
+        hlpr.params.running_losses['attack_percent'].append(attack_percent)
+        if hlpr.params.saved_grads and hlpr.params.opacus:
+            optimizer.batch_idx = i
+            optimizer.data_accum[i] = batch.indices.detach().cpu()
+            optimizer.label_accum[i] = batch.labels.detach().cpu()
+            optimizer.aux[i] = batch.aux.detach().cpu()
+            optimizer.loss_accum[i] = loss.detach().cpu()
+
         loss.backward()
+        if hlpr.params.batch_clip:
+            torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)
+            for param in model.parameters():
+                noised_layer = torch.FloatTensor(param.shape)
+                noised_layer = noised_layer.to(param.device)
+                noised_layer.normal_(mean=0, std=0.01)
+                param.grad.add_(noised_layer)
         optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
@@ -36,23 +62,20 @@ def test(hlpr: Helper, epoch, backdoor=False):
     model = hlpr.task.model
     model.eval()
     hlpr.task.reset_metrics()
-
+    test_loader = hlpr.task.test_attack_loader if backdoor else hlpr.task.test_loader
     with torch.no_grad():
-        for i, data in tqdm(enumerate(hlpr.task.test_loader)):
+        for i, data in tqdm(enumerate(test_loader)):
             batch = hlpr.task.get_batch(i, data)
-            if backdoor:
-                batch = hlpr.attack.synthesizer.make_backdoor_batch(batch,
-                                                                    test=True,
-                                                                    attack=True)
-
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
-    metric = hlpr.task.report_metrics(epoch,
-                             prefix=f'Backdoor {str(backdoor):5s}. Epoch: ',
-                             tb_writer=hlpr.tb_writer,
-                             tb_prefix=f'Test_backdoor_{str(backdoor):5s}')
+    prefix = 'Backdoor' if backdoor else 'Normal'
+    hlpr.report_metrics(prefix=f'Test/{prefix}', epoch=epoch)
+    # metric = hlpr.task.report_metrics(epoch,
+    #                          prefix=f'Backdoor {str(backdoor):5s}. Epoch: ',
+    #                          tb_writer=hlpr.tb_writer,
+    #                          tb_prefix=f'Test_backdoor_{str(backdoor):5s}')
 
-    return metric
+    return None
 
 
 def run(hlpr):
@@ -62,7 +85,9 @@ def run(hlpr):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
         acc = test(hlpr, epoch, backdoor=False)
+        hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
         test(hlpr, epoch, backdoor=True)
+        hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
         hlpr.save_model(hlpr.task.model, epoch, acc)
 
 
@@ -104,9 +129,7 @@ def run_fl_round(hlpr, epoch):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Backdoors')
     parser.add_argument('--params', dest='params', default='utils/params.yaml')
-    parser.add_argument('--name', dest='name', required=True)
-    parser.add_argument('--commit', dest='commit',
-                        default=get_current_git_hash())
+    parser.add_argument('--debug', default=False, action='store_true')
 
     args = parser.parse_args()
 
@@ -114,10 +137,12 @@ if __name__ == '__main__':
         params = yaml.load(f, Loader=yaml.FullLoader)
 
     params['current_time'] = datetime.now().strftime('%b.%d_%H.%M.%S')
-    params['commit'] = args.commit
-    params['name'] = args.name
+    params['commit'] = get_current_git_hash()
+    if args.debug:
+        params['log'] = params['save_model'] = params['wandb'] = False
 
     helper = Helper(params)
+
     logger.warning(create_table(params))
 
     try:
@@ -132,10 +157,10 @@ if __name__ == '__main__':
                 logger.error(f"Fine. Deleted: {helper.params.folder_path}")
                 shutil.rmtree(helper.params.folder_path)
                 if helper.params.tb:
-                    shutil.rmtree(f'runs/{args.name}')
+                    shutil.rmtree(f'runs/{helper.params.name}')
             else:
                 logger.error(f"Aborted training. "
                              f"Results: {helper.params.folder_path}. "
-                             f"TB graph: {args.name}")
+                             f"TB graph: {helper.params.name}")
         else:
             logger.error(f"Aborted training. No output generated.")

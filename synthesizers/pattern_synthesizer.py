@@ -42,35 +42,18 @@ class PatternSynthesizer(Synthesizer):
         self.make_pattern(self.pattern_tensor, self.x_top, self.y_top)
 
     def make_pattern(self, pattern_tensor, x_top, y_top):
-        full_image = torch.zeros(self.params.input_shape)
+        full_image = torch.zeros(self.params.input_shape[1:])
         full_image.fill_(self.mask_value)
 
-        x_bot = x_top + pattern_tensor.shape[0]
-        y_bot = y_top + pattern_tensor.shape[1]
+        x_bot = self.x_top + \
+                self.pattern_tensor.shape[0]
+        y_bot = self.y_top + \
+                self.pattern_tensor.shape[1]
 
-        if x_bot >= self.params.input_shape[1] or \
-                y_bot >= self.params.input_shape[2]:
-            raise ValueError(f'Position of backdoor outside image limits:'
-                             f'image: {self.params.input_shape}, but backdoor'
-                             f'ends at ({x_bot}, {y_bot})')
+        full_image[self.x_top:x_bot, self.y_top:y_bot] = self.pattern_tensor
 
-        full_image[:, x_top:x_bot, y_top:y_bot] = pattern_tensor
-
-        self.mask = 1 * (full_image != self.mask_value).to(self.params.device)
-        self.pattern = self.task.normalize(full_image).to(self.params.device)
-
-    def synthesize_inputs(self, batch, attack_portion=None):
-        pattern, mask = self.get_pattern()
-        batch.inputs[:attack_portion] = (1 - mask) * \
-                                        batch.inputs[:attack_portion] + \
-                                        mask * pattern
-
-        return
-
-    def synthesize_labels(self, batch, attack_portion=None):
-        batch.labels[:attack_portion].fill_(self.params.backdoor_label)
-
-        return
+        self.mask = 1 * (full_image != self.mask_value)
+        self.pattern = 255 * full_image
 
     def get_pattern(self):
         if self.params.backdoor_dynamic_position:

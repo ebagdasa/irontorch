@@ -13,6 +13,8 @@ class Metric:
     plottable: bool = True
     running_metric = None
     main_metric_name = None
+    preds = list()
+    ground_truth = list()
 
     def __init__(self, name, train=False):
         self.train = train
@@ -33,10 +35,10 @@ class Metric:
         for key, value in current_metrics.items():
             self.running_metric[key].append(value)
 
-    def get_value(self) -> Dict[str, np.ndarray]:
+    def get_value(self, prefix='') -> Dict[str, np.ndarray]:
         metrics = dict()
         for key, value in self.running_metric.items():
-            metrics[key] = np.mean(value)
+            metrics[f'{prefix}_{self.name}_{key}'] = np.mean(value)
 
         return metrics
 
@@ -49,6 +51,8 @@ class Metric:
 
     def reset_metric(self):
         self.running_metric = defaultdict(list)
+        self.preds = list()
+        self.ground_truth = list()
 
     def plot(self, tb_writer, step, tb_prefix=''):
         if tb_writer is not None and self.plottable:

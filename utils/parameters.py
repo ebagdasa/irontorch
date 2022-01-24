@@ -5,7 +5,7 @@ import logging
 import torch
 logger = logging.getLogger('logger')
 
-ALL_TASKS =  ['backdoor', 'normal', 'sentinet_evasion', #'spectral_evasion',
+ALL_TASKS = ['backdoor', 'normal', 'sentinet_evasion', #'spectral_evasion',
                            'neural_cleanse', 'mask_norm', 'sums', 'neural_cleanse_part1']
 
 @dataclass
@@ -14,6 +14,9 @@ class Params:
     # Corresponds to the class module: tasks.mnist_task.MNISTTask
     # See other tasks in the task folder.
     task: str = 'MNIST'
+    project: str = None
+    notes: str = None
+    tags: List = None
 
     current_time: str = None
     name: str = None
@@ -47,8 +50,6 @@ class Params:
 
     # gradient shaping/DP params
     dp: bool = None
-    dp_clip: float = None
-    dp_sigma: float = None
 
     # attack params
     backdoor: bool = False
@@ -56,6 +57,7 @@ class Params:
     poisoning_proportion: float = 1.0  # backdoors proportion in backdoor loss
     synthesizer: str = 'pattern'
     backdoor_dynamic_position: bool = False
+    clean_label: bool = False
 
     # losses to balance: `normal`, `backdoor`, `neural_cleanse`, `sentinet`,
     # `backdoor_multi`.
@@ -87,6 +89,7 @@ class Params:
     report_train_loss: bool = True
     log: bool = False
     tb: bool = False
+    wandb: bool = False
     save_model: bool = None
     save_on_epochs: List[int] = None
     save_scale_values: bool = False
@@ -97,6 +100,18 @@ class Params:
     # Temporary storage for running values
     running_losses = None
     running_scales = None
+
+    # irontorch params
+    opacus: bool = False
+    saved_grads: bool = False
+    compute_grads_only: bool = None
+    recover_indices: str = None
+    cut_grad_threshold: float = None
+
+    # gradient shaping/DP params
+    grad_clip: float = None
+    grad_sigma: float = None
+    batch_clip: bool = False
 
     # FL params
     fl: bool = False
@@ -122,7 +137,7 @@ class Params:
 
         if self.log:
             self.folder_path = f'saved_models/model_' \
-                               f'{self.task}_{self.current_time}_{self.name}'
+                               f'{self.task}_{self.name}'
 
         self.running_losses = defaultdict(list)
         self.running_scales = defaultdict(list)

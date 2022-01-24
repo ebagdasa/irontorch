@@ -1,6 +1,9 @@
 import logging
 from typing import List
 
+from opacus import PrivacyEngine
+from opacus.validators import ModuleValidator
+
 import torch
 from torch import optim, nn
 from torch.nn import Module
@@ -22,6 +25,8 @@ class Task:
 
     train_dataset = None
     test_dataset = None
+    test_attack_dataset = None
+    test_attack_loader = None
     train_loader = None
     test_loader = None
     classes = None
@@ -51,6 +56,7 @@ class Task:
         self.criterion = self.make_criterion()
         self.metrics = [AccuracyMetric(), TestLossMetric(self.criterion)]
         self.set_input_shape()
+        self.make_opacus()
 
     def load_data(self) -> None:
         raise NotImplemented
@@ -90,6 +96,23 @@ class Task:
                                          last_epoch=self.params.start_epoch,
                                          gamma=0.1)
 
+    def make_opacus(self):
+        if self.params.opacus:
+            if not ModuleValidator.is_valid(self.model):
+                logger.error(f'Model cannot be privatized. Fixing...')
+                self.model = ModuleValidator.fix(self.model)
+            privacy_engine = PrivacyEngine(secure_mode=False)
+            self.model, self.optimizer, _ = privacy_engine.make_private(
+                module=self.model,
+                optimizer=self.optimizer,
+                data_loader=self.train_loader,
+                noise_multiplier=self.params.grad_sigma * self.params.grad_clip,
+                max_grad_norm=self.params.grad_clip,
+                clipping='flat',
+            )
+            self.optimizer.compute_grads_only = self.params.compute_grads_only
+            logger.warning("Privatization is complete.")
+
     def resume_model(self):
         if self.params.resume_model:
             logger.info(f'Resuming training from {self.params.resume_model}')
@@ -117,8 +140,8 @@ class Task:
         :param data: object returned by the Loader.
         :return:
         """
-        inputs, labels = data
-        batch = Batch(batch_id, inputs, labels)
+        inputs, labels, indices, attacked = data
+        batch = Batch(batch_id, inputs, labels, indices, attacked)
         return batch.to(self.params.device)
 
     def accumulate_metrics(self, outputs, labels):

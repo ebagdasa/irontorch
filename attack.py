@@ -2,6 +2,7 @@ import logging
 from typing import Dict
 
 import torch
+import numpy as np
 from copy import deepcopy
 
 from models.model import Model
@@ -29,6 +30,18 @@ class Attack:
         if 'neural_cleanse' in self.params.loss_tasks:
             self.nc_model = NCModel(params.input_shape[1]).to(params.device)
             self.nc_optim = torch.optim.Adam(self.nc_model.parameters(), 0.01)
+
+    def attack_dataset(self, dataset, proportion, indices_arr=None, clean_label=False):
+        indices_arr, indices = self.synthesizer.get_indices(indices_arr, proportion,
+                                                            dataset, clean_label)
+        for index in indices:
+            dataset.data[index] = (1 - self.synthesizer.mask) * dataset.data[index] + \
+                                                    self.synthesizer.mask * self.synthesizer.pattern
+            dataset.targets[index] = self.params.backdoor_label
+            indices_arr[index] = 1
+        dataset.attacked_indices = indices_arr
+
+        return dataset
 
     def compute_blind_loss(self, model, criterion, batch, attack):
         """

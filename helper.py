@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 import random
+import wandb
 from collections import defaultdict
 from copy import deepcopy
 from shutil import copyfile
@@ -28,6 +29,7 @@ class Helper:
     synthesizer: Synthesizer = None
     attack: Attack = None
     tb_writer: SummaryWriter = None
+    wandb_logger = None
 
     def __init__(self, params):
         self.params = Params(**params)
@@ -42,11 +44,8 @@ class Helper:
         self.make_synthesizer()
         self.attack = Attack(self.params, self.synthesizer)
 
-        if 'neural_cleanse' in self.params.loss_tasks:
-            self.nc = True
-        # if 'spectral_evasion' in self.params.loss_tasks:
-        #     self.attack.fixed_model = deepcopy(self.task.model)
-
+        if self.params.backdoor:
+            self.modify_datasets()
         self.best_loss = float('inf')
 
     def make_task(self):
@@ -120,6 +119,27 @@ class Helper:
             params_dict = self.params.to_dict()
             table = create_table(params_dict)
             self.tb_writer.add_text('Model Params', table)
+        elif self.params.wandb:
+            self.wandb_logger = wandb.init(config=self.params.to_dict(),
+                       project=self.params.project,
+                       name=self.params.name)
+            logger.warning('Initialized Wandb.')
+
+    def modify_datasets(self):
+        if self.params.recover_indices:
+            indices_results = torch.load(self.params.recover_indices)
+            self.task.train_dataset = self.attack.attack_dataset(
+                self.task.train_dataset,
+                self.params.poisoning_proportion, indices_results['indices'],
+                clean_label=self.params.clean_label)
+
+        else:
+            self.task.train_dataset = self.attack.attack_dataset(self.task.train_dataset,
+                                                             self.params.poisoning_proportion, None,
+                                                             clean_label=self.params.clean_label)
+        self.task.test_attack_dataset = self.attack.attack_dataset(self.task.test_attack_dataset,
+                                                             1.0)
+        return
 
     def save_model(self, model=None, epoch=0, val_loss=0):
 
@@ -135,9 +155,22 @@ class Helper:
                 logger.info(f'Saving model on epoch {epoch}')
                 self.save_checkpoint(saved_dict, False,
                                      filename=f'{model_name}.epoch_{epoch}')
-            if val_loss < self.best_loss:
+            if True:
                 self.save_checkpoint(saved_dict, False, f'{model_name}.best')
                 self.best_loss = val_loss
+
+    def save_grads(self, epoch, batch):
+        if self.params.log and self.params.saved_grads and self.params.opacus:
+            torch.save({
+                'grads': self.task.optimizer.grad_accum,
+                'losses': self.task.optimizer.loss_accum,
+                'data': self.task.optimizer.data_accum,
+                'labels': self.task.optimizer.label_accum,
+                'aux': self.task.optimizer.aux,
+                'attacked_indices': self.task.train_dataset.attacked_indices},
+                f'{self.params.folder_path}/epoch_{epoch}_{batch}_optimizer.pt')
+        if self.params.opacus:
+            self.task.optimizer.reset_accums()
 
     def save_checkpoint(self, state, is_best, filename='checkpoint.pth.tar'):
         if not self.params.save_model:
@@ -151,36 +184,60 @@ class Helper:
         if self.tb_writer:
             self.tb_writer.flush()
 
-    def plot(self, x, y, name):
+    def report_dict(self, dict_report, step=None):
         if self.tb_writer is not None:
-            self.tb_writer.add_scalar(tag=name, scalar_value=y, global_step=x)
-            self.flush_writer()
+            for name, y in dict_report.items():
+                self.tb_writer.add_scalar(tag=name, scalar_value=y, global_step=step)
+                self.flush_writer()
+        elif self.wandb_logger is not None:
+            self.wandb_logger.log(dict_report, step=step)
+
         else:
             return False
 
     def report_training_losses_scales(self, batch_id, epoch):
-        if not self.params.report_train_loss or \
-                batch_id % self.params.log_interval != 0:
-            return
         total_batches = len(self.task.train_loader)
-        losses = [f'{x}: {np.mean(y):.2f}'
-                  for x, y in self.params.running_losses.items()]
-        scales = [f'{x}: {np.mean(y):.2f}'
-                  for x, y in self.params.running_scales.items()]
-        logger.info(
-            f'Epoch: {epoch:3d}. '
-            f'Batch: {batch_id:5d}/{total_batches}. '
-            f' Losses: {losses}.'
-            f' Scales: {scales}')
-        for name, values in self.params.running_losses.items():
-            self.plot(epoch * total_batches + batch_id, np.mean(values),
-                      f'Train/Loss_{name}')
-        for name, values in self.params.running_scales.items():
-            self.plot(epoch * total_batches + batch_id, np.mean(values),
-                      f'Train/Scale_{name}')
+        batch_id += 1
+        if self.params.report_train_loss and \
+            (batch_id % self.params.log_interval == 0 \
+                or batch_id == total_batches):
 
-        self.params.running_losses = defaultdict(list)
-        self.params.running_scales = defaultdict(list)
+            losses = [f'{x}: {np.mean(y):.2f}'
+                      for x, y in self.params.running_losses.items()]
+            scales = [f'{x}: {np.mean(y):.2f}'
+                      for x, y in self.params.running_scales.items()]
+            logger.info(
+                f'Epoch: {epoch:3d}. '
+                f'Batch: {batch_id:5d}/{total_batches}. '
+                f' Losses: {losses}.'
+                f' Scales: {scales}')
+            for name, values in self.params.running_losses.items():
+                self.report_dict({f'Train/Loss_{name}': np.mean(values)},
+                          step=epoch * total_batches + batch_id)
+            for name, values in self.params.running_scales.items():
+                self.report_dict({f'Train/Scale_{name}': np.mean(values)},
+                          step=epoch * total_batches + batch_id)
+
+            self.params.running_losses = defaultdict(list)
+            self.params.running_scales = defaultdict(list)
+            self.save_grads(epoch, batch_id)
+
+    def report_metrics(self, prefix, epoch):
+        for metric in self.task.metrics:
+            metric_values = metric.get_value(prefix=prefix)
+            self.report_dict(dict_report=metric_values, step=None)
+            logger.warning(f'{prefix}, {metric_values} {epoch}')
+
+    def plot_confusion_matrix(self, backdoor=False, epoch=1):
+        metric = self.task.metrics[0]
+        self.wandb_logger.log(
+            {f"conf_mat_back_{backdoor}": wandb.plot.confusion_matrix(
+                y_true=torch.cat(metric.ground_truth).numpy(),
+                preds=torch.cat(metric.preds).view(-1).numpy(),
+                class_names=self.task.classes)})
+
+    def poison_dataset(self):
+        return
 
     @staticmethod
     def fix_random(seed=1):

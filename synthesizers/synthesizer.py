@@ -1,3 +1,6 @@
+import numpy as np
+import torch
+
 from tasks.batch import Batch
 from tasks.task import Task
 from utils.parameters import Params
@@ -45,3 +48,22 @@ class Synthesizer:
 
     def synthesize_labels(self, batch, attack_portion=None):
         raise NotImplemented
+
+    def get_indices(self, indices_arr, proportion, dataset, clean_label=None):
+        dataset_len = len(dataset)
+        if indices_arr is None:
+            np.random.seed(self.params.random_seed)
+            indices = np.random.choice(range(dataset_len),
+                                       int(proportion * dataset_len),
+                                       replace=False)
+            indices_arr = torch.zeros(dataset_len)
+            if clean_label:
+                new_indices = list()
+                for index in indices:
+                    if dataset[index][1] == self.params.backdoor_label:
+                        new_indices.append(index)
+                indices = new_indices
+        else:
+            indices = indices_arr.nonzero().T[0].numpy()
+        print(f'Poisoned total of {len(indices)}')
+        return indices_arr, indices

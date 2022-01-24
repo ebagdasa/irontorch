@@ -61,7 +61,7 @@ def create_table(params: dict):
 
 def get_current_git_hash():
     import git
-    repo = git.Repo(search_parent_directories=True)
+    repo = git.Repo('./')
     sha = repo.head.object.hexsha
     return sha
 

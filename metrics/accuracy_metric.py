@@ -5,8 +5,11 @@ from metrics.metric import Metric
 class AccuracyMetric(Metric):
 
     def __init__(self, top_k=(1,)):
+        self.name = 'Accuracy'
         self.top_k = top_k
         self.main_metric_name = 'Top-1'
+        self.preds = list()
+        self.ground_truth = list()
         super().__init__(name='Accuracy', train=False)
 
     def compute_metric(self, outputs: torch.Tensor,
@@ -18,6 +21,8 @@ class AccuracyMetric(Metric):
         _, pred = outputs.topk(max_k, 1, True, True)
         pred = pred.t()
         correct = pred.eq(labels.view(1, -1).expand_as(pred))
+        self.preds.append(pred.detach().cpu())
+        self.ground_truth.append(labels.detach().cpu())
 
         res = dict()
         for k in self.top_k:

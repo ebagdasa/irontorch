@@ -4,9 +4,10 @@ import torch
 
 @dataclass
 class Batch:
-    batch_id: int
-    inputs: torch.Tensor
-    labels: torch.Tensor
+    batch_id: int = 0
+    inputs: torch.Tensor = None
+    labels: torch.Tensor = None
+    indices: torch.Tensor = None
 
     # For PIPA experiment we use this field to store identity label.
     aux: torch.Tensor = None
@@ -21,7 +22,7 @@ class Batch:
             aux = self.aux.to(device)
         else:
             aux = None
-        return Batch(self.batch_id, inputs, labels, aux)
+        return Batch(self.batch_id, inputs, labels, self.indices, aux)
 
     def clone(self):
         inputs = self.inputs.clone()
@@ -30,8 +31,7 @@ class Batch:
             aux = self.aux.clone()
         else:
             aux = None
-        return Batch(self.batch_id, inputs, labels, aux)
-
+        return Batch(self.batch_id, inputs, labels, self.indices, aux)
 
     def clip(self, batch_size):
         if batch_size is None:
