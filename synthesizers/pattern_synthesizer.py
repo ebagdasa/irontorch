@@ -1,3 +1,4 @@
+import numpy as np
 import random
 
 import torch
@@ -42,18 +43,9 @@ class PatternSynthesizer(Synthesizer):
         self.make_pattern(self.pattern_tensor, self.x_top, self.y_top)
 
     def make_pattern(self, pattern_tensor, x_top, y_top):
-        full_image = torch.zeros(self.params.input_shape[1:])
-        full_image.fill_(self.mask_value)
-
-        x_bot = self.x_top + \
-                self.pattern_tensor.shape[0]
-        y_bot = self.y_top + \
-                self.pattern_tensor.shape[1]
-
-        full_image[self.x_top:x_bot, self.y_top:y_bot] = self.pattern_tensor
-
-        self.mask = 1 * (full_image != self.mask_value)
-        self.pattern = 255 * full_image
+        self.mask, self.pattern = self.task.make_attack_pattern(pattern_tensor,
+                                                                x_top, y_top,
+                                                                self.mask_value)
 
     def get_pattern(self):
         if self.params.backdoor_dynamic_position:

@@ -35,8 +35,7 @@ class Attack:
         indices_arr, indices = self.synthesizer.get_indices(indices_arr, proportion,
                                                             dataset, clean_label)
         for index in indices:
-            dataset.data[index] = (1 - self.synthesizer.mask) * dataset.data[index] + \
-                                                    self.synthesizer.mask * self.synthesizer.pattern
+            dataset.data[index] = self.synthesizer.apply_mask(dataset.data[index])
             dataset.targets[index] = self.params.backdoor_label
             indices_arr[index] = 1
         dataset.attacked_indices = indices_arr

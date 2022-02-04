@@ -1,18 +1,19 @@
-project: "test"
-name: "test"
+project: "runs"
+name: "01_clip_1_0.1"
 
 task: MNIST
 synthesizer: Pattern
 
-#resume_model: model_MNIST_grid/model_last.pt.tar
+#resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 
-
-grad_sigma: 0.01
+grad_sigma: 0.1
 grad_clip: 1
-opacus: False
-saved_grads: False
-compute_grads_only: False
-batch_clip: True
+#batch_clip: True
+#label_noise: 0.1
+
+#opacus: True
+#saved_grads: True
+#compute_grads_only: True
 #max_batch_id: 100
 
 batch_size: 100
@@ -26,14 +27,19 @@ optimizer: Adam
 log_interval: 100
 scheduler: False
 
-recover_indices: /tmp/weights.pt
+#recover_indices: /tmp/weights_0.01.pt
+#clamp_norms: 0.05
+#pow_weight: 4
+#cut_grad_threshold: 30
+subset_training:
+  type: train
+  part: 1000
 
-poisoning_proportion: 0.1
+poisoning_proportion: 0.01
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
-cut_grad_threshold: 10
 
 loss_balance: MGDA
 mgda_normalize: loss

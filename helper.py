@@ -7,6 +7,9 @@ from collections import defaultdict
 from copy import deepcopy
 from shutil import copyfile
 from typing import Union
+from datetime import datetime
+import socket
+import sys
 
 import numpy as np
 import torch
@@ -46,6 +49,8 @@ class Helper:
 
         if self.params.backdoor:
             self.modify_datasets()
+        self.task.test_attack_dataset = self.attack.attack_dataset(
+                self.task.test_attack_dataset, 1.0)
         self.best_loss = float('inf')
 
     def make_task(self):
@@ -83,7 +88,13 @@ class Helper:
         self.synthesizer = task_class(self.task)
 
     def make_folders(self):
+        machine_name = socket.gethostname()
         log = create_logger()
+        devices = os.environ.get('CUDA_VISIBLE_DEVICES', 'All')
+        with open(f'runs.txt', 'a') as f:
+            f.write(
+                    f'{machine_name} | {datetime.now()} | {devices} | {sys.argv[0]} | {self.params.name} | {self.params.commit}')
+            f.write('\n')
         if self.params.log:
             try:
                 os.mkdir(self.params.folder_path)
@@ -137,8 +148,7 @@ class Helper:
             self.task.train_dataset = self.attack.attack_dataset(self.task.train_dataset,
                                                              self.params.poisoning_proportion, None,
                                                              clean_label=self.params.clean_label)
-        self.task.test_attack_dataset = self.attack.attack_dataset(self.task.test_attack_dataset,
-                                                             1.0)
+
         return
 
     def save_model(self, model=None, epoch=0, val_loss=0):
@@ -217,24 +227,27 @@ class Helper:
             for name, values in self.params.running_scales.items():
                 self.report_dict({f'Train/Scale_{name}': np.mean(values)},
                           step=epoch * total_batches + batch_id)
-
+            if self.task.scheduler:
+                self.report_dict({'Train/learning_rate': self.task.scheduler.get_last_lr()[0]},
+                             step=epoch * total_batches + batch_id)
             self.params.running_losses = defaultdict(list)
             self.params.running_scales = defaultdict(list)
             self.save_grads(epoch, batch_id)
 
-    def report_metrics(self, prefix, epoch):
+    def report_metrics(self, prefix, epoch=None):
         for metric in self.task.metrics:
             metric_values = metric.get_value(prefix=prefix)
-            self.report_dict(dict_report=metric_values, step=None)
+            self.report_dict(dict_report=metric_values, step=epoch)
             logger.warning(f'{prefix}, {metric_values} {epoch}')
 
     def plot_confusion_matrix(self, backdoor=False, epoch=1):
         metric = self.task.metrics[0]
-        self.wandb_logger.log(
-            {f"conf_mat_back_{backdoor}": wandb.plot.confusion_matrix(
-                y_true=torch.cat(metric.ground_truth).numpy(),
-                preds=torch.cat(metric.preds).view(-1).numpy(),
-                class_names=self.task.classes)})
+        if epoch == self.params.epochs and self.params.wandb and self.params.plot_conf_matrix:
+            self.wandb_logger.log(
+                {f"conf_mat_back_{backdoor}": wandb.plot.confusion_matrix(
+                    y_true=torch.cat(metric.ground_truth).numpy(),
+                    preds=torch.cat(metric.preds).view(-1).numpy(),
+                    class_names=self.task.classes)})
 
     def poison_dataset(self):
         return

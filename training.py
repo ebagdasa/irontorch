@@ -1,5 +1,6 @@
 import argparse
 import shutil
+import torch
 from datetime import datetime
 
 import yaml
@@ -21,7 +22,7 @@ def get_percentage(params, train_dataset, batch):
             batch.aux[i].item() == 1:
             count += 1
 
-    return count
+    return 100.0 * count/batch.indices.shape[0]
 
 
 def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
@@ -31,6 +32,9 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     for i, data in tqdm(enumerate(train_loader)):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad(set_to_none=True)
+        if hlpr.params.label_noise:
+            size = int(hlpr.params.label_noise * batch.labels.shape[0])
+            batch.labels[:size] = torch.randint(0, 10, [size,], device=batch.labels.device)
         loss = hlpr.attack.compute_blind_loss(model, criterion, batch, attack)
         attack_percent = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
@@ -47,14 +51,14 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             for param in model.parameters():
                 noised_layer = torch.FloatTensor(param.shape)
                 noised_layer = noised_layer.to(param.device)
-                noised_layer.normal_(mean=0, std=0.01)
+                noised_layer.normal_(mean=0, std=hlpr.params.grad_sigma)
                 param.grad.add_(noised_layer)
         optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
         if i == hlpr.params.max_batch_id:
             break
-
+    hlpr.task.scheduler_step()
     return
 
 
@@ -69,7 +73,7 @@ def test(hlpr: Helper, epoch, backdoor=False):
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
     prefix = 'Backdoor' if backdoor else 'Normal'
-    hlpr.report_metrics(prefix=f'Test/{prefix}', epoch=epoch)
+    hlpr.report_metrics(prefix=f'Test/{prefix}')
     # metric = hlpr.task.report_metrics(epoch,
     #                          prefix=f'Backdoor {str(backdoor):5s}. Epoch: ',
     #                          tb_writer=hlpr.tb_writer,

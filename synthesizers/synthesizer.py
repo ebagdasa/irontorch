@@ -9,6 +9,11 @@ from utils.parameters import Params
 class Synthesizer:
     params: Params
     task: Task
+    mask: torch.Tensor = None
+    "A mask used to combine backdoor pattern with the original image."
+
+    pattern: torch.Tensor = None
+    "A tensor of the `input.shape` filled with `mask_value` except backdoor."
 
     def __init__(self, task: Task):
         self.task = task
@@ -43,6 +48,9 @@ class Synthesizer:
 
         return
 
+    def apply_mask(self, input):
+        return (1 - self.mask) * input + self.mask * self.pattern
+
     def synthesize_inputs(self, batch, attack_portion=None):
         raise NotImplemented
 
@@ -56,7 +64,7 @@ class Synthesizer:
             indices = np.random.choice(range(dataset_len),
                                        int(proportion * dataset_len),
                                        replace=False)
-            indices_arr = torch.zeros(dataset_len)
+            indices_arr = torch.zeros(dataset_len, dtype=torch.int32)
             if clean_label:
                 new_indices = list()
                 for index in indices:

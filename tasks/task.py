@@ -1,5 +1,7 @@
 import logging
 from typing import List
+import torch.utils.data as torch_data
+import wandb
 
 from opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
@@ -18,6 +20,25 @@ from tasks.batch import Batch
 from utils.parameters import Params
 
 logger = logging.getLogger('logger')
+
+
+class SubSequentialSampler(torch_data.Sampler[int]):
+    r"""Samples elements sequentially, always in the same order.
+
+    Args:
+        data_source (Dataset): dataset to sample from
+    """
+    data_source = None
+
+    def __init__(self, data_source, range_sample) -> None:
+        self.data_source = data_source
+        self.range_sample = range_sample
+
+    def __iter__(self):
+        return iter(self.range_sample)
+
+    def __len__(self):
+        return len(self.range_sample)
 
 
 class Task:
@@ -50,13 +71,14 @@ class Task:
         self.load_data()
         self.model = self.build_model()
         self.resume_model()
-        self.model = self.model.to(self.params.device)
 
         self.optimizer = self.make_optimizer()
         self.criterion = self.make_criterion()
+        self.scheduler = self.make_scheduler()
         self.metrics = [AccuracyMetric(), TestLossMetric(self.criterion)]
         self.set_input_shape()
         self.make_opacus()
+        self.model = self.model.to(self.params.device)
 
     def load_data(self) -> None:
         raise NotImplemented
@@ -89,18 +111,21 @@ class Task:
 
         return optimizer
 
-    def make_scheduler(self) -> None:
+    def make_scheduler(self):
         if self.params.scheduler:
-            self.scheduler = MultiStepLR(self.optimizer,
+            return MultiStepLR(self.optimizer,
                                          milestones=self.params.scheduler_milestones,
-                                         last_epoch=self.params.start_epoch,
+                                         last_epoch=self.params.start_epoch - 2,
                                          gamma=0.1)
+        else:
+            return None
+
+    def scheduler_step(self):
+        if self.scheduler:
+            self.scheduler.step()
 
     def make_opacus(self):
         if self.params.opacus:
-            if not ModuleValidator.is_valid(self.model):
-                logger.error(f'Model cannot be privatized. Fixing...')
-                self.model = ModuleValidator.fix(self.model)
             privacy_engine = PrivacyEngine(secure_mode=False)
             self.model, self.optimizer, _ = privacy_engine.make_private(
                 module=self.model,
@@ -114,6 +139,11 @@ class Task:
             logger.warning("Privatization is complete.")
 
     def resume_model(self):
+        if self.params.opacus or self.params.fix_opacus_model:
+            if not ModuleValidator.is_valid(self.model):
+                logger.error(f'Model cannot be privatized. Fixing...')
+                self.model = ModuleValidator.fix(self.model)
+
         if self.params.resume_model:
             logger.info(f'Resuming training from {self.params.resume_model}')
             loaded_params = torch.load(f"saved_models/"
@@ -126,6 +156,8 @@ class Task:
             logger.warning(f"Loaded parameters from saved model: LR is"
                            f" {self.params.lr} and current epoch is"
                            f" {self.params.start_epoch}")
+
+
 
     def set_input_shape(self):
         inp = self.train_dataset[0][0]
@@ -179,3 +211,62 @@ class Task:
         if len(res) == 1:
             res = res[0]
         return res
+
+    def get_sampler(self):
+        if self.params.recover_indices:
+            indices_results = torch.load(self.params.recover_indices)
+            norms = indices_results['weights']
+            if self.params.poisoning_proportion == 0.0:
+                weights = torch.ones_like(norms)
+                weights[indices_results['indices'].nonzero()] = 0.0
+            else:
+                # weights = torch.pow(torch.clamp(1/norms, max=self.params.clamp_norms),
+                #                     self.params.pow_weight)
+                weights = torch.ones_like(norms)
+                weights[indices_results['indices'].nonzero()] = 0.1
+                if self.params.cut_grad_threshold:
+                    weights[indices_results['weights'] > self.params.cut_grad_threshold] = 0.0
+                    weights[indices_results[
+                                'weights'] <= self.params.cut_grad_threshold] = 1.0
+                    print(f'Shape: {weights.shape}, sum: {weights.sum()}')
+        else:
+            weights = torch.ones(len(self.train_dataset))
+            weights = weights / weights.sum()
+
+        if self.params.subset_training is not None:
+            if self.params.subset_training.get('type', None) == 'init':
+                weights[self.params.subset_training['part']:] = 0.0
+                train_len = self.params.subset_training['part']
+            elif self.params.subset_training.get('type', None) == 'train':
+                weights[:self.params.subset_training['part']] = 0.0
+                train_len = weights.shape[0] - self.params.subset_training['part']
+            else:
+                raise ValueError('Specify subset_training.')
+        else:
+            train_len = weights.shape[0]
+
+        weights = weights / weights.sum()
+        if self.params.wandb and self.params.recover_indices:
+            data = [[x, y, z] for (x, y, z) in
+                    zip(norms, train_len * weights,
+                        indices_results['indices'])]
+            table = wandb.Table(data=data,
+                                columns=["norms", "weights", "color"])
+            wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
+                                                           "weights")})
+            data = [[x, y, z] for (x, y, z) in
+                    zip(norms, weights.shape[0] * weights,
+                        indices_results['indices']) if z == 1]
+            table = wandb.Table(data=data,
+                                columns=["norms", "weights", "color"])
+            wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
+                                                           "weights")})
+        sampler = torch_data.WeightedRandomSampler(weights, train_len)
+        if self.params.compute_grads_only and self.params.subset_training:
+            indices = weights.nonzero().view(-1).tolist()
+            sampler = SubSequentialSampler(self.train_dataset, indices)
+
+        return sampler
+
+    def make_attack_pattern(self, pattern_tensor, x_top, y_top, mask_value):
+        raise NotImplemented

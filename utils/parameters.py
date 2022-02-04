@@ -15,6 +15,7 @@ class Params:
     # See other tasks in the task folder.
     task: str = 'MNIST'
     project: str = None
+    dataset: str = None
     notes: str = None
     tags: List = None
 
@@ -96,6 +97,7 @@ class Params:
     print_memory_consumption: bool = False
     save_timing: bool = False
     timing_data = None
+    plot_conf_matrix: bool = False
 
     # Temporary storage for running values
     running_losses = None
@@ -103,10 +105,17 @@ class Params:
 
     # irontorch params
     opacus: bool = False
+    fix_opacus_model: bool = False
     saved_grads: bool = False
     compute_grads_only: bool = None
     recover_indices: str = None
     cut_grad_threshold: float = None
+    clamp_norms: float = 0.0
+    pow_weight: float = 1.0
+
+    label_noise: float = None
+
+    subset_training: dict = None
 
     # gradient shaping/DP params
     grad_clip: float = None

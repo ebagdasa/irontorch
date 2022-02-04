@@ -1,37 +1,60 @@
+project: "cifar"
+name: "rare_0.1_clip_8_0.001"
+dataset: "CIFAR10"
+
 task: Cifar10
 synthesizer: Pattern
 
-batch_size: 64
+batch_size: 128
 test_batch_size: 100
-lr: 0.001
+lr: 0.1
 momentum: 0.9
 decay: 0.0005
-epochs: 350
-save_on_epochs: [10, 50, 100]
-optimizer: Adam
+epochs: 200
+save_on_epochs: []
+optimizer: SGD
 log_interval: 100
 
-pretrained: True
+#opacus: True
+#saved_grads: True
+#compute_grads_only: True
+fix_opacus_model: True
+#max_batch_id: 100
+grad_sigma: 0.001
+grad_clip: 8
+batch_clip: True
+
+#resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
+recover_indices: /tmp/weights_5k_0.05.pt
+clamp_norms: 0.1
+pow_weight: 4
+#cut_grad_threshold: 100.0
+
+pretrained: False
 
 scheduler: True
-scheduler_milestones: [30, 60]
+scheduler_milestones: [150, 225]
 
-poisoning_proportion: 1.1
+poisoning_proportion: 0.05
 backdoor_label: 8
-backdoor: False
+backdoor: True
 
-loss_balance: MGDA
+loss_balance: none
 mgda_normalize: loss+
 
 save_model: False
-log: False
+log: True
 tb: False
+wandb: True
 
 transform_train: True
 
+subset_training:
+  type: train
+  part: 5000
 
 loss_tasks:
-  - backdoor
+#  - backdoor
   - normal
 #  - neural_cleanse
 #  - sentinet_evasion
