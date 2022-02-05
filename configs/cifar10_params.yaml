@@ -1,5 +1,5 @@
 project: "cifar"
-name: "rare_001"
+name: "rare_01_dp_10_01"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,12 +15,12 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-#opacus: True
+opacus: True
 #saved_grads: True
 #compute_grads_only: True
 fix_opacus_model: True
 #max_batch_id: 100
-grad_sigma: 0.1
+grad_sigma: 0.01
 grad_clip: 10
 #batch_clip: True
 
