@@ -1,5 +1,5 @@
-project: "cifar"
-name: "rare_01_dp_1_001"
+project: "cifar2"
+name: "attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,7 +15,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-opacus: True
+#opacus: True
 #saved_grads: True
 #compute_grads_only: True
 fix_opacus_model: True
@@ -25,7 +25,7 @@ grad_clip: 1
 #batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
-recover_indices: weights/weights_5k_0.05.pt
+#recover_indices: weights/weights_5k_0.05.pt
 clamp_norms: 0.1
 pow_weight: 4
 #cut_grad_threshold: 100.0
@@ -35,7 +35,7 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 
-poisoning_proportion: 0.05
+poisoning_proportion: 0.001
 backdoor_label: 8
 backdoor: True
 
