@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "attack_1_cl"
+name: "attack_1_cl_001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -20,7 +20,7 @@ log_interval: 100
 #compute_grads_only: True
 fix_opacus_model: True
 #max_batch_id: 100
-grad_sigma: 0.00
+grad_sigma: 0.001
 grad_clip: 100
 batch_clip: True
 
