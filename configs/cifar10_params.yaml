@@ -46,7 +46,7 @@ mgda_normalize: loss+
 #save_model: True
 log: True
 tb: False
-wandb: True
+#wandb: True
 
 transform_train: True
 
