@@ -59,6 +59,7 @@ class Params:
     synthesizer: str = 'pattern'
     backdoor_dynamic_position: bool = False
     clean_label: bool = False
+    cosine_batching: bool = False
 
     # losses to balance: `normal`, `backdoor`, `neural_cleanse`, `sentinet`,
     # `backdoor_multi`.

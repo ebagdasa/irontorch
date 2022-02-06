@@ -6,6 +6,7 @@ from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.transforms import transforms
 
 from models.resnet_cifar import resnet18, resnet50
+from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 from dataset.cifar import CIFAR10, CIFAR100
 
@@ -51,11 +52,17 @@ class Cifar10Task(Task):
         if self.params.poison_images:
             self.train_loader = self.remove_semantic_backdoors()
         else:
-            sampler = self.get_sampler()
-            self.train_loader = DataLoader(self.train_dataset,
-                                           batch_size=self.params.batch_size,
-                                           sampler=sampler,
-                                           num_workers=0)
+            if self.params.cosine_batching:
+                recover_indices =  torch.load(self.params.recover_indices)
+                weights = recover_indices['weights']
+                batcher = CosineBatchSampler(weights, batch_size=self.params.batch_size, drop_last=False)
+                self.train_loader = DataLoader(self.train_dataset, batch_sampler=batcher, num_workers=0)
+            else:
+                sampler = self.get_sampler()
+                self.train_loader = DataLoader(self.train_dataset,
+                                               batch_size=self.params.batch_size,
+                                               sampler=sampler,
+                                               num_workers=0)
         self.test_dataset = ds(
             root=self.params.data_path,
             train=False,
