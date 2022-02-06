@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "compute_grads_001"
+name: "clip_75"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,20 +15,20 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-opacus: True
-saved_grads: True
-compute_grads_only: True
+#opacus: True
+#saved_grads: True
+#compute_grads_only: True
 fix_opacus_model: True
 #max_batch_id: 100
 grad_sigma: 0.005
 grad_clip: 10
 #batch_clip: True
 
-resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
-#recover_indices: weights/weights_5k_0.05.pt
+#resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
+recover_indices: weights/weights_5k_001.pt
 clamp_norms: 0.1
 pow_weight: 4
-#cut_grad_threshold: 100.0
+cut_grad_threshold: 7.5
 
 pretrained: False
 
@@ -45,7 +45,7 @@ mgda_normalize: loss+
 #save_model: True
 log: True
 tb: False
-#wandb: True
+wandb: True
 
 transform_train: True
 
