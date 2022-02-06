@@ -55,7 +55,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             self.previous_vector = self.weights[current_id:current_id+1]
         for i in range(self.batch_size):
             cos_sims = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
-            candidate = cos_sims.indices[0]
+            candidate = np.random.choice(cos_sims.indices[:100])
             batch_ids.append(candidate + self.offset)
             self.previous_vector += self.weights[candidate:candidate+1]
         yield batch_ids

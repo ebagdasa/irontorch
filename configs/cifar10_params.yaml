@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "batch"
+name: "batch_rand100"
 dataset: "CIFAR10"
 
 task: Cifar10
