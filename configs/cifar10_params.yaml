@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "attack"
+name: "attack_1"
 dataset: "CIFAR10"
 
 task: Cifar10
