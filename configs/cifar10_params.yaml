@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "clip_75"
+name: "attack_001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -28,7 +28,7 @@ grad_clip: 10
 recover_indices: weights/weights_5k_001.pt
 clamp_norms: 0.1
 pow_weight: 4
-cut_grad_threshold: 7.5
+#cut_grad_threshold: 7.5
 
 pretrained: False
 
