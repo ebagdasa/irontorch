@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "attack_dp_1_001"
+name: "attack_dp_10_005_2"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -21,7 +21,7 @@ opacus: True
 fix_opacus_model: True
 #max_batch_id: 100
 grad_sigma: 0.005
-grad_clip: 1
+grad_clip: 10
 #batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
