@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "attack"
+name: "attack_dp_1_001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,7 +15,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-#opacus: True
+opacus: True
 #saved_grads: True
 #compute_grads_only: True
 fix_opacus_model: True
