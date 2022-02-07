@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "sam_1_1_clip_1_001"
+name: "sam_1_1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -22,7 +22,7 @@ fix_opacus_model: True
 #max_batch_id: 100
 grad_sigma: 0.001
 grad_clip: 1
-batch_clip: True
+#batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
 recover_indices: weights/weights_5k_001.pt
