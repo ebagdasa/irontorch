@@ -203,10 +203,10 @@ class Task:
                 weights = torch.ones_like(norms)
                 weights[indices_results['indices'].nonzero()] = 0.0
             else:
-                # weights = torch.pow(torch.clamp(1/norms, max=self.params.clamp_norms),
-                #                     self.params.pow_weight)
-                weights = torch.ones_like(norms)
-                weights[indices_results['indices'].nonzero()] = 0.1
+                weights = torch.pow(torch.clamp(1/norms, max=self.params.clamp_norms),
+                                    self.params.pow_weight)
+                # weights = torch.ones_like(norms)
+                # weights[indices_results['indices'].nonzero()] = 0.1
                 if self.params.cut_grad_threshold:
                     weights[indices_results['norms'] > self.params.cut_grad_threshold] = 0.0
                     weights[indices_results[
