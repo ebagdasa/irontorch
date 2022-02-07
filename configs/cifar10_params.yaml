@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "cut_10"
+name: "cut_12"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -29,7 +29,7 @@ recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
 clamp_norms: 0.1
 pow_weight: 1
-cut_grad_threshold: 10
+cut_grad_threshold: 12
 
 pretrained: False
 
