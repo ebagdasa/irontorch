@@ -1,5 +1,5 @@
 project: "cifar2"
-name: "sam_01_1_clip_0d1_001"
+name: "sam_1_2_clip_1_001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -21,14 +21,14 @@ log_interval: 100
 fix_opacus_model: True
 #max_batch_id: 100
 grad_sigma: 0.001
-grad_clip: 0.1
+grad_clip: 1
 batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
 recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
-clamp_norms: 0.1
-pow_weight: 1
+clamp_norms: 1
+pow_weight: 2
 #cut_grad_threshold: 7.5
 
 pretrained: False
@@ -36,7 +36,7 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 
-poisoning_proportion: 0.001
+poisoning_proportion: 0.0001
 backdoor_label: 8
 backdoor: True
 
