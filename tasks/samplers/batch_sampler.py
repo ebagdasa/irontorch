@@ -43,7 +43,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                              "drop_last={}".format(drop_last))
         self.batch_size = batch_size
         self.drop_last = drop_last
-        self.weights = weights.cuda()
+        self.weights = weights
         self.offset = offset
         self.weights_count = self.weights.shape[0]
         self.previous_vector = None
@@ -52,8 +52,8 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
 
     def __iter__(self) -> Iterator[List[int]]:
         batch_ids = []
-        for j in self.weights_count // self.batch_size:
-            for i in range(self.batch_size):
+        for j in range(self.weights_count // self.batch_size):
+            for i in tqdm(range(self.batch_size)):
                 cos_sims = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
                 candidate = np.random.choice(cos_sims.indices[:100])
                 batch_ids.append(candidate + self.offset)
