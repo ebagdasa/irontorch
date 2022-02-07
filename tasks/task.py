@@ -198,7 +198,7 @@ class Task:
     def get_sampler(self):
         if self.params.recover_indices:
             indices_results = torch.load(self.params.recover_indices)
-            norms = indices_results['weights']
+            norms = indices_results['norms']
             if self.params.poisoning_proportion == 0.0:
                 weights = torch.ones_like(norms)
                 weights[indices_results['indices'].nonzero()] = 0.0
@@ -208,9 +208,9 @@ class Task:
                 weights = torch.ones_like(norms)
                 weights[indices_results['indices'].nonzero()] = 0.1
                 if self.params.cut_grad_threshold:
-                    weights[indices_results['weights'] > self.params.cut_grad_threshold] = 0.0
+                    weights[indices_results['norms'] > self.params.cut_grad_threshold] = 0.0
                     weights[indices_results[
-                                'weights'] <= self.params.cut_grad_threshold] = 1.0
+                                'norms'] <= self.params.cut_grad_threshold] = 1.0
                     print(f'Shape: {weights.shape}, sum: {weights.sum()}')
         else:
             weights = torch.ones(len(self.train_dataset))
@@ -244,6 +244,7 @@ class Task:
                                 columns=["norms", "weights", "color"])
             wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
                                                            "weights")})
+            del indices_results
         sampler = torch_data.WeightedRandomSampler(weights, train_len)
         if self.params.compute_grads_only and self.params.subset_training:
             indices = weights.nonzero().view(-1).tolist()
