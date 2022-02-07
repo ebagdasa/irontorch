@@ -129,8 +129,7 @@ class Task:
 
         if self.params.resume_model:
             logger.info(f'Resuming training from {self.params.resume_model}')
-            loaded_params = torch.load(f"saved_models/"
-                                       f"{self.params.resume_model}",
+            loaded_params = torch.load(self.params.resume_model,
                                     map_location=torch.device('cpu'))
             self.model.load_state_dict(loaded_params['state_dict'])
             self.params.start_epoch = loaded_params['epoch']
