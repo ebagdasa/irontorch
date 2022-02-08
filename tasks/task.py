@@ -114,7 +114,7 @@ class Task:
                 module=self.model,
                 optimizer=self.optimizer,
                 data_loader=self.train_loader,
-                noise_multiplier=self.params.grad_sigma * self.params.grad_clip,
+                noise_multiplier=self.params.grad_sigma / self.params.grad_clip,
                 max_grad_norm=self.params.grad_clip,
                 clipping='flat',
             )
