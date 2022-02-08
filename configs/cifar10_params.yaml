@@ -1,5 +1,5 @@
 project: "cifar3"
-name: "sam_0d3_2"
+name: "sam_0d2_2"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -27,7 +27,7 @@ grad_clip: 10
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
 recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
-clamp_norms: 0.3
+clamp_norms: 0.2
 pow_weight: 2
 #cut_grad_threshold: 7.5
 
