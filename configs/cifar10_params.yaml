@@ -1,5 +1,5 @@
 project: "cifar3"
-name: "dp_10_005"
+name: "sam_1_2"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -25,10 +25,10 @@ grad_clip: 10
 #batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
-#recover_indices: weights/weights_5k_001.pt
+recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
-#clamp_norms: 1
-#pow_weight: 2
+clamp_norms: 1
+pow_weight: 2
 #cut_grad_threshold: 7.5
 
 pretrained: False
