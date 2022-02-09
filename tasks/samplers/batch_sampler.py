@@ -60,7 +60,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             for i in tqdm(range(self.batch_size)):
                 # cos_sims = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
                 metrics = get_norm(self.previous_vector, self.weights).sort()
-                candidate = np.random.sample(metrics.indices[5:1000])
+                candidate = np.random.choice(metrics.indices[5:1000])
 
                 batch_ids.append(candidate + self.offset)
                 self.previous_vector += self.weights[candidate:candidate+1]
