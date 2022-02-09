@@ -1,5 +1,5 @@
 project: "cifar3"
-name: "dp_0d5_01"
+name: "dp_0d5_005"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -20,7 +20,7 @@ opacus: True
 #compute_grads_only: True
 fix_opacus_model: True
 #max_batch_id: 100
-grad_sigma: 0.01
+grad_sigma: 0.005
 grad_clip: 0.5
 #batch_clip: True
 
