@@ -15,7 +15,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-opacus: True
+#opacus: True
 #saved_grads: True
 #compute_grads_only: True
 fix_opacus_model: True
