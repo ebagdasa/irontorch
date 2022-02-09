@@ -51,7 +51,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.weights = weights
         self.offset = offset
         self.weights_count = self.weights.shape[0]
-        self.previous_vector = None
+        self.previous_vector = self.weights[1:2]
 
     def __iter__(self) -> Iterator[List[int]]:
         for j in range(self.weights_count // self.batch_size):
