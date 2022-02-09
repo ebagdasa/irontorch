@@ -1,5 +1,5 @@
 project: "cifar3"
-name: "dp_1_05"
+name: "norm_dist"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -25,8 +25,8 @@ grad_clip: 1
 #batch_clip: True
 
 #resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
-#recover_indices: weights/weights_5k_001.pt
-#cosine_batching: True
+recover_indices: weights/weights_5k_001.pt
+cosine_batching: True
 clamp_norms: 0.1
 pow_weight: 2
 #cut_grad_threshold: 7.5

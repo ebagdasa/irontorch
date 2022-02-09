@@ -14,6 +14,11 @@ def sim_matrix(a, b, eps=1e-8):
     sim_mt = torch.mm(a_norm, b_norm.transpose(0, 1))
     return sim_mt
 
+
+def get_norm(a, weight, eps=1e-8):
+    return (weight - a).norm(dim=1)
+
+
 class CosineBatchSampler(torch_data.Sampler[List[int]]):
     r"""Wraps another sampler to yield a mini-batch of indices.
 
@@ -47,15 +52,16 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.offset = offset
         self.weights_count = self.weights.shape[0]
         self.previous_vector = None
-        current_id = np.random.choice(self.weights_count)
-        self.previous_vector = self.weights[current_id:current_id+1]
 
     def __iter__(self) -> Iterator[List[int]]:
-        batch_ids = []
         for j in range(self.weights_count // self.batch_size):
+            self.previous_vector = torch.zeros_like(self.previous_vector)
+            batch_ids = []
             for i in tqdm(range(self.batch_size)):
-                cos_sims = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
-                candidate = np.random.choice(cos_sims.indices[:100])
+                # cos_sims = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
+                metrics = get_norm(self.previous_vector, self.weights).sort()
+                candidate = np.random.sample(metrics.indices[5:1000])
+
                 batch_ids.append(candidate + self.offset)
                 self.previous_vector += self.weights[candidate:candidate+1]
             yield batch_ids
