@@ -48,9 +48,9 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                              "drop_last={}".format(drop_last))
         self.batch_size = batch_size
         self.drop_last = drop_last
-        self.weights = weights.cuda()
+        self.weights = weights.cpu()
         self.offset = offset
-        self.self_matrix = torch.load('weights/self_matrix.pt').cuda()
+        self.self_matrix = torch.load('weights/self_matrix.pt').cpu()
         self.norms = torch.norm(self.weights, dim=1)
         self.weights_count = self.weights.shape[0]
         self.previous_vector = self.weights[1:2]
