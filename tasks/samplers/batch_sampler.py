@@ -50,6 +50,8 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.drop_last = drop_last
         self.weights = weights.cuda()
         self.offset = offset
+        self.self_matrix = torch.load('weights/self_matrix.pt').cuda()
+        self.norms = torch.norm(self.weights, dim=1)
         self.weights_count = self.weights.shape[0]
         self.previous_vector = self.weights[1:2]
 
@@ -57,13 +59,25 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         for j in range(self.weights_count // self.batch_size):
             self.previous_vector = torch.zeros_like(self.previous_vector)
             batch_ids = []
-            for i in tqdm(range(self.batch_size)):
-                metrics = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
-                # metrics = get_norm(self.previous_vector, self.weights).sort()
-                candidate = np.random.choice(metrics.indices[-1000:-4].cpu().numpy())
-
+            candidate = np.random.choice(45000)
+            norm = self.norms[candidate]
+            sims = norm * self.self_matrix[candidate]
+            for i in range(self.batch_size):
+                sorted_sims = sims.sort()
+                print(sorted_sims)
+                indices = sorted_sims.indices
+                candidate = np.random.choice(indices[:1000])
+                norm = self.norms[candidate]
+                sims += norm * self.self_matrix[candidate]
                 batch_ids.append(candidate + self.offset)
-                self.previous_vector += self.weights[candidate:candidate+1]
+
+            # for i in tqdm(range(self.batch_size)):
+            #     metrics = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
+            #     # metrics = get_norm(self.previous_vector, self.weights).sort()
+            #     candidate = np.random.choice(metrics.indices[4:1000].cpu().numpy())
+            #
+            #     batch_ids.append(candidate + self.offset)
+            #     self.previous_vector += self.weights[candidate:candidate+1]
             yield batch_ids
         #
         #
