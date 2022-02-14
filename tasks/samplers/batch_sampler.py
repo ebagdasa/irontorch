@@ -50,7 +50,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.drop_last = drop_last
         self.weights = weights.cpu()
         self.offset = offset
-        self.self_matrix = torch.load('weights/self_matrix.pt').cpu()
+        self.self_matrix = torch.load('weights/self_matrix16.pt').cpu()
         self.norms = torch.norm(self.weights, dim=1)
         self.weights_count = self.weights.shape[0]
         self.previous_vector = self.weights[1:2]
@@ -64,7 +64,6 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             sims = norm * self.self_matrix[candidate]
             for i in range(self.batch_size):
                 sorted_sims = sims.sort()
-                print(sorted_sims)
                 indices = sorted_sims.indices
                 candidate = np.random.choice(indices[:1000])
                 norm = self.norms[candidate]
