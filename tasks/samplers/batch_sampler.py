@@ -59,7 +59,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         norm = self.norms[candidate]
         sims = norm * self.self_matrix[candidate]
         for j in range(self.weights_count // self.batch_size):
-            candidate = sims.argmax() # pick in the same direction
+            candidate = sims.argmax().item()  # pick in the same direction
             batch_ids = [candidate]
             norm = self.norms[candidate]
             sims = norm * self.self_matrix[candidate].type(torch.float32)
