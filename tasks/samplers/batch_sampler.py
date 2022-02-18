@@ -53,21 +53,24 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.self_matrix = torch.load('weights/self_matrix16.pt').cpu()
         self.norms = torch.norm(self.weights, dim=1)
         self.weights_count = self.weights.shape[0]
-        self.previous_vector = self.weights[1:2]
 
     def __iter__(self) -> Iterator[List[int]]:
+        candidate = np.random.choice(45000)
+        norm = self.norms[candidate]
+        sims = norm * self.self_matrix[candidate]
         for j in range(self.weights_count // self.batch_size):
-            self.previous_vector = torch.zeros_like(self.previous_vector)
-            batch_ids = []
-            candidate = np.random.choice(45000)
+            candidate = sims.argmax() # pick in the same direction
+            batch_ids = [candidate]
             norm = self.norms[candidate]
-            sims = norm * self.self_matrix[candidate]
-            for i in range(self.batch_size):
-                sorted_sims = sims.sort()
-                indices = sorted_sims.indices
-                candidate = np.random.choice(indices[:1000])
+            sims = norm * self.self_matrix[candidate].type(torch.float32)
+            for i in range(self.batch_size-1):
+                probs = sims - torch.clamp(sims.min(), max=0.0)
+                probs /= probs.sum()
+                candidate = torch.multinomial(probs, 1).item()
+                # indices = sorted_sims.indices
+                # candidate = np.random.choice(indices[:1000])
                 norm = self.norms[candidate]
-                sims += norm * self.self_matrix[candidate]
+                sims += norm * self.self_matrix[candidate].type(torch.float32)
                 batch_ids.append(candidate + self.offset)
 
             # for i in tqdm(range(self.batch_size)):

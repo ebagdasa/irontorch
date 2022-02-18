@@ -1,5 +1,5 @@
 project: "cifar3"
-name: "norm_cos_sample"
+name: "norm_cos_new"
 dataset: "CIFAR10"
 
 task: Cifar10
