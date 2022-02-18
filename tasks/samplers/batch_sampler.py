@@ -35,7 +35,8 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
     """
 
-    def __init__(self, weights, batch_size: int, drop_last: bool, offset=5000) -> None:
+    def __init__(self, weights, batch_size: int, drop_last: bool, offset=5000,
+                 self_matrix='weights/self_matrix16.pt') -> None:
         # Since collections.abc.Iterable does not check for `__getitem__`, which
         # is one way for an object to be an iterable, we don't do an `isinstance`
         # check here.
@@ -50,7 +51,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.drop_last = drop_last
         self.weights = weights.cpu()
         self.offset = offset
-        self.self_matrix = torch.load('weights/self_matrix16.pt').cpu()
+        self.self_matrix = torch.load(self_matrix).cpu()
         self.norms = torch.norm(self.weights, dim=1)
         self.weights_count = self.weights.shape[0]
 
@@ -60,12 +61,13 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         sims = norm * self.self_matrix[candidate]
         for j in range(self.weights_count // self.batch_size):
             candidate = sims.argmax().item()  # pick in the same direction
-            batch_ids = [candidate]
+            batch_ids = [candidate+self.offset]
             norm = self.norms[candidate]
             sims = norm * self.self_matrix[candidate].type(torch.float32)
             for i in range(self.batch_size-1):
                 probs = sims - torch.clamp(sims.min(), max=0.0)
                 probs /= probs.sum()
+                # probs = torch.pow(probs, 2)
                 candidate = torch.multinomial(probs, 1).item()
                 # indices = sorted_sims.indices
                 # candidate = np.random.choice(indices[:1000])
