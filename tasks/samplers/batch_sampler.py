@@ -60,14 +60,14 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         norm = self.norms[candidate]
         sims = norm * self.self_matrix[candidate]
         for j in range(self.weights_count // self.batch_size):
-            candidate = np.random.choice(45000)  # pick in the same direction
+            candidate = sims.argmax().item() #np.random.choice(45000)  # pick in the same direction
             batch_ids = [candidate+self.offset]
             norm = self.norms[candidate]
             sims = norm * self.self_matrix[candidate].type(torch.float32)
             for i in range(self.batch_size-1):
-                probs = sims - torch.clamp(sims.min(), max=0.0)
+                probs = - sims + torch.clamp(sims.max(), min=0.0)
                 probs /= probs.sum()
-                probs = torch.pow(probs, 3)
+                probs = torch.pow(probs, 2)
                 candidate = torch.multinomial(probs, 1).item()
                 # indices = sorted_sims.indices
                 # candidate = np.random.choice(indices[:1000])
