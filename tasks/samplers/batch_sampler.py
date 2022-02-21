@@ -67,7 +67,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             for i in range(self.batch_size-1):
                 probs = torch.clamp(-sims, min=0.0)
                 probs /= probs.sum()
-                probs = torch.pow(probs, 1)
+                probs = torch.pow(probs, 0.1)
                 # probs = 1.0 * (self.norms <=10)
                 candidate = torch.multinomial(probs, 1).item()
                 # indices = sorted_sims.indices
