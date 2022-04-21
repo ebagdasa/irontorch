@@ -1,5 +1,5 @@
 project: "mnist_exps"
-name: "drop_97_prop_01_dp"
+name: "drop_97_prop_01"
 
 task: MNIST
 synthesizer: Pattern
@@ -11,7 +11,7 @@ grad_clip: 1
 #batch_clip: True
 #label_noise: 0.1
 
-opacus: True
+#opacus: True
 #saved_grads: True
 #compute_grads_only: True
 #max_batch_id: 100
