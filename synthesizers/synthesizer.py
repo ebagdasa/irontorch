@@ -4,7 +4,7 @@ import torch
 from tasks.batch import Batch
 from tasks.task import Task
 from utils.parameters import Params
-
+from numpy.random import Generator, PCG64
 
 class Synthesizer:
     params: Params
@@ -60,8 +60,8 @@ class Synthesizer:
     def get_indices(self, indices_arr, proportion, dataset, clean_label=None):
         dataset_len = len(dataset)
         if indices_arr is None:
-            np.random.seed(self.params.random_seed)
-            indices = np.random.choice(range(dataset_len),
+            rs = Generator(PCG64(self.params.random_seed))
+            indices = rs.choice(range(dataset_len),
                                        int(proportion * dataset_len),
                                        replace=False)
             indices_arr = torch.zeros(dataset_len, dtype=torch.int32)

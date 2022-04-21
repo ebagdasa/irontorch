@@ -1,5 +1,5 @@
-project: "runs"
-name: "01_clip_1_0.1"
+project: "mnist_exps"
+name: "drop_9_prop_01"
 
 task: MNIST
 synthesizer: Pattern
@@ -18,14 +18,16 @@ grad_clip: 1
 
 batch_size: 100
 test_batch_size: 100
-lr: 0.001
+lr: 0.1
 momentum: 0.9
 decay: 0.0000
 epochs: 6
 save_on_epochs: []
-optimizer: Adam
+optimizer: SGD
 log_interval: 100
 scheduler: False
+drop_label_proportion: 0.9
+drop_label: 5
 
 #recover_indices: /tmp/weights_0.01.pt
 #clamp_norms: 0.05
@@ -48,6 +50,7 @@ save_model: False
 log: True
 tb: False
 wandb: True
+plot_conf_matrix: True
 
 transform_train: True
 

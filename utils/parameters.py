@@ -22,7 +22,7 @@ class Params:
     current_time: str = None
     name: str = None
     commit: float = None
-    random_seed: int = None
+    random_seed: int = 0
     device: str = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # training params
     start_epoch: int = 1
@@ -81,6 +81,9 @@ class Params:
     clip_batch: float = None
     # Disable BatchNorm and Dropout
     switch_to_eval: float = None
+    drop_label_proportion: float = None
+    drop_label: int = None
+
 
     # nc evasion
     nc_p_norm: int = 1
