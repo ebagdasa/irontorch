@@ -1,5 +1,5 @@
 project: "mnist_exps"
-name: "drop_9_prop_01_dp"
+name: "drop_97_prop_01_dp"
 
 task: MNIST
 synthesizer: Pattern
@@ -26,7 +26,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 scheduler: False
-drop_label_proportion: 0.9
+drop_label_proportion: 0.97
 drop_label: 5
 
 #recover_indices: /tmp/weights_0.01.pt
