@@ -116,6 +116,7 @@ class Params:
     cut_grad_threshold: float = None
     clamp_norms: float = 0.0
     pow_weight: float = 1.0
+    pre_compute_grads: bool = False
 
     label_noise: float = None
 

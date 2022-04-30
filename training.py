@@ -62,8 +62,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     return
 
 
-def test(hlpr: Helper, epoch, backdoor=False):
-    model = hlpr.task.model
+def test(hlpr: Helper, model, backdoor=False):
     model.eval()
     hlpr.task.reset_metrics()
     test_loader = hlpr.task.test_attack_loader if backdoor else hlpr.task.test_loader
@@ -88,9 +87,9 @@ def run(hlpr):
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        acc = test(hlpr, epoch, backdoor=False)
+        acc = test(hlpr, hlpr.task.model, backdoor=False)
         hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        test(hlpr, epoch, backdoor=True)
+        test(hlpr, hlpr.task.model, backdoor=True)
         hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
         hlpr.save_model(hlpr.task.model, epoch, acc)
 
@@ -99,8 +98,8 @@ def fl_run(hlpr: Helper):
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         run_fl_round(hlpr, epoch)
-        metric = test(hlpr, epoch, backdoor=False)
-        test(hlpr, epoch, backdoor=True)
+        metric = test(hlpr, hlpr.task.model, backdoor=False)
+        test(hlpr, hlpr.task.model, backdoor=True)
 
         hlpr.save_model(hlpr.task.model, epoch, metric)
 
@@ -146,6 +145,9 @@ if __name__ == '__main__':
         params['log'] = params['save_model'] = params['wandb'] = False
 
     helper = Helper(params)
+    # clean_model = helper.task.train_model_for_sampling()
+    if helper.task.clean_model is not None:
+        test(helper, helper.task.clean_model)
 
     logger.warning(create_table(params))
 

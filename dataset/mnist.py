@@ -48,6 +48,7 @@ class MNIST(VisionDataset):
                '5 - five', '6 - six', '7 - seven', '8 - eight', '9 - nine']
     attacked_indices = None
     true_targets = None
+    grads = None
 
     @property
     def train_labels(self):

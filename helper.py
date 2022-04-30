@@ -51,6 +51,7 @@ class Helper:
             self.modify_datasets()
         self.task.test_attack_dataset = self.attack.attack_dataset(
                 self.task.test_attack_dataset, 1.0)
+        self.task.make_loaders()
         self.best_loss = float('inf')
 
     def make_task(self):
@@ -148,6 +149,9 @@ class Helper:
             self.task.train_dataset = self.attack.attack_dataset(self.task.train_dataset,
                                                              self.params.poisoning_proportion, None,
                                                              clean_label=self.params.clean_label)
+            # self.task.clean_dataset = self.attack.attack_dataset(self.task.clean_dataset,
+            #                                                  0.1, None,
+            #                                                  clean_label=self.params.clean_label)
 
         return
 

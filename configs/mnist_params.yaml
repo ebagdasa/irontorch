@@ -1,5 +1,5 @@
 project: "mnist_exps"
-name: "drop_97_prop_01"
+name: "grad"
 
 task: MNIST
 synthesizer: Pattern
@@ -13,7 +13,7 @@ grad_clip: 1
 
 #opacus: True
 #saved_grads: True
-#compute_grads_only: True
+compute_grads_only: True
 #max_batch_id: 100
 
 batch_size: 100
@@ -29,13 +29,15 @@ scheduler: False
 drop_label_proportion: 0.97
 drop_label: 5
 
+pre_compute_grads: True
+cosine_batching: True
+
 #recover_indices: /tmp/weights_0.01.pt
-#clamp_norms: 0.05
-#pow_weight: 4
+clamp_norms: 10
+pow_weight: 4
 #cut_grad_threshold: 30
 subset_training:
-  type: train
-  part: 1000
+  part: 5000
 
 poisoning_proportion: 0.01
 backdoor_label: 8
@@ -47,9 +49,9 @@ loss_balance: MGDA
 mgda_normalize: loss
 
 save_model: False
-log: True
+log: False
 tb: False
-wandb: True
+wandb: False
 plot_conf_matrix: True
 
 transform_train: True

@@ -3,8 +3,10 @@ import torchvision
 from torchvision.transforms import transforms
 import dataset.mnist as mnist_dataset
 from models.simple import SimpleNet
+from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 import torch
+from copy import copy
 
 from typing import Iterator, Optional, Sequence, List, TypeVar, Generic, Sized
 
@@ -28,6 +30,19 @@ class MNISTTask(Task):
             train=True,
             download=True,
             transform=transform_train)
+
+        if self.params.subset_training is not None:
+            self.clean_dataset = copy(self.train_dataset)
+            self.clean_dataset.data = self.clean_dataset.data[:self.params.subset_training['part']]
+            self.clean_dataset.targets = self.clean_dataset.targets[:self.params.subset_training['part']]
+            self.clean_dataset.true_targets = self.clean_dataset.true_targets[
+                                      :self.params.subset_training['part']]
+            self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
+            self.train_dataset.targets = self.train_dataset.targets[
+                                      self.params.subset_training['part']:]
+            self.train_dataset.true_targets = self.train_dataset.true_targets[
+                                      self.params.subset_training['part']:]
+
         if self.params.drop_label_proportion is not None and \
               self.params.drop_label is not None:
             non_label_indices = (self.train_dataset.true_targets != self.params.drop_label)
@@ -42,22 +57,11 @@ class MNISTTask(Task):
             self.train_dataset.targets = self.train_dataset.targets[keep_indices]
             self.train_dataset.true_targets = self.train_dataset.true_targets[keep_indices]
 
-        sampler = self.get_sampler()
-
-        self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                                  batch_size=self.params.batch_size,
-                                                  shuffle=False,
-                                                  sampler=sampler,
-                                                  num_workers=0)
         self.test_dataset = mnist_dataset.FashionMNIST(
             root=self.params.data_path,
             train=False,
             download=True,
             transform=transform_test)
-        self.test_loader = torch_data.DataLoader(self.test_dataset,
-                                                 batch_size=100,
-                                                 shuffle=False,
-                                                 num_workers=0)
 
         self.test_attack_dataset = mnist_dataset.FashionMNIST(
             root=self.params.data_path,
@@ -65,12 +69,32 @@ class MNISTTask(Task):
             download=True,
             transform=transform_test)
 
+        self.classes = self.train_dataset.classes
+        return True
+
+    def make_loaders(self):
+        sampler = self.get_sampler()
+        if self.params.cosine_batching:
+            batcher = CosineBatchSampler(train_dataset=self.train_dataset,
+                                         batch_size=self.params.batch_size,
+                                         drop_last=False)
+            self.train_loader = torch_data.DataLoader(self.train_dataset,
+                                           batch_sampler=batcher, num_workers=0)
+        else:
+            self.train_loader = torch_data.DataLoader(self.train_dataset,
+                                                  batch_size=self.params.batch_size,
+                                                  shuffle=False,
+                                                  sampler=sampler,
+                                                  num_workers=0)
+        self.test_loader = torch_data.DataLoader(self.test_dataset,
+                                                 batch_size=100,
+                                                 shuffle=False,
+                                                 num_workers=0)
+
         self.test_attack_loader = torch_data.DataLoader(self.test_attack_dataset,
                                                  batch_size=100,
                                                  shuffle=False,
                                                  num_workers=0)
-        self.classes = self.train_dataset.classes
-        return True
 
     def build_model(self):
         return SimpleNet(num_classes=len(self.classes))
