@@ -49,6 +49,7 @@ class CIFAR10(VisionDataset):
     }
     attacked_indices = None
     true_targets = None
+    grads = None
 
     def __init__(
             self,

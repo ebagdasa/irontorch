@@ -69,32 +69,20 @@ class MNISTTask(Task):
             download=True,
             transform=transform_test)
 
-        self.classes = self.train_dataset.classes
-        return True
-
-    def make_loaders(self):
-        sampler = self.get_sampler()
-        if self.params.cosine_batching:
-            batcher = CosineBatchSampler(train_dataset=self.train_dataset,
-                                         batch_size=self.params.batch_size,
-                                         drop_last=False)
-            self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                           batch_sampler=batcher, num_workers=0)
-        else:
-            self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                                  batch_size=self.params.batch_size,
-                                                  shuffle=False,
-                                                  sampler=sampler,
-                                                  num_workers=0)
         self.test_loader = torch_data.DataLoader(self.test_dataset,
                                                  batch_size=100,
                                                  shuffle=False,
                                                  num_workers=0)
 
-        self.test_attack_loader = torch_data.DataLoader(self.test_attack_dataset,
-                                                 batch_size=100,
-                                                 shuffle=False,
-                                                 num_workers=0)
+        self.test_attack_loader = torch_data.DataLoader(
+            self.test_attack_dataset,
+            batch_size=100,
+            shuffle=False,
+            num_workers=0)
+
+        self.classes = self.train_dataset.classes
+        return True
+
 
     def build_model(self):
         return SimpleNet(num_classes=len(self.classes))

@@ -19,6 +19,7 @@ from metrics.accuracy_metric import AccuracyMetric
 from metrics.metric import Metric
 from metrics.test_loss_metric import TestLossMetric
 from tasks.batch import Batch
+from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.samplers.subseq_sampler import SubSequentialSampler
 from tasks.samplers.subseq_sampler import SubSequentialSampler
 from utils.parameters import Params
@@ -57,6 +58,9 @@ class Task:
     def init_task(self):
         self.load_data()
         self.model = self.build_model()
+        if self.params.fix_opacus_model and not ModuleValidator.is_valid(self.model):
+            logger.error(f'Model cannot be privatized. Fixing...')
+            self.model = ModuleValidator.fix(self.model)
         self.resume_model()
 
         self.optimizer = self.make_optimizer()
@@ -82,7 +86,31 @@ class Task:
         return nn.CrossEntropyLoss(reduction='none')
 
     def make_loaders(self):
-        raise NotImplemented
+
+        if self.params.pre_compute_grads:
+            model = self.train_model_for_sampling()
+            self.test_sampling_model(model)
+            self.test_sampling_model(model, backdoor=True)
+            self.create_grads(model)
+
+            if self.params.cosine_batching:
+                batcher = CosineBatchSampler(train_dataset=self.train_dataset,
+                                         batch_size=self.params.batch_size,
+                                         drop_last=False)
+                self.train_loader = torch_data.DataLoader(self.train_dataset,
+                                           batch_sampler=batcher, num_workers=0)
+            else:
+                sampler = self.get_sampler()
+                self.train_loader = torch_data.DataLoader(self.train_dataset,
+                                                          batch_size=self.params.batch_size,
+                                                          shuffle=False,
+                                                          sampler=sampler,
+                                                          num_workers=0)
+        else:
+            self.train_loader = torch_data.DataLoader(self.train_dataset,
+                                                  batch_size=self.params.batch_size,
+                                                  shuffle=True,
+                                                  num_workers=0)
 
     def make_optimizer(self, model=None) -> Optimizer:
         if model is None:
@@ -125,7 +153,7 @@ class Task:
                 max_grad_norm=self.params.grad_clip,
                 clipping='flat',
             )
-            self.optimizer.compute_grads_only = self.params.compute_grads_only
+            # self.optimizer.compute_grads_only = self.params.compute_grads_only
             logger.warning("Privatization is complete.")
 
     def resume_model(self):
@@ -201,21 +229,52 @@ class Task:
             res = res[0]
         return res
 
-    def train_model_for_sampling(self):
-        privacy_engine = PrivacyEngine(secure_mode=False)
-        model = SimpleNet(10).cuda()
-        optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
+    def train_model_for_sampling(self, test_every_epoch=False):
+
+        model = self.model
         data_loader = torch.utils.data.DataLoader(self.clean_dataset,
                                                   batch_size=self.params.batch_size,
                                                   shuffle=True,
                                                   num_workers=0
                                                   )
+        model.train()
+        for epoch in range(self.params.sampling_model_epochs):
+            for x, y, indices, attacked in tqdm(data_loader):
+                self.optimizer.zero_grad(True)
+                output = model(x.cuda())
+                loss = self.criterion(output, y.cuda()).mean()
+                loss.backward()
+                self.optimizer.step()
+            if test_every_epoch:
+                self.test_sampling_model(model, backdoor=False)
+        return model
+
+    def test_sampling_model(self, model, backdoor=False):
+        metric = AccuracyMetric()
+        model.eval()
+        test_loader = self.test_attack_loader if backdoor else self.test_loader
+        with torch.no_grad():
+            for i, data in tqdm(enumerate(test_loader)):
+                batch = self.get_batch(i, data)
+                outputs = model(batch.inputs)
+                metric.accumulate_on_batch(outputs=outputs,
+                                             labels=batch.labels)
+        prefix = 'Backdoor' if backdoor else 'Normal'
+        logger.error(f'Sampling Model: {prefix} {metric}')
+
+        return
+
+    def create_grads(self, model):
+        model.train()
+        privacy_engine = PrivacyEngine(secure_mode=False)
+
         train_data_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                         batch_size=self.params.batch_size,
                                                         shuffle=False,
                                                         num_workers=0
                                                         )
 
+        optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
         model, opacus_optimizer, _ = privacy_engine.make_private(
             module=model,
             optimizer=optimizer,
@@ -224,123 +283,56 @@ class Task:
             max_grad_norm=10000,
             clipping='flat',
         )
-        model.train()
-        for epoch in range(3):
-            for x, y, indices, attacked in data_loader:
-                opacus_optimizer.zero_grad(True)
-                output = model(x.cuda())
-                loss = self.criterion(output, y.cuda()).mean()
-                loss.backward()
-                opacus_optimizer.step()
-        self.clean_model = model
-        opacus_optimizer.compute_grads_only = self.params.compute_grads_only
+        model = model.to(self.params.device)
+        self.test_sampling_model(model)
+        opacus_optimizer.compute_grads_only = True
         for i, (x, y, indices, attacked) in enumerate(tqdm(train_data_loader)):
             opacus_optimizer.zero_grad(True)
             output = model(x.cuda())
             loss = self.criterion(output, y.cuda()).mean()
-            if self.params.compute_grads_only:
-                opacus_optimizer.batch_idx = i
-                opacus_optimizer.data_accum[i] = indices
+            opacus_optimizer.batch_idx = i
+            opacus_optimizer.data_accum[i] = indices
             loss.backward()
             opacus_optimizer.step()
-
         grad_shape = list(opacus_optimizer.grad_accum[0].shape)
         grad_shape[0] = len(self.train_dataset)
         self.train_dataset.grads = torch.zeros(grad_shape)
         for i, batch in opacus_optimizer.grad_accum.items():
             indices = opacus_optimizer.data_accum[i]
             self.train_dataset.grads[indices] = batch
+        self.model = model.to_standard_module()
+
         return
 
     def get_sampler(self):
-        # if self.params.recover_indices:
-        #     indices_results = torch.load(self.params.recover_indices)
-        #     norms = indices_results['norms']
-        #     if self.params.poisoning_proportion == 0.0:
-        #         weights = torch.ones_like(norms)
-        #         weights[indices_results['indices'].nonzero()] = 0.0
-        #     else:
-        #         weights = torch.pow(torch.clamp(1/norms, max=self.params.clamp_norms),
-        #                             self.params.pow_weight)
-        #         # weights = torch.ones_like(norms)
-        #         # weights[indices_results['indices'].nonzero()] = 0.1
-        #         if self.params.cut_grad_threshold:
-        #             weights[indices_results['norms'] > self.params.cut_grad_threshold] = 0.0
-        #             weights[indices_results[
-        #                         'norms'] <= self.params.cut_grad_threshold] = 1.0
-        #             print(f'Shape: {weights.shape}, sum: {weights.sum()}')
-        # else:
-        if self.params.pre_compute_grads:
-            self.train_model_for_sampling()
-            grad_norms = torch.norm(self.train_dataset.grads, dim=0) + 1e-5
-            weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
-                                             self.params.pow_weight)
-            weights = weights / weights.sum()
-            if self.params.wandb:
-                data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                        zip(grad_norms, weights,
-                            self.train_dataset.attacked_indices)]
-                table = wandb.Table(data=data,
-                                    columns=["norms", "weights", "color"])
-                wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
-                                                               "weights", 'All Data')})
-                data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                        zip(grad_norms, weights,
-                            self.train_dataset.attacked_indices) if z == 1]
-                table = wandb.Table(data=data,
-                                    columns=["norms", "weights", "color"])
-                wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
-                                                               "weights", 'Backdoors')})
-                data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                        zip(grad_norms, weights,
-                            self.train_dataset.targets) if z == self.params.drop_label]
-                table = wandb.Table(data=data,
-                                    columns=["norms", "weights", "color"])
-                wandb.log({'scatter-plot3': wandb.plot.scatter(table, "norms",
-                                                               "weights", 'Outliers')})
-        else:
-            weights = torch.ones(len(self.train_dataset))
-            weights = weights / weights.sum()
-
-
-
-        # if self.params.subset_training is not None:
-        #     if self.params.subset_training.get('type', None) == 'init':
-        #         weights[self.params.subset_training['part']:] = 0.0
-        #         train_len = self.params.subset_training['part']
-        #     elif self.params.subset_training.get('type', None) == 'train':
-        #         weights[:self.params.subset_training['part']] = 0.0
-        #         train_len = weights.shape[0] - self.params.subset_training['part']
-        #     else:
-        #         raise ValueError('Specify subset_training.')
-        # else:
+        grad_norms = torch.norm(self.train_dataset.grads, dim=0) + 1e-5
+        weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
+                                         self.params.pow_weight)
+        weights = weights / weights.sum()
+        if self.params.wandb:
+            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+                    zip(grad_norms, weights,
+                        self.train_dataset.attacked_indices)]
+            table = wandb.Table(data=data,
+                                columns=["norms", "weights", "color"])
+            wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
+                                                           "weights", 'All Data')})
+            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+                    zip(grad_norms, weights,
+                        self.train_dataset.attacked_indices) if z == 1]
+            table = wandb.Table(data=data,
+                                columns=["norms", "weights", "color"])
+            wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
+                                                           "weights", 'Backdoors')})
+            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+                    zip(grad_norms, weights,
+                        self.train_dataset.targets) if z == self.params.drop_label]
+            table = wandb.Table(data=data,
+                                columns=["norms", "weights", "color"])
+            wandb.log({'scatter-plot3': wandb.plot.scatter(table, "norms",
+                                                           "weights", 'Outliers')})
         train_len = weights.shape[0]
-
-        # weights = weights / weights.sum()
-        # if self.params.wandb and self.params.recover_indices:
-        #     data = [[x, y, z] for (x, y, z) in
-        #             zip(norms, train_len * weights,
-        #                 indices_results['indices'])]
-        #     table = wandb.Table(data=data,
-        #                         columns=["norms", "weights", "color"])
-        #     wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
-        #                                                    "weights")})
-        #     data = [[x, y, z] for (x, y, z) in
-        #             zip(norms, weights.shape[0] * weights,
-        #                 indices_results['indices']) if z == 1]
-        #     table = wandb.Table(data=data,
-        #                         columns=["norms", "weights", "color"])
-        #     wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
-        #                                                    "weights")})
-        #     del indices_results
-
         sampler = torch_data.WeightedRandomSampler(weights, train_len)
-        # sampler = torch.utils.data.RandomSampler(self.train_dataset,
-        #                                          replacement=True,
-        #                                          num_samples=len(self.train_dataset))
-        # if self.params.compute_grads_only and self.params.subset_training:
-        #     indices = weights.nonzero().view(-1).tolist()
-        #     sampler = SubSequentialSampler(self.train_dataset, indices)
 
         return sampler
 

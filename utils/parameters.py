@@ -59,7 +59,6 @@ class Params:
     synthesizer: str = 'pattern'
     backdoor_dynamic_position: bool = False
     clean_label: bool = False
-    cosine_batching: bool = False
 
     # losses to balance: `normal`, `backdoor`, `neural_cleanse`, `sentinet`,
     # `backdoor_multi`.
@@ -111,16 +110,18 @@ class Params:
     opacus: bool = False
     fix_opacus_model: bool = False
     saved_grads: bool = False
-    compute_grads_only: bool = None
+    # compute_grads_only: bool = None
     recover_indices: str = None
     cut_grad_threshold: float = None
     clamp_norms: float = 0.0
     pow_weight: float = 1.0
-    pre_compute_grads: bool = False
 
     label_noise: float = None
 
     subset_training: dict = None
+    pre_compute_grads: bool = False
+    cosine_batching: bool = False
+    sampling_model_epochs: int = 1
 
     # gradient shaping/DP params
     grad_clip: float = None

@@ -148,6 +148,7 @@ if __name__ == '__main__':
     # clean_model = helper.task.train_model_for_sampling()
     if helper.task.clean_model is not None:
         test(helper, helper.task.clean_model)
+        test(helper, helper.task.model)
 
     logger.warning(create_table(params))
 
