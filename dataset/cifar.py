@@ -94,6 +94,7 @@ class CIFAR10(VisionDataset):
                     self.targets.extend(entry['fine_labels'])
                     self.true_targets.extend(entry['fine_labels'])
         self.true_targets = torch.tensor(self.true_targets)
+        self.targets = torch.tensor(self.targets)
         self.attacked_indices = torch.zeros_like(self.true_targets)
         self.data = np.vstack(self.data).reshape(-1, 3, 32, 32)
         self.data = self.data.transpose((0, 2, 3, 1))  # convert to HWC
