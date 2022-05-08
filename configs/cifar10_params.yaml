@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "grads_07_p001_d001"
+name: "grads_07_p001_d005"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -50,7 +50,7 @@ pre_compute_grads: True
 cosine_batching: True
 sampling_model_epochs: 10
 gradient_layer: 'fc.weight'
-de_sample: 0.001
+de_sample: 0.005
   #'conv1.weight'
   #'fc.weight'
 
