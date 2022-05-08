@@ -122,6 +122,8 @@ class Params:
     pre_compute_grads: bool = False
     cosine_batching: bool = False
     sampling_model_epochs: int = 1
+    gradient_layer: str = None
+    compute_grads_from_resumed_model: str = None
 
     # gradient shaping/DP params
     grad_clip: float = None

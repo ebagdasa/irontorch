@@ -58,76 +58,43 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.dataset = train_dataset
         self.norms = self.dataset.grads.norm(dim=1)
         self.self_matrix = sim_matrix(self.dataset.grads, self.dataset.grads)
+        self.probs = ((self.self_matrix>0.7) * 1.0).sum(dim=0)
 
     def cos_sim_matrix(self):
         return
 
+    def update_probs(self):
+        self.probs = ((self.self_matrix > 0.7) * 1.0).sum(dim=0)
+        self.probs /= (torch.clamp(self.norms, min=1))
+
+
     def __iter__(self) -> Iterator[List[int]]:
-        choosing_indices = torch.ones_like(self.dataset.attacked_indices)
-        candidate = np.random.choice(choosing_indices.nonzero().view(-1))
-        choosing_indices[candidate] = 0
-        norm = self.norms[candidate]
-        sims = norm * self.self_matrix[candidate].type(torch.float32)
+        choosing_indices = torch.ones_like(self.dataset.attacked_indices, dtype=torch.float32)
         attacked_indices = defaultdict(int)
         non_attacked_indices = defaultdict(int)
         for j in range(len(self.dataset) // self.batch_size):
-            # candidate = np.random.choice(len(self.dataset))  # pick in the same direction
-            candidate = np.random.choice(choosing_indices.nonzero().view(-1))
-            if self.dataset.attacked_indices[candidate] == 1:
-                attacked_indices[candidate] += 1
-            else:
-                non_attacked_indices[candidate] += 1
-            batch_ids = [candidate]
-            sims += norm * self.self_matrix[candidate].type(torch.float32)
-            # norm = self.norms[candidate]
-            # sims += norm * self.self_matrix[candidate].type(torch.float32)
+            batch_ids = []
             for i in range(self.batch_size):
-                probs = torch.clamp(-sims, min=0.0)
-                # probs = (sims < 0) * 1.0
-                # probs = torch.pow(probs, 10)
-                probs /= probs.sum()
-                probs *= choosing_indices
-                if probs.sum() == 0:
+                if choosing_indices.sum() == 0:
                     print(f'sampled at least once all available at {j}')
                     print(
                         f'Stats: {len(attacked_indices)}/{len(non_attacked_indices)}={len(attacked_indices) / len(non_attacked_indices):.5f} ')
                     print(
                         f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
                     return
-                # probs = 1.0 * (self.norms <=100)
-                candidate = torch.multinomial(probs, 1).item()
-                choosing_indices[candidate] = 0
+                candidate = torch.multinomial(self.probs * choosing_indices, 1).item()
+                choosing_indices[candidate] *= 0.005
                 if self.dataset.attacked_indices[candidate] == 1:
                     attacked_indices[candidate] += 1
                 else:
                     non_attacked_indices[candidate] += 1
-                # indices = sorted_sims.indices
-                # candidate = np.random.choice(indices[:1000])
-                norm = self.norms[candidate]
-                sims += norm * self.self_matrix[candidate].type(torch.float32)
                 batch_ids.append(candidate)
-            # print(self.dataset.grads[batch_ids].norm().item())
-            # for i in tqdm(range(self.batch_size)):
-            #     metrics = sim_matrix(self.previous_vector, self.weights).squeeze().sort()
-            #     # metrics = get_norm(self.previous_vector, self.weights).sort()
-            #     candidate = np.random.choice(metrics.indices[4:1000].cpu().numpy())
-            #
-            #     batch_ids.append(candidate + self.offset)
-            #     self.previous_vector += self.weights[candidate:candidate+1]
             yield batch_ids
         print(
-            f'Stats: {len(attacked_indices)}/{len(non_attacked_indices)}={len(attacked_indices) / len(non_attacked_indices):.2f} ')
+            f'Stats: {len(attacked_indices)}/{len(non_attacked_indices)}={len(attacked_indices) / len(non_attacked_indices):.5f} ')
         print(
-            f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.2f}')
-        #
-        #
-        # for idx in self.sampler:
-        #     batch.append(idx)
-        #     if len(batch) == self.batch_size:
-        #         yield batch
-        #         batch = []
-        # if len(batch) > 0 and not self.drop_last:
-        #     yield batch
+            f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
+
 
     def __len__(self) -> int:
         # Can only be called if self.sampler has __len__ implemented

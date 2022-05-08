@@ -1,5 +1,5 @@
 project: "mnist_exps"
-name: "dp_001_10k_10_01"
+name: "a"
 
 task: MNIST
 synthesizer: Pattern
@@ -20,23 +20,25 @@ test_batch_size: 100
 lr: 0.1
 momentum: 0.9
 decay: 0.0000
-epochs: 6
+epochs: 10
 save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 scheduler: False
-drop_label_proportion: 0.97
+drop_label_proportion: 0.99
 drop_label: 5
 
 pre_compute_grads: True
 cosine_batching: True
+sampling_model_epochs: 5
+gradient_layer: fc2.weight
 
 #recover_indices: /tmp/weights_0.01.pt
 clamp_norms: 10
 pow_weight: 4
 #cut_grad_threshold: 30
 subset_training:
-  part: 10000
+  part: 5000
 
 poisoning_proportion: 0.001
 backdoor_label: 8
@@ -48,8 +50,8 @@ loss_balance: MGDA
 mgda_normalize: loss
 
 save_model: False
-#log: True
-#wandb: True
+log: True
+wandb: True
 tb: False
 plot_conf_matrix: True
 

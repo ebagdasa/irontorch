@@ -265,43 +265,24 @@ class Task:
         return
 
     def create_grads(self, model):
-        model.train()
-        privacy_engine = PrivacyEngine(secure_mode=False)
-
         train_data_loader = torch.utils.data.DataLoader(self.train_dataset,
                                                         batch_size=self.params.batch_size,
                                                         shuffle=False,
                                                         num_workers=0
                                                         )
-
-        optimizer = torch.optim.SGD(model.parameters(), lr=0.1)
-        model, opacus_optimizer, _ = privacy_engine.make_private(
-            module=model,
-            optimizer=optimizer,
-            data_loader=train_data_loader,
-            noise_multiplier=0,
-            max_grad_norm=10000,
-            clipping='flat',
-        )
-        model = model.to(self.params.device)
-        self.test_sampling_model(model)
-        opacus_optimizer.compute_grads_only = True
+        model.eval()
+        grad_shape = None
+        param_to_follow = None
+        for name, param in model.named_parameters():
+            if name == self.params.gradient_layer:
+                param_to_follow = param
+                grad_shape = param.data.view(-1).shape[0]
+        self.train_dataset.grads = torch.zeros([len(self.train_dataset), grad_shape], device='cpu')
         for i, (x, y, indices, attacked) in enumerate(tqdm(train_data_loader)):
-            opacus_optimizer.zero_grad(True)
             output = model(x.cuda())
-            loss = self.criterion(output, y.cuda()).mean()
-            opacus_optimizer.batch_idx = i
-            opacus_optimizer.data_accum[i] = indices
-            loss.backward()
-            opacus_optimizer.step()
-        grad_shape = list(opacus_optimizer.grad_accum[0].shape)
-        grad_shape[0] = len(self.train_dataset)
-        self.train_dataset.grads = torch.zeros(grad_shape)
-        for i, batch in opacus_optimizer.grad_accum.items():
-            indices = opacus_optimizer.data_accum[i]
-            self.train_dataset.grads[indices] = batch
-        self.model = model.to_standard_module()
-
+            loss = self.criterion(output, y.cuda())
+            for j, z in enumerate(loss):
+                self.train_dataset.grads[indices[j]] = torch.autograd.grad(z, param_to_follow, retain_graph=True)[0].cpu().view(-1)
         return
 
     def get_sampler(self):

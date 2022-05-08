@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "grads_01_5k"
+name: "baseline_attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -7,12 +7,12 @@ synthesizer: Pattern
 
 batch_size: 128
 test_batch_size: 100
-lr: 0.1
+lr: 0.001
 momentum: 0.9
 decay: 0.0005
-epochs: 200
+epochs: 50
 save_on_epochs: []
-optimizer: SGD
+optimizer: Adam
 log_interval: 100
 
 #opacus: True
@@ -22,19 +22,20 @@ grad_sigma: 0.05
 grad_clip: 1
 #batch_clip: True
 
-#resume_model: model_Cifar10_cifar_init_5k/model_last.pt.tar
+#resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
+#compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 clamp_norms: 0.1
 pow_weight: 2
 #cut_grad_threshold: 7.5
 
-#pretrained: True
+pretrained: True
 
 scheduler: True
 scheduler_milestones: [150, 225]
 
-poisoning_proportion: 0.01
+poisoning_proportion: 0.001
 backdoor_label: 8
 backdoor: True
 
@@ -42,9 +43,12 @@ loss_balance: none
 mgda_normalize: loss+
 
 #fix_opacus_model: True
-pre_compute_grads: True
+#pre_compute_grads: True
 #cosine_batching: True
-sampling_model_epochs: 20
+#sampling_model_epochs: 10
+#gradient_layer: 'fc.weight'
+  #'conv1.weight'
+  #'fc.weight'
 
 #save_model: True
 #tb: False
