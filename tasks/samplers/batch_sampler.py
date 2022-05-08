@@ -42,7 +42,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
     """
 
-    def __init__(self, train_dataset, batch_size, drop_last) -> None:
+    def __init__(self, train_dataset, batch_size, drop_last, params) -> None:
         # Since collections.abc.Iterable does not check for `__getitem__`, which
         # is one way for an object to be an iterable, we don't do an `isinstance`
         # check here.
@@ -59,6 +59,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.norms = self.dataset.grads.norm(dim=1)
         self.self_matrix = sim_matrix(self.dataset.grads, self.dataset.grads)
         self.probs = ((self.self_matrix>0.7) * 1.0).sum(dim=0)
+        self.params = params
 
     def cos_sim_matrix(self):
         return
@@ -83,7 +84,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                         f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
                     return
                 candidate = torch.multinomial(self.probs * choosing_indices, 1).item()
-                choosing_indices[candidate] *= 0.001
+                choosing_indices[candidate] *= self.params.de_sample
                 if self.dataset.attacked_indices[candidate] == 1:
                     attacked_indices[candidate] += 1
                 else:

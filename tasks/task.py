@@ -96,7 +96,7 @@ class Task:
             if self.params.cosine_batching:
                 batcher = CosineBatchSampler(train_dataset=self.train_dataset,
                                          batch_size=self.params.batch_size,
-                                         drop_last=False)
+                                         drop_last=False, params=self.params)
                 self.train_loader = torch_data.DataLoader(self.train_dataset,
                                            batch_sampler=batcher, num_workers=0)
             else:

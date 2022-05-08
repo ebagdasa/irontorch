@@ -46,10 +46,11 @@ loss_balance: none
 mgda_normalize: loss+
 
 #fix_opacus_model: True
-#pre_compute_grads: True
-#cosine_batching: True
-#sampling_model_epochs: 10
-#gradient_layer: 'fc.weight'
+pre_compute_grads: True
+cosine_batching: True
+sampling_model_epochs: 10
+gradient_layer: 'fc.weight'
+de_sample: 0.001
   #'conv1.weight'
   #'fc.weight'
 
