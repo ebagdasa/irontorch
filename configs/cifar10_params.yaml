@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "baseline_no_attack"
+name: "grads_07_p001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -35,9 +35,9 @@ pretrained: True
 scheduler: True
 scheduler_milestones: [150, 225]
 
-#poisoning_proportion: 0.001
-#backdoor_label: 8
-#backdoor: True
+poisoning_proportion: 0.001
+backdoor_label: 8
+backdoor: True
 
 drop_label_proportion: 0.97
 drop_label: 5
