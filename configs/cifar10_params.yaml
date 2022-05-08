@@ -39,6 +39,9 @@ poisoning_proportion: 0.001
 backdoor_label: 8
 backdoor: True
 
+drop_label_proportion: 0.97
+drop_label: 5
+
 loss_balance: none
 mgda_normalize: loss+
 
