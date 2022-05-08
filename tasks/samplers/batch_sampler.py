@@ -83,7 +83,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                         f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
                     return
                 candidate = torch.multinomial(self.probs * choosing_indices, 1).item()
-                choosing_indices[candidate] *= 0.005
+                choosing_indices[candidate] *= 0.001
                 if self.dataset.attacked_indices[candidate] == 1:
                     attacked_indices[candidate] += 1
                 else:
