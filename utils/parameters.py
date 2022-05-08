@@ -125,6 +125,7 @@ class Params:
     gradient_layer: str = None
     compute_grads_from_resumed_model: str = None
     de_sample: float = 0
+    cosine_bound: float = 0.0
 
     # gradient shaping/DP params
     grad_clip: float = None
