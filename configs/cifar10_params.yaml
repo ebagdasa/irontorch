@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "ds001_cb7_cp1"
+name: "dp_1_001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,7 +15,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-#opacus: True
+opacus: True
 #saved_grads: True
 #max_batch_id: 100
 grad_sigma: 0.001
@@ -45,13 +45,13 @@ drop_label: 5
 loss_balance: none
 mgda_normalize: loss+
 
-pre_compute_grads: True
-sampling_model_epochs: 10
-gradient_layer: 'fc.weight'
-cosine_batching: True
-de_sample: 0.001
-cosine_bound: 0.7
-clamp_probs: 1.0
+#pre_compute_grads: True
+#sampling_model_epochs: 10
+#gradient_layer: 'fc.weight'
+#cosine_batching: True
+#de_sample: 0.001
+#cosine_bound: 0.7
+#clamp_probs: 1.0
 
 #add_images_to_clean: True
 
