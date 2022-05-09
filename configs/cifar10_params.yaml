@@ -32,7 +32,7 @@ grad_clip: 1
 
 pretrained: True
 
-scheduler: True
+scheduler: False
 scheduler_milestones: [150, 225]
 
 #poisoning_proportion: 0.001
