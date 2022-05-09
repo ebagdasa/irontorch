@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "bc_gc5_gs001_ds01_cb7_cp1"
+name: "bc_gc1_gs001_ds01_cb7_cp1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -19,7 +19,7 @@ log_interval: 100
 #saved_grads: True
 #max_batch_id: 100
 grad_sigma: 0.001
-grad_clip: 5
+grad_clip: 1
 batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
