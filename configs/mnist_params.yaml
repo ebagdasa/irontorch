@@ -38,7 +38,7 @@ clamp_norms: 10
 pow_weight: 4
 #cut_grad_threshold: 30
 subset_training:
-  part: 5000
+  part: 1000
 
 poisoning_proportion: 0.001
 backdoor_label: 8

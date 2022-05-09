@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "5k_p001_ds005_cb5"
+name: "attack_09"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -39,18 +39,18 @@ poisoning_proportion: 0.001
 backdoor_label: 8
 backdoor: True
 
-drop_label_proportion: 0.97
+drop_label_proportion: 0.9
 drop_label: 5
 
 loss_balance: none
 mgda_normalize: loss+
 
-pre_compute_grads: True
-cosine_batching: True
-sampling_model_epochs: 10
-gradient_layer: 'fc.weight'
-de_sample: 0.005
-cosine_bound: 0.5
+#pre_compute_grads: True
+#cosine_batching: True
+#sampling_model_epochs: 10
+#gradient_layer: 'fc.weight'
+#de_sample: 0.005
+#cosine_bound: 0.5
   #'conv1.weight'
   #'fc.weight'
 
