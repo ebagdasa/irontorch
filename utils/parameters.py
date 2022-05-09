@@ -74,6 +74,7 @@ class Params:
 
     # relabel images with poison_number
     poison_images: List[int] = None
+    add_images_to_clean: bool = False
     poison_images_test: List[int] = None
     # optimizations:
     alternating_attack: float = None
@@ -126,6 +127,7 @@ class Params:
     compute_grads_from_resumed_model: str = None
     de_sample: float = 0
     cosine_bound: float = 0.0
+    clamp_probs: float = 1.0
 
     # gradient shaping/DP params
     grad_clip: float = None

@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "no_attack_09"
+name: "ds1_cb7_cp_1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -35,9 +35,9 @@ pretrained: True
 scheduler: True
 scheduler_milestones: [150, 225]
 
-#poisoning_proportion: 0.001
-#backdoor_label: 8
-#backdoor: True
+poisoning_proportion: 0.001
+backdoor_label: 8
+backdoor: True
 
 drop_label_proportion: 0.9
 drop_label: 5
@@ -45,12 +45,15 @@ drop_label: 5
 loss_balance: none
 mgda_normalize: loss+
 
-#pre_compute_grads: True
-#cosine_batching: True
-#sampling_model_epochs: 10
-#gradient_layer: 'fc.weight'
-#de_sample: 0.005
-#cosine_bound: 0.5
+pre_compute_grads: True
+cosine_batching: True
+sampling_model_epochs: 10
+gradient_layer: 'fc.weight'
+de_sample: 0.1
+cosine_bound: 0.7
+clamp_probs: 1.0
+#add_images_to_clean: True
+
   #'conv1.weight'
   #'fc.weight'
 
@@ -67,3 +70,35 @@ subset_training:
 
 loss_tasks:
   - normal
+
+poison_images:
+  - 389
+  - 561
+  - 874
+  - 1605
+  - 3378
+  - 3678
+  - 4528
+  - 9744
+  - 19165
+  - 19500
+  - 21422
+  - 22984
+  - 32941
+  - 34287
+  - 34385
+  - 36005
+  - 37365
+  - 37533
+  - 38658
+  - 38735
+  - 39824
+  - 40138
+  - 41336
+  - 41861
+  - 47001
+  - 47026
+  - 48003
+  - 48030
+  - 49163
+  - 49588

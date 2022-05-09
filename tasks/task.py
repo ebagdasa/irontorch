@@ -235,7 +235,7 @@ class Task:
         data_loader = torch.utils.data.DataLoader(self.clean_dataset,
                                                   batch_size=self.params.batch_size,
                                                   shuffle=True,
-                                                  num_workers=0
+                                                  num_workers=0, drop_last=True
                                                   )
         model.train()
         for epoch in range(self.params.sampling_model_epochs):

@@ -67,10 +67,17 @@ class Cifar10Task(Task):
         #                                        num_workers=0)
         if self.params.subset_training is not None:
             self.clean_dataset = copy(self.train_dataset)
-            self.clean_dataset.data = self.clean_dataset.data[:self.params.subset_training['part']]
-            self.clean_dataset.targets = self.clean_dataset.targets[:self.params.subset_training['part']]
-            self.clean_dataset.true_targets = self.clean_dataset.true_targets[
-                                      :self.params.subset_training['part']]
+            if self.params.poison_images is not None and self.params.add_images_to_clean:
+                keep_indices = list()
+                for i in range(self.params.subset_training['part']):
+                    if i not in self.params.poison_images:
+                        keep_indices.append(i)
+            else:
+                keep_indices = list(range(self.params.subset_training['part']))
+            self.clean_dataset.data = self.clean_dataset.data[keep_indices]
+            self.clean_dataset.targets = self.clean_dataset.targets[keep_indices]
+            self.clean_dataset.true_targets = self.clean_dataset.true_targets[keep_indices]
+
             self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
             self.train_dataset.targets = self.train_dataset.targets[
                                       self.params.subset_training['part']:]

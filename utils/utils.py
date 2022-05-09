@@ -70,7 +70,7 @@ def create_logger():
     """
         Setup the logging environment
     """
-    log = logging.getLogger()  # root logger
+    log = logging.getLogger('logger')  # root logger
     log.setLevel(logging.DEBUG)
     format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'

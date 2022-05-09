@@ -7,7 +7,8 @@ import torch
 from tqdm import tqdm
 
 from dataset.mnist import MNIST
-
+import logging
+logger = logging.getLogger('logger')
 
 def sim_matrix(a, b, eps=1e-8):
     """
@@ -58,30 +59,55 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.dataset = train_dataset
         self.norms = self.dataset.grads.norm(dim=1)
         self.self_matrix = sim_matrix(self.dataset.grads, self.dataset.grads)
-        self.probs = ((self.self_matrix>0.7) * 1.0).sum(dim=0)
+        self.probs = None
         self.params = params
+        self.update_probs()
 
     def cos_sim_matrix(self):
         return
 
     def update_probs(self):
         self.probs = ((self.self_matrix > self.params.cosine_bound) * 1.0).sum(dim=0)
-        self.probs /= (torch.clamp(self.norms, min=1))
+        self.probs /= (torch.clamp(self.norms, min=self.params.clamp_probs))
+        self.probs *= self.probs.shape[0]/self.probs.sum()
+        # self.probs = torch.zeros(len(self.dataset))
+        # for class_id in range(len(self.dataset.classes)):
+        #     class_indices = (self.dataset.targets == class_id).nonzero().view(-1)
+        #     norms = self.norms[class_indices]
+        #     self_matrix = self.self_matrix[class_indices][:, class_indices]
+        #     class_probs = ((self_matrix > self.params.cosine_bound) * 1.0).sum(dim=0)
+        #     class_probs /= (torch.clamp(norms, min=self.params.clamp_probs))
+        #     self.probs[class_indices] = class_probs
 
+    def get_counts(self, attacked_indices, non_attacked_indices, unsampled_indices):
+        unsampled_count = (
+                self.dataset.targets == self.params.drop_label).sum().item()
+        total_sampled = attacked_indices + non_attacked_indices
+        attacked_all = self.dataset.attacked_indices.sum()
+        dataset_len = len(self.dataset)
+        logger.info(f'Dataset change: {total_sampled}/{dataset_len} => {100*total_sampled/dataset_len:.2f}%')
+        logger.info(
+            f'Attacked: {attacked_indices}/{total_sampled}={attacked_indices/total_sampled:.5f} ' +\
+            f'vs {attacked_all}/{dataset_len}={attacked_all/dataset_len:.5f}' +\
+            f'=> {100 * (attacked_indices/total_sampled)/(attacked_all/dataset_len):.3f}%')
+        logger.info(
+            f'Dropped: {unsampled_indices}/{total_sampled}={unsampled_indices/total_sampled:.5f}' + \
+            f'vs {unsampled_count}/{dataset_len} {unsampled_count / dataset_len:.5f}' +\
+            f'=> {100 * (unsampled_indices/total_sampled)/(unsampled_count / dataset_len):.3f}%')
 
     def __iter__(self) -> Iterator[List[int]]:
         choosing_indices = torch.ones_like(self.dataset.attacked_indices, dtype=torch.float32)
         attacked_indices = defaultdict(int)
         non_attacked_indices = defaultdict(int)
+        unsampled_indices = defaultdict(int)
+
         for j in range(len(self.dataset) // self.batch_size):
             batch_ids = []
             for i in range(self.batch_size):
                 if choosing_indices.sum() == 0:
                     print(f'sampled at least once all available at {j}')
-                    print(
-                        f'Stats: {len(attacked_indices)}/{len(non_attacked_indices)}={len(attacked_indices) / len(non_attacked_indices):.5f} ')
-                    print(
-                        f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
+                    self.get_counts(len(attacked_indices), len(non_attacked_indices),
+                               len(unsampled_indices))
                     return
                 candidate = torch.multinomial(self.probs * choosing_indices, 1).item()
                 choosing_indices[candidate] *= self.params.de_sample
@@ -89,12 +115,11 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                     attacked_indices[candidate] += 1
                 else:
                     non_attacked_indices[candidate] += 1
+                if self.params.drop_label is not None and self.dataset.targets[candidate] == self.params.drop_label:
+                    unsampled_indices[candidate] += 1
                 batch_ids.append(candidate)
             yield batch_ids
-        print(
-            f'Stats: {len(attacked_indices)}/{len(non_attacked_indices)}={len(attacked_indices) / len(non_attacked_indices):.5f} ')
-        print(
-            f'Total: {self.dataset.attacked_indices.sum()}/{len(self.dataset)} {self.dataset.attacked_indices.sum() / len(self.dataset):.5f}')
+        self.get_counts(len(attacked_indices), len(non_attacked_indices), len(unsampled_indices))
 
 
     def __len__(self) -> int:
