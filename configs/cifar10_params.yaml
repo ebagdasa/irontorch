@@ -30,7 +30,7 @@ grad_clip: 1
 #pow_weight: 2
 cut_grad_threshold: 12
 
-pretrained: True
+pretrained: False
 
 scheduler: True
 scheduler_milestones: [150, 225]
