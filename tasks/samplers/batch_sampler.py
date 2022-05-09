@@ -97,7 +97,8 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             f'=> {100 * (unsampled_indices/total_sampled)/(unsampled_count / dataset_len):.3f}%')
 
     def __iter__(self) -> Iterator[List[int]]:
-        choosing_indices = torch.ones_like(self.dataset.attacked_indices, dtype=torch.float32)
+        choosing_indices = torch.ones_like(self.dataset.attacked_indices,
+                                           dtype=torch.float32, device=self.params.device)
         attacked_indices = defaultdict(int)
         non_attacked_indices = defaultdict(int)
         unsampled_indices = defaultdict(int)
