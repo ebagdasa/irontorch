@@ -292,28 +292,28 @@ class Task:
             weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
                                              self.params.pow_weight)
             weights = weights / weights.sum()
-        if self.params.wandb:
-            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                    zip(grad_norms, weights,
-                        self.train_dataset.attacked_indices)]
-            table = wandb.Table(data=data,
-                                columns=["norms", "weights", "color"])
-            wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
-                                                           "weights", 'All Data')})
-            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                    zip(grad_norms, weights,
-                        self.train_dataset.attacked_indices) if z == 1]
-            table = wandb.Table(data=data,
-                                columns=["norms", "weights", "color"])
-            wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
-                                                           "weights", 'Backdoors')})
-            data = [[x.item(), y.item(), z.item()] for (x, y, z) in
-                    zip(grad_norms, weights,
-                        self.train_dataset.targets) if z == self.params.drop_label]
-            table = wandb.Table(data=data,
-                                columns=["norms", "weights", "color"])
-            wandb.log({'scatter-plot3': wandb.plot.scatter(table, "norms",
-                                                           "weights", 'Outliers')})
+        # if self.params.wandb:
+        #     data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+        #             zip(grad_norms, weights,
+        #                 self.train_dataset.attacked_indices)]
+        #     table = wandb.Table(data=data,
+        #                         columns=["norms", "weights", "color"])
+        #     wandb.log({'scatter-plot1': wandb.plot.scatter(table, "norms",
+        #                                                    "weights", 'All Data')})
+        #     data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+        #             zip(grad_norms, weights,
+        #                 self.train_dataset.attacked_indices) if z == 1]
+        #     table = wandb.Table(data=data,
+        #                         columns=["norms", "weights", "color"])
+        #     wandb.log({'scatter-plot2': wandb.plot.scatter(table, "norms",
+        #                                                    "weights", 'Backdoors')})
+        #     data = [[x.item(), y.item(), z.item()] for (x, y, z) in
+        #             zip(grad_norms, weights,
+        #                 self.train_dataset.targets) if z == self.params.drop_label]
+        #     table = wandb.Table(data=data,
+        #                         columns=["norms", "weights", "color"])
+        #     wandb.log({'scatter-plot3': wandb.plot.scatter(table, "norms",
+        #                                                    "weights", 'Outliers')})
         train_len = weights.shape[0]
         sampler = torch_data.WeightedRandomSampler(weights, train_len)
 
