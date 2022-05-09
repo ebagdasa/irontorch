@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "attack"
+name: "ds01_cb7_cp1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -45,13 +45,13 @@ drop_label: 5
 loss_balance: none
 mgda_normalize: loss+
 
-#pre_compute_grads: True
-#sampling_model_epochs: 10
-#gradient_layer: 'fc.weight'
-#cosine_batching: True
-#de_sample: 0.1
-#cosine_bound: 0.7
-#clamp_probs: 1.0
+pre_compute_grads: True
+sampling_model_epochs: 10
+gradient_layer: 'fc.weight'
+cosine_batching: True
+de_sample: 0.01
+cosine_bound: 0.7
+clamp_probs: 1.0
 
 #add_images_to_clean: True
 
