@@ -1,5 +1,5 @@
 project: "cifar_grads"
-name: "ds01_cb7_cp_10"
+name: "bclip_gc1_gs001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -18,9 +18,9 @@ log_interval: 100
 #opacus: True
 #saved_grads: True
 #max_batch_id: 100
-grad_sigma: 0.05
+grad_sigma: 0.001
 grad_clip: 1
-#batch_clip: True
+batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #recover_indices: weights/weights_5k_001.pt
@@ -45,13 +45,13 @@ drop_label: 5
 loss_balance: none
 mgda_normalize: loss+
 
-pre_compute_grads: True
-cosine_batching: True
-sampling_model_epochs: 10
-gradient_layer: 'fc.weight'
-de_sample: 0.01
-cosine_bound: 0.7
-clamp_probs: 10.0
+#pre_compute_grads: True
+#cosine_batching: True
+#sampling_model_epochs: 10
+#gradient_layer: 'fc.weight'
+#de_sample: 0.01
+#cosine_bound: 0.7
+#clamp_probs: 10.0
 #add_images_to_clean: True
 
   #'conv1.weight'
