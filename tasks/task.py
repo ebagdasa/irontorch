@@ -285,10 +285,13 @@ class Task:
         return
 
     def get_sampler(self):
-        grad_norms = torch.norm(self.train_dataset.grads, dim=0) + 1e-5
-        weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
-                                         self.params.pow_weight)
-        weights = weights / weights.sum()
+        grad_norms = torch.norm(self.train_dataset.grads, dim=1) + 1e-5
+        if self.params.cut_grad_threshold:
+            weights = (grad_norms <= self.params.cut_grad_threshold) * 1.0
+        else:
+            weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
+                                             self.params.pow_weight)
+            weights = weights / weights.sum()
         if self.params.wandb:
             data = [[x.item(), y.item(), z.item()] for (x, y, z) in
                     zip(grad_norms, weights,
