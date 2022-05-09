@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "cut_12"
+name: "attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -28,7 +28,7 @@ grad_clip: 1
 #compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #clamp_norms: 0.1
 #pow_weight: 2
-cut_grad_threshold: 12
+#cut_grad_threshold: 12
 
 pretrained: False
 
