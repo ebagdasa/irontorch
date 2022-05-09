@@ -143,6 +143,10 @@ class Task:
 
     def make_opacus(self):
         if self.params.opacus:
+            self.model.train()
+            if not ModuleValidator.is_valid(self.model):
+                logger.error(f'Model cannot be privatized. Fixing...')
+                self.model = ModuleValidator.fix(self.model)
             privacy_engine = PrivacyEngine(secure_mode=False)
             self.model, self.optimizer, _ = privacy_engine.make_private(
                 module=self.model,
