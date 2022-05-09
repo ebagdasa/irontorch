@@ -68,7 +68,6 @@ class Task:
         self.scheduler = self.make_scheduler()
         self.metrics = [AccuracyMetric(), TestLossMetric(self.criterion)]
         self.set_input_shape()
-        self.make_opacus()
         self.model = self.model.to(self.params.device)
 
     def load_data(self) -> None:
