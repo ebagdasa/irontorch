@@ -245,8 +245,8 @@ class Task:
                                                   num_workers=0, drop_last=True
                                                   )
         model.train()
-        for epoch in range(self.params.sampling_model_epochs):
-            for x, y, indices, attacked in tqdm(data_loader):
+        for epoch in tqdm(range(self.params.sampling_model_epochs)):
+            for x, y, indices, attacked in data_loader:
                 self.optimizer.zero_grad(True)
                 output = model(x.cuda())
                 loss = self.criterion(output, y.cuda()).mean()
