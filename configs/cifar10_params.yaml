@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "ds1_cb7_cp1"
+name: "no_attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,11 +15,11 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-opacus: True
+#opacus: True
 #saved_grads: True
 #max_batch_id: 100
 grad_sigma: 0.001
-grad_clip: 100
+grad_clip: 5
 #batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
@@ -34,24 +34,24 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0.001
-backdoor_label: 8
-backdoor: True
+#poisoning_proportion: 0.001
+#backdoor_label: 8
+#backdoor: True
+##
+#drop_label_proportion: 0.9
+#drop_label: 5
 #
-drop_label_proportion: 0.9
-drop_label: 5
-
-clean_subset: 5000
+#clean_subset: 5000
 
 #cut_grad_threshold: 12
 
-pre_compute_grads: True
-sampling_model_epochs: 50
-gradient_layer: 'fc.weight'
-cosine_batching: True
-de_sample: 0.1
-cosine_bound: 0.7
-clamp_probs: 1.0
+#pre_compute_grads: True
+#sampling_model_epochs: 50
+#gradient_layer: 'fc.weight'
+#cosine_batching: True
+#de_sample: 0.1
+#cosine_bound: 0.7
+#clamp_probs: 1.0
 
 #add_images_to_clean: True
 
