@@ -140,7 +140,9 @@ class Task:
     def scheduler_step(self):
         if self.scheduler:
             self.scheduler.step()
-            logger.info(f'Current LR: {self.scheduler.get_last_lr()}')
+            return self.scheduler.get_last_lr()[0]
+            # logger.info(f'Current LR: {self.scheduler.get_last_lr()}')
+        return self.params.lr
 
     def make_opacus(self):
         if self.params.opacus:

@@ -61,7 +61,8 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
         hlpr.report_training_losses_scales(i, epoch)
         if i == hlpr.params.max_batch_id:
             break
-    hlpr.task.scheduler_step()
+    hlpr.params.running_losses['current_lr'].append(hlpr.task.scheduler_step())
+
     return
 
 
