@@ -124,7 +124,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                     unsampled_indices[candidate] += 1
                 batch_ids.append(candidate)
             yield batch_ids
-            self.get_counts(len(attacked_indices), len(non_attacked_indices), len(unsampled_indices))
+        self.get_counts(len(attacked_indices), len(non_attacked_indices), len(unsampled_indices))
 
 
     def __len__(self) -> int:
