@@ -20,7 +20,7 @@ log_interval: 100
 #max_batch_id: 100
 grad_sigma: 0.01
 grad_clip: 2
-batch_clip: True
+#batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #recover_indices: weights/weights_5k_001.pt
@@ -34,7 +34,7 @@ pretrained: False
 
 scheduler: True
 scheduler_milestones: [150, 225]
-
+#
 #poisoning_proportion: 0.001
 #backdoor_label: 8
 #backdoor: True
@@ -42,8 +42,7 @@ scheduler_milestones: [150, 225]
 #drop_label_proportion: 0.9
 #drop_label: 5
 
-loss_balance: none
-mgda_normalize: loss+
+clean_subset: 5000
 
 #pre_compute_grads: True
 #sampling_model_epochs: 10
@@ -59,16 +58,17 @@ mgda_normalize: loss+
   #'fc.weight'
 
 #save_model: True
+#tb: False
 log: True
 wandb: True
-tb: False
 plot_conf_matrix: True
 
 transform_train: True
 
-subset_training:
-  part: 5000
 
+
+loss_balance: none
+mgda_normalize: loss+
 loss_tasks:
   - normal
 

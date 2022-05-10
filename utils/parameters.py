@@ -119,7 +119,7 @@ class Params:
 
     label_noise: float = None
 
-    subset_training: dict = None
+    clean_subset: int = None
     pre_compute_grads: bool = False
     cosine_batching: bool = False
     sampling_model_epochs: int = 1

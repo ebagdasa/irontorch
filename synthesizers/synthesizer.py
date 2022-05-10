@@ -59,10 +59,10 @@ class Synthesizer:
 
     def get_indices(self, indices_arr, proportion, dataset, clean_label=None):
         dataset_len = len(dataset)
+        indices_cover = range(self.params.clean_subset, dataset_len) if dataset.train else range(dataset_len)
         if indices_arr is None:
             rs = Generator(PCG64(self.params.random_seed))
-            indices = rs.choice(range(dataset_len),
-                                       int(proportion * dataset_len),
+            indices = rs.choice(indices_cover, int(proportion * dataset_len),
                                        replace=False)
             indices_arr = torch.zeros(dataset_len, dtype=torch.int32)
             if clean_label:
@@ -73,5 +73,5 @@ class Synthesizer:
                 indices = new_indices
         else:
             indices = indices_arr.nonzero().T[0].numpy()
-        print(f'Poisoned total of {len(indices)}')
+        print(f'Poisoned total of {len(indices)} out of {dataset_len}.')
         return indices_arr, indices

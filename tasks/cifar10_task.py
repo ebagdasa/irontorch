@@ -65,24 +65,24 @@ class Cifar10Task(Task):
         #                                        batch_size=self.params.batch_size,
         #                                        sampler=sampler,
         #                                        num_workers=0)
-        if self.params.subset_training is not None:
+        if self.params.clean_subset is not None:
             self.clean_dataset = copy(self.train_dataset)
             if self.params.poison_images is not None and self.params.add_images_to_clean:
                 keep_indices = list()
-                for i in range(self.params.subset_training['part']):
+                for i in range(self.params.clean_subset):
                     if i not in self.params.poison_images:
                         keep_indices.append(i)
             else:
-                keep_indices = list(range(self.params.subset_training['part']))
+                keep_indices = list(range(self.params.clean_subset))
             self.clean_dataset.data = self.clean_dataset.data[keep_indices]
             self.clean_dataset.targets = self.clean_dataset.targets[keep_indices]
             self.clean_dataset.true_targets = self.clean_dataset.true_targets[keep_indices]
 
-            self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
-            self.train_dataset.targets = self.train_dataset.targets[
-                                      self.params.subset_training['part']:]
-            self.train_dataset.true_targets = self.train_dataset.true_targets[
-                                      self.params.subset_training['part']:]
+            # self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
+            # self.train_dataset.targets = self.train_dataset.targets[
+            #                           self.params.subset_training['part']:]
+            # self.train_dataset.true_targets = self.train_dataset.true_targets[
+            #                           self.params.subset_training['part']:]
 
         if self.params.drop_label_proportion is not None and \
               self.params.drop_label is not None:
