@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc10_s001_attack"
+name: "bc2_s01_attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -18,8 +18,8 @@ log_interval: 100
 #opacus: True
 #saved_grads: True
 #max_batch_id: 100
-grad_sigma: 0.001
-grad_clip: 10
+grad_sigma: 0.01
+grad_clip: 2
 batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
