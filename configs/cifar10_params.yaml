@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc5_s001_ds005_cb7_cp1"
+name: "bc5_s001_ds001_cb7_cp1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -46,7 +46,7 @@ pre_compute_grads: True
 sampling_model_epochs: 50
 gradient_layer: 'linear.weight'  # 'fc.weight'
 cosine_batching: True
-de_sample: 0.005
+de_sample: 0.001
 cosine_bound: 0.7
 clamp_probs: 1.0
 
