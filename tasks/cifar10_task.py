@@ -7,7 +7,8 @@ from torchvision.transforms import transforms
 import torch.utils.data as torch_data
 from copy import copy
 
-from models.resnet import resnet18, resnet50
+# from models.resnet import resnet18, resnet50
+from models.resnet_cifar import resnet18
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 from dataset.cifar import CIFAR10, CIFAR100
