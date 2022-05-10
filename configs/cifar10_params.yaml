@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "no_attack_3"
+name: "drop_attack"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -10,7 +10,7 @@ test_batch_size: 100
 lr: 0.1
 momentum: 0.9
 decay: 0.0005
-epochs: 300
+epochs: 200
 save_on_epochs: []
 optimizer: SGD
 log_interval: 100
@@ -34,12 +34,12 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-#poisoning_proportion: 0.001
-#backdoor_label: 8
-#backdoor: True
-##
-#drop_label_proportion: 0.9
-#drop_label: 5
+poisoning_proportion: 0.001
+backdoor_label: 8
+backdoor: True
+#
+drop_label_proportion: 0.9
+drop_label: 5
 
 #clean_subset: 5000
 
