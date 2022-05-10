@@ -81,8 +81,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         #     self.probs[class_indices] = class_probs
 
     def get_counts(self, attacked_indices, non_attacked_indices, unsampled_indices):
-        unsampled_count = (
-                self.dataset.targets == self.params.drop_label).sum().item()
+
         total_sampled = attacked_indices + non_attacked_indices
         attacked_all = self.dataset.attacked_indices.sum()
         dataset_len = len(self.dataset)
@@ -91,10 +90,14 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
             f'Attacked: {attacked_indices}/{total_sampled}={attacked_indices/total_sampled:.5f} ' +\
             f'vs {attacked_all}/{dataset_len}={attacked_all/dataset_len:.5f}' +\
             f'=> {100 * (attacked_indices/total_sampled)/(attacked_all/dataset_len):.3f}%')
-        logger.info(
-            f'Dropped: {unsampled_indices}/{total_sampled}={unsampled_indices/total_sampled:.5f}' + \
-            f'vs {unsampled_count}/{dataset_len} {unsampled_count / dataset_len:.5f}' +\
-            f'=> {100 * (unsampled_indices/total_sampled)/(unsampled_count / dataset_len):.3f}%')
+
+        if self.params.drop_label is not None:
+            unsampled_count = (
+                self.dataset.targets == self.params.drop_label).sum().item()
+            logger.info(
+                f'Dropped: {unsampled_indices}/{total_sampled}={unsampled_indices/total_sampled:.5f}' + \
+                f'vs {unsampled_count}/{dataset_len} {unsampled_count / dataset_len:.5f}' +\
+                f'=> {100 * (unsampled_indices/total_sampled)/(unsampled_count / dataset_len):.3f}%')
 
     def __iter__(self) -> Iterator[List[int]]:
         choosing_indices = torch.ones_like(self.dataset.attacked_indices,
@@ -121,7 +124,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                     unsampled_indices[candidate] += 1
                 batch_ids.append(candidate)
             yield batch_ids
-        self.get_counts(len(attacked_indices), len(non_attacked_indices), len(unsampled_indices))
+            self.get_counts(len(attacked_indices), len(non_attacked_indices), len(unsampled_indices))
 
 
     def __len__(self) -> int:

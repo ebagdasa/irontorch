@@ -16,13 +16,15 @@ logger = logging.getLogger('logger')
 
 
 def get_percentage(params, train_dataset, batch):
-    count = 0
+    attack_count = 0
+    drop_label = 0
     for i, x in enumerate(batch.indices):
         if train_dataset.true_targets[x].item() != params.backdoor_label and \
-            batch.aux[i].item() == 1:
-            count += 1
-
-    return 100.0 * count/batch.indices.shape[0]
+              batch.aux[i].item() == 1:
+            attack_count += 1
+        if params.drop_label is not None and train_dataset.targets[x] == params.drop_label:
+            drop_label += 1
+    return 100.0 * attack_count/batch.indices.shape[0],  100.0 * drop_label/batch.indices.shape[0]
 
 
 def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
@@ -36,8 +38,9 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             size = int(hlpr.params.label_noise * batch.labels.shape[0])
             batch.labels[:size] = torch.randint(0, 10, [size,], device=batch.labels.device)
         loss = hlpr.attack.compute_blind_loss(model, criterion, batch, attack)
-        attack_percent = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
+        attack_percent, drop_label = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
+        hlpr.params.running_losses['drop_label'].append(drop_label)
         if hlpr.params.saved_grads and hlpr.params.opacus:
             optimizer.batch_idx = i
             optimizer.data_accum[i] = batch.indices.detach().cpu()

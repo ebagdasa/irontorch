@@ -88,7 +88,7 @@ def create_logger():
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     log.addHandler(stream_handler)
-    return logging.getLogger(__name__)
+    return logging.getLogger('logger')
 
 
 def th(vector):
