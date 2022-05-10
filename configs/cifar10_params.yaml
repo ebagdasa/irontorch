@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc10_s0001"
+name: "norms_12"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -20,7 +20,7 @@ log_interval: 100
 #max_batch_id: 100
 grad_sigma: 0.0001
 grad_clip: 10
-batch_clip: True
+#batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #recover_indices: weights/weights_5k_001.pt
@@ -28,7 +28,6 @@ batch_clip: True
 #compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #clamp_norms: 0.1
 #pow_weight: 2
-#cut_grad_threshold: 12
 
 pretrained: False
 
@@ -44,9 +43,11 @@ drop_label: 5
 
 clean_subset: 5000
 
-#pre_compute_grads: True
-#sampling_model_epochs: 10
-#gradient_layer: 'fc.weight'
+cut_grad_threshold: 12
+
+pre_compute_grads: True
+sampling_model_epochs: 10
+gradient_layer: 'fc.weight'
 #cosine_batching: True
 #de_sample: 0.01
 #cosine_bound: 0.7
