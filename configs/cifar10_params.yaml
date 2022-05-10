@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc15_s001_ds1_cb7_cp1"
+name: "ds1d0_cb7_cp1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -19,7 +19,7 @@ log_interval: 100
 #saved_grads: True
 grad_sigma: 0.001
 grad_clip: 15
-batch_clip: True
+#batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
@@ -46,7 +46,7 @@ pre_compute_grads: True
 sampling_model_epochs: 50
 gradient_layer: 'linear.weight'  # 'fc.weight'
 cosine_batching: True
-de_sample: 0.1
+de_sample: 1
 cosine_bound: 0.7
 clamp_probs: 1.0
 
