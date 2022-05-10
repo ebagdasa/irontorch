@@ -51,20 +51,21 @@ class Cifar10Task(Task):
             download=True,
             transform=transform_train)
 
-        # if self.params.poison_images:
-        #     self.train_loader = self.remove_semantic_backdoors()
-        # else:
-        #     if self.params.cosine_batching:
-        #         recover_indices =  torch.load(self.params.recover_indices)
-        #         weights = recover_indices['weights']
-        #         batcher = CosineBatchSampler(weights, batch_size=self.params.batch_size, drop_last=False)
-        #         self.train_loader = DataLoader(self.train_dataset, batch_sampler=batcher, num_workers=0)
-        #     else:
-        #         sampler = self.get_sampler()
-        #         self.train_loader = DataLoader(self.train_dataset,
-        #                                        batch_size=self.params.batch_size,
-        #                                        sampler=sampler,
-        #                                        num_workers=0)
+        if self.params.drop_label_proportion is not None and \
+              self.params.drop_label is not None:
+            non_label_indices = (self.train_dataset.true_targets != self.params.drop_label)
+            gen = torch.manual_seed(5)
+            rand_mask = torch.rand(non_label_indices.shape, generator=gen) >= self.params.drop_label_proportion
+            keep_indices = (non_label_indices + rand_mask).nonzero().view(-1)
+            print(f'After filtering {100 * self.params.drop_label_proportion:.0f}%' +\
+                f'({len(self.train_dataset) - keep_indices.shape[0]} examples)' +\
+                  f' of class {self.train_dataset.classes[self.params.drop_label]}' +\
+                  f' we have a total {keep_indices.shape[0]}.')
+
+            self.train_dataset.data = self.train_dataset.data[keep_indices]
+            self.train_dataset.targets = self.train_dataset.targets[keep_indices]
+            self.train_dataset.true_targets = self.train_dataset.true_targets[keep_indices]
+
         if self.params.clean_subset is not None:
             self.clean_dataset = copy(self.train_dataset)
             if self.params.poison_images is not None and self.params.add_images_to_clean:
@@ -77,26 +78,6 @@ class Cifar10Task(Task):
             self.clean_dataset.data = self.clean_dataset.data[keep_indices]
             self.clean_dataset.targets = self.clean_dataset.targets[keep_indices]
             self.clean_dataset.true_targets = self.clean_dataset.true_targets[keep_indices]
-
-            # self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
-            # self.train_dataset.targets = self.train_dataset.targets[
-            #                           self.params.subset_training['part']:]
-            # self.train_dataset.true_targets = self.train_dataset.true_targets[
-            #                           self.params.subset_training['part']:]
-
-        if self.params.drop_label_proportion is not None and \
-              self.params.drop_label is not None:
-            non_label_indices = (self.train_dataset.true_targets != self.params.drop_label)
-            gen = torch.manual_seed(5)
-            rand_mask = torch.rand(non_label_indices.shape, generator=gen) >= self.params.drop_label_proportion
-            keep_indices = (non_label_indices + rand_mask).nonzero().view(-1)
-            print(f'After filtering {100 * self.params.drop_label_proportion:.0f}%' +\
-                  f' of class {self.train_dataset.classes[self.params.drop_label]}' +\
-                  f' we have a total {keep_indices.shape[0]}.')
-
-            self.train_dataset.data = self.train_dataset.data[keep_indices]
-            self.train_dataset.targets = self.train_dataset.targets[keep_indices]
-            self.train_dataset.true_targets = self.train_dataset.true_targets[keep_indices]
 
         self.test_dataset = ds(
             root=self.params.data_path,

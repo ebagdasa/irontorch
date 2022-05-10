@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc_noclip_nonoise"
+name: "no_attack2"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -20,7 +20,7 @@ log_interval: 100
 #max_batch_id: 100
 grad_sigma: 0.0
 grad_clip: 100000
-batch_clip: True
+#batch_clip: True
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #recover_indices: weights/weights_5k_001.pt
@@ -34,14 +34,14 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0.001
-backdoor_label: 8
-backdoor: True
-#
-drop_label_proportion: 0.9
-drop_label: 5
+#poisoning_proportion: 0.001
+#backdoor_label: 8
+#backdoor: True
+##
+#drop_label_proportion: 0.9
+#drop_label: 5
 
-clean_subset: 5000
+#clean_subset: 5000
 
 #cut_grad_threshold: 12
 
