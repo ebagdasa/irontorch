@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "bc2_s01_attack"
+name: "clean_run"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -35,12 +35,12 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 
-poisoning_proportion: 0.001
-backdoor_label: 8
-backdoor: True
-#
-drop_label_proportion: 0.9
-drop_label: 5
+#poisoning_proportion: 0.001
+#backdoor_label: 8
+#backdoor: True
+##
+#drop_label_proportion: 0.9
+#drop_label: 5
 
 loss_balance: none
 mgda_normalize: loss+
