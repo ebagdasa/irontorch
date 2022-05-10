@@ -102,9 +102,13 @@ class Task:
                 sampler = self.get_sampler()
                 self.train_loader = torch_data.DataLoader(self.train_dataset,
                                                           batch_size=self.params.batch_size,
-                                                          shuffle=False,
-                                                          sampler=sampler,
+                                                          shuffle=True,
                                                           num_workers=0)
+                # self.train_loader = torch_data.DataLoader(self.train_dataset,
+                #                                           batch_size=self.params.batch_size,
+                #                                           shuffle=False,
+                #                                           sampler=sampler,
+                #                                           num_workers=0)
         else:
             self.train_loader = torch_data.DataLoader(self.train_dataset,
                                                   batch_size=self.params.batch_size,
@@ -293,6 +297,7 @@ class Task:
         if self.params.cut_grad_threshold:
             weights = (grad_norms <= self.params.cut_grad_threshold) * 1.0
         else:
+            weights = torch.ones_like(grad_norms)
             weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
                                              self.params.pow_weight)
             weights = weights / weights.sum()
