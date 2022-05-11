@@ -1,5 +1,5 @@
 project: "cifar_grads_full"
-name: "dp1_s001"
+name: "dp1_s01"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -17,7 +17,7 @@ log_interval: 100
 
 opacus: True
 #saved_grads: True
-grad_sigma: 0.001
+grad_sigma: 0.01
 grad_clip: 1
 #batch_clip: True
 
