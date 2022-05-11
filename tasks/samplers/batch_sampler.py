@@ -72,7 +72,6 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         self.probs *= self.probs.shape[0]/self.probs.sum()
         self.probs = torch.clamp(self.probs, max=self.params.clamp_probs)
         self.probs = self.probs.to(self.params.device)
-        # self.probs = torch.zeros(len(self.dataset))
         # for class_id in range(len(self.dataset.classes)):
         #     class_indices = (self.dataset.targets == class_id).nonzero().view(-1)
         #     norms = self.norms[class_indices]
