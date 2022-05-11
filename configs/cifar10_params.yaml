@@ -1,5 +1,5 @@
 project: "cifar_grads_full_0005"
-name: "ds5_cb7_cp1_cn1"
+name: "ds5_cb5_cp1_cn1"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -47,7 +47,7 @@ sampling_model_epochs: 50
 gradient_layer: 'linear.weight'  # 'fc.weight'
 cosine_batching: True
 de_sample: 0.5
-cosine_bound: 0.7
+cosine_bound: 0.5
 clamp_probs: 1.0
 clamp_norms: 1.0
 
