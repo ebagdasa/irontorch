@@ -68,9 +68,9 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
 
     def update_probs(self):
         self.probs = ((self.self_matrix > self.params.cosine_bound) * 1.0).sum(dim=0)
-        self.probs /= (torch.clamp(self.norms, min=self.params.clamp_probs))
+        self.probs /= (torch.clamp(self.norms, min=self.params.clamp_norms))
         self.probs *= self.probs.shape[0]/self.probs.sum()
-        self.probs = torch.clamp(self.probs, max=1.0)
+        self.probs = torch.clamp(self.probs, max=self.params.clamp_probs)
         self.probs = self.probs.to(self.params.device)
         # self.probs = torch.zeros(len(self.dataset))
         # for class_id in range(len(self.dataset.classes)):
