@@ -1,5 +1,5 @@
 project: "cifar_grads_full_0005"
-name: "bc5_s002"
+name: "bc1_s005"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -18,8 +18,8 @@ log_interval: 100
 #opacus: True
 batch_clip: True
 #saved_grads: True
-grad_sigma: 0.002
-grad_clip: 5
+grad_sigma: 0.005
+grad_clip: 1
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 #compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
