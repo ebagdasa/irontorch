@@ -1,5 +1,5 @@
 project: "label_drop"
-name: "label_noise_5_p005"
+name: "label_noise_5_p0005"
 dataset: "CIFAR10"
 
 task: Cifar10
