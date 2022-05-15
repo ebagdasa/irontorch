@@ -1,5 +1,5 @@
 project: "label_drop"
-name: "label_noise_5_p0005"
+name: "label_noise_5_p0001"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -30,7 +30,7 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0.0005
+poisoning_proportion: 0.0001
 backdoor_label: 8
 backdoor: True
 ##
