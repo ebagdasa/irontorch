@@ -67,7 +67,7 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
         return
 
     def update_probs(self):
-        self.probs = ((self.self_matrix > self.params.cosine_bound) * 1.0).sum(dim=0)
+        self.probs = ((self.self_matrix > self.params.cosine_bound) * 1.0).sum(dim=0) * self.self_matrix.var(dim=1)
         self.probs /= (torch.clamp(self.norms, min=self.params.clamp_norms))
         self.probs *= self.probs.shape[0]/self.probs.sum()
         self.probs = torch.clamp(self.probs, max=self.params.clamp_probs)
@@ -115,7 +115,10 @@ class CosineBatchSampler(torch_data.Sampler[List[int]]):
                                len(unsampled_indices))
                     return
                 candidate = torch.multinomial(self.probs * choosing_indices, 1).item()
-                choosing_indices[candidate] *= self.params.de_sample
+                if choosing_indices[candidate] >= 0.001:
+                    choosing_indices[candidate] *= self.params.de_sample
+                else:
+                    choosing_indices[candidate] = 0.0
                 if self.dataset.attacked_indices[candidate] == 1:
                     attacked_indices[candidate] += 1
                 else:
