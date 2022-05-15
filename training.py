@@ -35,8 +35,9 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad(set_to_none=True)
         if hlpr.params.label_noise:
-            size = int(hlpr.params.label_noise * batch.labels.shape[0])
-            batch.labels[:size] = torch.randint(0, 10, [size,], device=batch.labels.device)
+            mask = (torch.rand_like(batch.labels) >= hlpr.params.label_noise) * 1.0
+            rand_labels = torch.randint_like(batch.labels, 0, 10)
+            batch.labels = mask * batch.labels + (1 - mask) * rand_labels
         loss = hlpr.attack.compute_blind_loss(model, criterion, batch, attack)
         attack_percent, drop_label = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
