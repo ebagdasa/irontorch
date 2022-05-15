@@ -1,5 +1,5 @@
 project: "cifar_grads_full_0005"
-name: "label_noise_1"
+name: "label_noise_05"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -21,10 +21,9 @@ log_interval: 100
 grad_sigma: 0.005
 grad_clip: 2
 
-#resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
-#compute_grads_from_resumed_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
+label_noise: 0.05
 
-#pow_weight: 2
+#resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: False
 
@@ -54,7 +53,6 @@ drop_label: 5
 #add_images_to_clean: True
   #'conv1.weight'
   #'fc.weight'
-label_noise: 0.1
 
 #save_model: True
 #tb: False
