@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "n_cl2_s001_ds1_cb7"
+name: "n_cl2_s001_ds0d1_cb7"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -45,7 +45,7 @@ pre_compute_grads: True
 sampling_model_epochs: 50
 gradient_layer: 'linear.weight'  # 'fc.weight'
 cosine_batching: True
-de_sample: 1.0
+de_sample: 0.1
 cosine_bound: 0.7
 clamp_probs: 1.0
 clamp_norms: 1.0
