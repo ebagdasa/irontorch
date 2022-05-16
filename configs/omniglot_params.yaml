@@ -15,30 +15,18 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-#opacus: True
-#saved_grads: True
-#compute_grads_only: True
-fix_opacus_model: True
-#max_batch_id: 100
-grad_sigma: 0.001
-grad_clip: 1
-#batch_clip: True
-
 resume_model: '../saved_models/model_Cifar10_attack/model_last.pt.tar'
 #recover_indices: weights/weights_5k_001.pt
 #cosine_batching: True
-clamp_norms: 0.1
-pow_weight: 1
-cut_grad_threshold: 12
 
 pretrained: False
 
 scheduler: True
 scheduler_milestones: [150, 225]
 
-poisoning_proportion: 0.001
-backdoor_label: 8
-backdoor: True
+#poisoning_proportion: 0.001
+#backdoor_label: 8
+#backdoor: True
 
 loss_balance: none
 mgda_normalize: loss+
@@ -50,9 +38,9 @@ wandb: True
 
 transform_train: True
 
-subset_training:
-  type: train
-  part: 5000
+#subset_training:
+#  type: train
+#  part: 5000
 
 loss_tasks:
 #  - backdoor
