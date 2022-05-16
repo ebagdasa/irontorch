@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "noise_clip_ds1_cb7"
+name: "n_cl2_s001_ds1_cb7"
 dataset: "CIFAR10"
 
 task: Cifar10
