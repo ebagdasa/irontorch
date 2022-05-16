@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "noise_clip2"
+name: "noise_clip_2"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -19,7 +19,7 @@ log_interval: 100
 batch_clip: True
 #saved_grads: True
 grad_sigma: 0.001
-grad_clip: 1
+grad_clip: 2
 
 label_noise: 0.5
 
