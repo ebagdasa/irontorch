@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "decay_05"
+name: "decay_005"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -9,7 +9,7 @@ batch_size: 128
 test_batch_size: 100
 lr: 0.1
 momentum: 0.9
-decay: 0.05
+decay: 0.005
 epochs: 200
 save_on_epochs: []
 optimizer: SGD
