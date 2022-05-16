@@ -30,7 +30,7 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0.001
+poisoning_proportion: 0.0005
 backdoor_label: 8
 backdoor: True
 ##
