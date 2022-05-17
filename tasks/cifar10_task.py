@@ -108,13 +108,15 @@ class Cifar10Task(Task):
 
     def build_model(self) -> nn.Module:
         if self.params.pretrained:
-            model = resnet18(pretrained=True)
+            model = resnet18(pretrained=True,
+                             bn_enable=self.params.bn_enable)
 
             # model is pretrained on ImageNet changing classes to CIFAR
             model.fc = nn.Linear(512, len(self.classes))
         else:
             model = resnet18(pretrained=False,
-                                  num_classes=len(self.classes))
+                             num_classes=len(self.classes),
+                             bn_enable=self.params.bn_enable)
         return model
 
     def remove_semantic_backdoors(self):

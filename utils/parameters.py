@@ -48,6 +48,7 @@ class Params:
     "For large datasets stop training earlier."
     input_shape = None
     "No need to set, updated by the Task class."
+    bn_enable = True
 
     # gradient shaping/DP params
     dp: bool = None
