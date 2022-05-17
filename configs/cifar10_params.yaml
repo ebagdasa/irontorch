@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "dp0d1_s0"
+name: "dp0d7_s0"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -19,7 +19,7 @@ opacus: True
 #batch_clip: True
 #saved_grads: True
 grad_sigma: 0.000
-grad_clip: 0.1
+grad_clip: 0.7
 
 #label_noise: 0.4
 
