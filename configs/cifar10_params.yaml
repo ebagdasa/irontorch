@@ -1,5 +1,5 @@
 project: "all_mix"
-name: "dp0d7_s0"
+name: "CLEAN_ALL"
 dataset: "CIFAR10"
 
 task: Cifar10
@@ -15,7 +15,7 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 
-opacus: True
+#opacus: True
 #batch_clip: True
 #saved_grads: True
 grad_sigma: 0.000
@@ -30,12 +30,12 @@ pretrained: False
 scheduler: True
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0.0005
-backdoor_label: 8
-backdoor: True
+#poisoning_proportion: 0.0005
+#backdoor_label: 8
+#backdoor: True
 ##
-drop_label_proportion: 0.9
-drop_label: 5
+#drop_label_proportion: 0.9
+#drop_label: 5
 #
 #cut_grad_threshold: 12
 #
@@ -54,7 +54,7 @@ drop_label: 5
   #'conv1.weight'
   #'fc.weight'
 
-#save_model: True
+save_model: True
 #tb: False
 log: True
 wandb: True
