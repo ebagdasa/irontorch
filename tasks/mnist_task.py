@@ -31,17 +31,14 @@ class MNISTTask(Task):
             download=True,
             transform=transform_train)
 
-        if self.params.subset_training is not None:
+        if self.params.clean_subset != 0:
             self.clean_dataset = copy(self.train_dataset)
-            self.clean_dataset.data = self.clean_dataset.data[:self.params.subset_training['part']]
-            self.clean_dataset.targets = self.clean_dataset.targets[:self.params.subset_training['part']]
+            keep_indices = list(range(self.params.clean_subset))
+            self.clean_dataset.data = self.clean_dataset.data[keep_indices]
+            self.clean_dataset.targets = self.clean_dataset.targets[
+                keep_indices]
             self.clean_dataset.true_targets = self.clean_dataset.true_targets[
-                                      :self.params.subset_training['part']]
-            self.train_dataset.data = self.train_dataset.data[self.params.subset_training['part']:]
-            self.train_dataset.targets = self.train_dataset.targets[
-                                      self.params.subset_training['part']:]
-            self.train_dataset.true_targets = self.train_dataset.true_targets[
-                                      self.params.subset_training['part']:]
+                keep_indices]
 
         if self.params.drop_label_proportion is not None and \
               self.params.drop_label is not None:

@@ -67,7 +67,7 @@ class Cifar10Task(Task):
             self.train_dataset.targets = self.train_dataset.targets[keep_indices]
             self.train_dataset.true_targets = self.train_dataset.true_targets[keep_indices]
 
-        if self.params.clean_subset is not None:
+        if self.params.clean_subset != 0:
             self.clean_dataset = copy(self.train_dataset)
             if self.params.poison_images is not None and self.params.add_images_to_clean:
                 keep_indices = list()

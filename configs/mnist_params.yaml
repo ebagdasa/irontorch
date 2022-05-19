@@ -6,8 +6,8 @@ synthesizer: Pattern
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 
-grad_sigma: 0.01
-grad_clip: 10
+#grad_sigma: 0.01
+#grad_clip: 10
 #batch_clip: True
 #label_noise: 0.1
 
@@ -25,20 +25,20 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 scheduler: False
-drop_label_proportion: 0.99
+drop_label_proportion: 0.95
 drop_label: 5
 
-pre_compute_grads: True
-cosine_batching: True
-sampling_model_epochs: 5
-gradient_layer: fc2.weight
+#pre_compute_grads: True
+#cosine_batching: True
+#sampling_model_epochs: 5
+#gradient_layer: fc2.weight
 
 #recover_indices: /tmp/weights_0.01.pt
-clamp_norms: 10
-pow_weight: 4
+#clamp_norms: 10
+#pow_weight: 4
 #cut_grad_threshold: 30
-subset_training:
-  part: 1000
+#subset_training:
+#  part: 1000
 
 poisoning_proportion: 0.001
 backdoor_label: 8
@@ -50,10 +50,10 @@ loss_balance: MGDA
 mgda_normalize: loss
 
 save_model: False
-log: True
-wandb: True
+#log: True
+#wandb: True
+#plot_conf_matrix: True
 tb: False
-plot_conf_matrix: True
 
 transform_train: True
 
