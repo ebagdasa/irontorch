@@ -1,3 +1,5 @@
+from builtins import getattr
+
 import importlib
 import logging
 import os
@@ -136,6 +138,8 @@ class Helper:
             self.wandb_logger = wandb.init(config=self.params.to_dict(),
                        project=self.params.project,
                        name=self.params.name)
+            config = self.wandb_logger.config
+            self.params.update(config.as_dict())
             logger.warning('Initialized Wandb.')
 
     def modify_datasets(self):

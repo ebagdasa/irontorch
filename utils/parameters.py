@@ -172,3 +172,8 @@ class Params:
 
     def to_dict(self):
         return asdict(self)
+
+    def update(self, new):
+        for key, value in new.items():
+            if hasattr(self, key):
+                setattr(self, key, value)
