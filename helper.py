@@ -1,5 +1,3 @@
-from builtins import getattr
-
 import importlib
 import logging
 import os
