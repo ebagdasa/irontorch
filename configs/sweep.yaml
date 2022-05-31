@@ -21,4 +21,4 @@ command:
   - python
   - ${program}
   - "--params"
-  - "/home/eugene/backdoors/configs/mnist_params.yaml"
+  - "configs/mnist_params.yaml"
