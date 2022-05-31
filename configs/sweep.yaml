@@ -1,9 +1,22 @@
 project: "sweep"
-program: "training.py --params configs/mnist_params.yaml"
+program: "training.py"
+name: "hyperparams"
 method: grid
 metric:
   goal: minimize
-  name: val_loss
+  name: Test_Backdoor_Accuracy_Top-1
 parameters:
   batch_size:
-    values: [16, 32, 64, 128]
+    values: [16, 32, 64, 128, 256, 512]
+  lr:
+    values: [0.1, 0.01, 0.001]
+  epochs:
+    values: [10]
+  decay:
+    values: [0.0005, 0.0001, 0.00005, 0.001]
+command:
+  - ${env}
+  - python
+  - ${program}
+  - "--params"
+  - "/home/eugene/backdoors/configs/mnist_params.yaml"

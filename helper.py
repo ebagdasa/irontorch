@@ -136,8 +136,19 @@ class Helper:
             self.wandb_logger = wandb.init(config=self.params.to_dict(),
                        project=self.params.project,
                        name=self.params.name)
-            config = self.wandb_logger.config
-            self.params.update(config.as_dict())
+
+            if self.wandb_logger.sweep_id is not None:
+                config = self.wandb_logger.config
+                with open('configs/sweep.yaml') as f:
+                    sweep_params = yaml.load(f, Loader=yaml.FullLoader)['parameters']
+                    name = 'sweep'
+                    for param_name in sweep_params.keys():
+                        print(param_name)
+                        print(config[param_name])
+                        name += f'_{param_name}{config.as_dict()[param_name]}'
+                    self.wandb_logger.name = name
+                    self.wandb_logger.save()
+                self.params.update(config.as_dict())
             logger.warning('Initialized Wandb.')
 
     def modify_datasets(self):
