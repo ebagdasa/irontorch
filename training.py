@@ -78,7 +78,7 @@ def test(hlpr: Helper, model, backdoor=False):
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
     prefix = 'Backdoor' if backdoor else 'Normal'
-    hlpr.report_metrics(prefix=f'Test/{prefix}')
+    hlpr.report_metrics(prefix=f'Test_{prefix}')
     # metric = hlpr.task.report_metrics(epoch,
     #                          prefix=f'Backdoor {str(backdoor):5s}. Epoch: ',
     #                          tb_writer=hlpr.tb_writer,
