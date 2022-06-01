@@ -1,4 +1,4 @@
-project: "sweep"
+project: "sweep2"
 program: "training.py"
 name: "hyperparams3"
 method: grid
