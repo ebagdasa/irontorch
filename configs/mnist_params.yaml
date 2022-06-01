@@ -15,12 +15,12 @@ synthesizer: Pattern
 #saved_grads: True
 #max_batch_id: 100
 
-batch_size: 32
+batch_size: 128
 test_batch_size: 100
-lr: 0.1
-momentum: 0.9
-decay: 0.0005
-epochs: 4
+lr: 0.01
+momentum: 0.95
+decay: 0.0001
+epochs: 10
 save_on_epochs: []
 optimizer: SGD
 log_interval: 100
@@ -52,7 +52,7 @@ mgda_normalize: loss
 save_model: False
 #log: True
 wandb: True
-#plot_conf_matrix: True
+plot_conf_matrix: True
 tb: False
 
 transform_train: True
