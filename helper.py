@@ -144,11 +144,15 @@ class Helper:
                 with open('configs/sweep.yaml') as f:
                     sweep_params = yaml.load(f, Loader=yaml.FullLoader)['parameters']
                     name = 'sweep'
+                    group_name = 'gr'
                     for param_name in sweep_params.keys():
                         print(param_name)
                         print(config[param_name])
                         name += f'_{param_name}{config.as_dict()[param_name]}'
+                        if param_name != 'random_seed':
+                            group_name += f'_{param_name}{config.as_dict()[param_name]}'
                     self.wandb_logger.name = name
+                    self.wandb_logger.group = group_name
                     self.wandb_logger.save()
                 self.params.update(config.as_dict())
             logger.warning('Initialized Wandb.')
