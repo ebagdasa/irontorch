@@ -133,7 +133,9 @@ class Helper:
             table = create_table(params_dict)
             self.tb_writer.add_text('Model Params', table)
         elif self.params.wandb:
-            self.wandb_logger = wandb.init(config=self.params.to_dict(),
+            params_dict = self.params.to_dict()
+            params_dict['current_time'] = None
+            self.wandb_logger = wandb.init(config=params_dict,
                        project=self.params.project,
                        name=self.params.name)
 
