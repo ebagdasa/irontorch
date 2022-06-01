@@ -38,7 +38,10 @@ class Metric:
     def get_value(self, prefix='') -> Dict[str, np.ndarray]:
         metrics = dict()
         for key, value in self.running_metric.items():
-            metrics[f'{prefix}_{self.name}_{key}'] = np.mean(value)
+            if 'Drop' in key:
+                metrics[f'{prefix}_{self.name}_{key}'] = np.sum(value)
+            else:
+                metrics[f'{prefix}_{self.name}_{key}'] = np.mean(value)
 
         return metrics
 

@@ -66,12 +66,19 @@ class Task:
         self.optimizer = self.make_optimizer()
         self.criterion = self.make_criterion()
         self.scheduler = self.make_scheduler()
-        self.metrics = [AccuracyMetric(), TestLossMetric(self.criterion)]
+
+        self.metrics = [AccuracyMetric(drop_label=self.params.drop_label, total_dropped=self.get_total_drop_class()),
+                        TestLossMetric(self.criterion)]
         self.set_input_shape()
         self.model = self.model.to(self.params.device)
 
     def load_data(self) -> None:
         raise NotImplemented
+
+    def get_total_drop_class(self):
+        if self.params.drop_label:
+            return (self.test_dataset.targets == self.params.drop_label).sum().item()
+        return None
 
     def build_model(self) -> Module:
         raise NotImplemented

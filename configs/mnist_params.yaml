@@ -52,8 +52,8 @@ mgda_normalize: loss
 save_model: False
 #log: True
 wandb: True
-plot_conf_matrix: True
-tb: False
+#plot_conf_matrix: True
+#tb: False
 
 transform_train: True
 
