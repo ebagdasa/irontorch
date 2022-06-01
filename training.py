@@ -93,11 +93,11 @@ def run(hlpr):
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        acc = test(hlpr, hlpr.task.model, backdoor=False)
-        hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        test(hlpr, hlpr.task.model, backdoor=True)
-        hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
-        hlpr.save_model(hlpr.task.model, epoch, acc)
+    acc = test(hlpr, hlpr.task.model, backdoor=False)
+    hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
+    test(hlpr, hlpr.task.model, backdoor=True)
+    hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
+    hlpr.save_model(hlpr.task.model, epoch, acc)
 
 
 def fl_run(hlpr: Helper):
