@@ -94,17 +94,17 @@ def run(hlpr):
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
-        hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
-        hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
-        hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
-        if hlpr.params.multi_objective_metric is not None:
-            main_obj = metrics[hlpr.params.multi_objective_metric]
-            back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
-            alpha = hlpr.params.multi_objective_alpha
-            multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-            hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
+    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
+    hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
+    backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
+    hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
+    hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
+    if hlpr.params.multi_objective_metric is not None:
+        main_obj = metrics[hlpr.params.multi_objective_metric]
+        back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
+        alpha = hlpr.params.multi_objective_alpha
+        multi_obj = alpha * main_obj - (1 - alpha) * back_obj
+        hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
 
 
