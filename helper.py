@@ -245,14 +245,14 @@ class Helper:
                 f' Losses: {losses}.'
                 f' Scales: {scales}')
             for name, values in self.params.running_losses.items():
-                self.report_dict({f'Train/Loss_{name}': np.mean(values)},
-                          step=epoch * total_batches + batch_id)
+                self.report_dict({f'Train/Loss_{name}': np.mean(values)})
+                          # step=epoch * total_batches + batch_id)
             for name, values in self.params.running_scales.items():
-                self.report_dict({f'Train/Scale_{name}': np.mean(values)},
-                          step=epoch * total_batches + batch_id)
+                self.report_dict({f'Train/Scale_{name}': np.mean(values)})
+                          # step=epoch * total_batches + batch_id)
             if self.task.scheduler:
-                self.report_dict({'Train/learning_rate': self.task.scheduler.get_last_lr()[0]},
-                             step=epoch * total_batches + batch_id)
+                self.report_dict({'Train/learning_rate': self.task.scheduler.get_last_lr()[0]})
+                             # step=epoch * total_batches + batch_id)
             self.params.running_losses = defaultdict(list)
             self.params.running_scales = defaultdict(list)
             self.save_grads(epoch, batch_id)
