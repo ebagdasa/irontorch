@@ -50,7 +50,7 @@ class Metric:
             raise ValueError(f'For metric {self.name} define '
                              f'attribute main_metric_name.')
         metrics = self.get_value()
-        return metrics[self.main_metric_name]
+        return metrics[f'_{self.name}_{self.main_metric_name}']
 
     def reset_metric(self):
         self.running_metric = defaultdict(list)

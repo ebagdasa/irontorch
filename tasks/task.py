@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Dict
 import torch.utils.data as torch_data
 import wandb
 
@@ -44,7 +44,7 @@ class Task:
     optimizer: optim.Optimizer = None
     criterion: Module = None
     scheduler: MultiStepLR = None
-    metrics: List[Metric] = None
+    metrics: Dict[str, Metric] = None
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -67,8 +67,9 @@ class Task:
         self.criterion = self.make_criterion()
         self.scheduler = self.make_scheduler()
 
-        self.metrics = [AccuracyMetric(drop_label=self.params.drop_label, total_dropped=self.get_total_drop_class()),
-                        TestLossMetric(self.criterion)]
+        self.metrics = dict(accuracy=AccuracyMetric(drop_label=self.params.drop_label,
+                                                    total_dropped=self.get_total_drop_class()),
+                            loss=TestLossMetric(self.criterion))
         self.set_input_shape()
         self.model = self.model.to(self.params.device)
 
@@ -208,22 +209,22 @@ class Task:
         return batch.to(self.params.device)
 
     def accumulate_metrics(self, outputs, labels):
-        for metric in self.metrics:
+        for name, metric in self.metrics.items():
             metric.accumulate_on_batch(outputs, labels)
 
     def reset_metrics(self):
-        for metric in self.metrics:
+        for name, metric in self.metrics.items():
             metric.reset_metric()
 
     def report_metrics(self, step, prefix='',
                        tb_writer=None, tb_prefix='Metric/'):
         metric_text = []
-        for metric in self.metrics:
+        for metric in self.metrics.values():
             metric_text.append(str(metric))
             metric.plot(tb_writer, step, tb_prefix=tb_prefix)
         logger.warning(f'{prefix} {step:4d}. {" | ".join(metric_text)}')
 
-        return  self.metrics[0].get_main_metric_value()
+        return self.metrics['accuracy'].get_main_metric_value()
 
     @staticmethod
     def get_batch_accuracy(outputs, labels, top_k=(1,)):

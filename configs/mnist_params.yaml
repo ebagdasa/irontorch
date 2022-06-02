@@ -39,6 +39,9 @@ drop_label: 5
 #cut_grad_threshold: 30
 #subset_training:
 #  part: 1000
+multi_objective_metric: accuracy
+multi_objective_alpha: 0.9
+
 
 poisoning_proportion: 0.001
 backdoor_label: 8

@@ -256,14 +256,15 @@ class Helper:
             self.save_grads(epoch, batch_id)
 
     def report_metrics(self, prefix, epoch=None):
-        for metric in self.task.metrics:
+        for metric in self.task.metrics.values():
             metric_values = metric.get_value(prefix=prefix)
             self.report_dict(dict_report=metric_values, step=epoch)
             logger.warning(f'{prefix}, {metric_values} {epoch}')
 
     def plot_confusion_matrix(self, backdoor=False, epoch=1):
-        metric = self.task.metrics[0]
-        if epoch == self.params.epochs and self.params.wandb and self.params.plot_conf_matrix:
+        metric = self.task.metrics.get('accuracy', None)
+        if metric and epoch == self.params.epochs and self.params.wandb\
+                and self.params.plot_conf_matrix:
             self.wandb_logger.log(
                 {f"conf_mat_back_{backdoor}": wandb.plot.confusion_matrix(
                     y_true=torch.cat(metric.ground_truth).numpy(),

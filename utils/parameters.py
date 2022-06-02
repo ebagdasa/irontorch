@@ -61,6 +61,9 @@ class Params:
     backdoor_dynamic_position: bool = False
     clean_label: bool = False
 
+    multi_objective_metric: str = None
+    multi_objective_alpha: float = None
+
     # losses to balance: `normal`, `backdoor`, `neural_cleanse`, `sentinet`,
     # `backdoor_multi`.
     loss_tasks: List[str] = None
