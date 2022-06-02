@@ -221,7 +221,9 @@ class Helper:
                 self.tb_writer.add_scalar(tag=name, scalar_value=y, global_step=step)
                 self.flush_writer()
         elif self.wandb_logger is not None:
-            self.wandb_logger.log(dict_report, step=step)
+            if step is not None:
+                dict_report['epoch'] = step
+            self.wandb_logger.log(dict_report)
 
         else:
             return False
