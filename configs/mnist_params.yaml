@@ -40,7 +40,7 @@ drop_label: 5
 #subset_training:
 #  part: 1000
 multi_objective_metric: accuracy
-multi_objective_alpha: 0.95
+multi_objective_alpha: 0.99
 
 
 poisoning_proportion: 0.001
