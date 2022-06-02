@@ -104,7 +104,7 @@ def run(hlpr):
             back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
             alpha = hlpr.params.multi_objective_alpha
             multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-            hlpr.report_dict(dict_report={'multi_objective': multi_obj}, epoch=epoch)
+            hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
 
 
