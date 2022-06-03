@@ -1,6 +1,6 @@
 project: "sweep2"
 program: "training.py"
-name: "multi_obj_0001"
+name: "multi_obj_0007"
 method: random
 metric:
 #  goal: maximize
@@ -17,7 +17,7 @@ parameters:
   momentum:
     values: [0.8, 0.9, 0.97]
   poisoning_proportion:
-    values: [0.0001]
+    values: [0.0007]
   random_seed:
     values: [ 1 ]
 command:
