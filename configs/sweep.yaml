@@ -1,25 +1,28 @@
 project: "sweep2"
 program: "training.py"
-name: "multi_obj_0007"
-method: random
+name: "multi_obj_001"
+method: bayes
 metric:
-#  goal: maximize
+  goal: maximize
   name: multi_objective
 parameters:
   batch_size:
-    values: [64, 256, 512]
+    values: [64, 128, 256, 512]
   lr:
     values: [0.1, 0.01, 0.001]
   optimizer:
-    values: ['SGD']
+    values: ['SGD', 'Adam']
   decay:
     values: [0.0005, 0.00005, 0.005]
   momentum:
-    values: [0.8, 0.9, 0.97]
+    values: [0.9, 0.97, 0.99]
   poisoning_proportion:
-    values: [0.0007]
-  random_seed:
-    values: [ 1 ]
+    values: [0.001]
+  label_noise:
+    values: [0.1, 0.3, 0.5]
+
+#  random_seed:
+#    values: [ 1 ]
 command:
   - ${env}
   - python
