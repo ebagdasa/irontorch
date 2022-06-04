@@ -3,6 +3,7 @@ name: "sweep"
 
 task: MNIST
 synthesizer: Pattern
+data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 
