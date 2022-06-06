@@ -45,8 +45,8 @@ def run(hlpr):
         back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-        tune.report(accuracy=metrics['accuracy'], epoch=epoch,
-                    backdoor_accuracy=backdoor_metrics['accuracy'],
+        tune.report(accuracy=main_obj, epoch=epoch,
+                    backdoor_accuracy=back_obj,
                     multi_objective=multi_obj)
         # hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
@@ -67,29 +67,42 @@ if __name__ == '__main__':
         "momentum": tune.uniform(0.8, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
         "lr": tune.loguniform(1e-4, 1e-1),
-        "label_noise": tune.uniform(0.0, 0.5),
+        "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(5e-7, 5e-3),
-        "epochs": tune.qrandint(5, 15),
+        "epochs": 12,
         "batch_size": tune.qlograndint(4, 10, 2),
+        "drop_label_proportion": 0.95,
+        "multi_objective_alpha": 0.95,
+        "poisoning_proportion": 0.0007,
+        "wandb": {"project": "rayTune3", "monitor_gym": True}
     }
-    config={"wandb": {"project": "rayTune3", "monitor_gym": True}}
+    asha_scheduler = ASHAScheduler(
+        time_attr='epoch',
+        metric='multi_objective',
+        mode='max',
+        max_t=12,
+        grace_period=5,
+        reduction_factor=3,
+    )
+    config={}
     # runtime_env = RuntimeEnv(
     #     conda='pt',
     #     working_dir="/home/eugene/irontorch",
     #     # py_modules=[Helper, test, train]
     #
     # )
-    hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
+    # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=config, num_samples=1000,
-                        search_alg=hyperopt_search,
+    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 2, "GPU": 1}]),
-                        log_to_file=True
+                        log_to_file=True,
+                        metric='multi_objective',
+                        mode='max'
                         )
