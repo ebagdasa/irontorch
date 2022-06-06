@@ -99,9 +99,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     analysis = tune.run(tune_run, config=search_space, num_samples=1000,
+                        # scheduler=asha_scheduler,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
-                        resources_per_trial=tune.PlacementGroupFactory([{"CPU": 2, "GPU": 1}]),
+                        resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         metric='multi_objective',
                         mode='max'
