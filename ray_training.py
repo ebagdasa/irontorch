@@ -81,10 +81,12 @@ if __name__ == '__main__':
     # )
     hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
 
-    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch"},
-             include_dashboard=True, dashboard_port=9999, dashboard_host='0.0.0.0')
+    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
+                                                               'excludes': ['.git',
+                                                                            '.data']},
+             include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=config, num_samples=10,
+    analysis = tune.run(tune_run, config=config, num_samples=1000,
                         search_alg=hyperopt_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
