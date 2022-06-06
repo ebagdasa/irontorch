@@ -64,28 +64,30 @@ def tune_run(config):
 
 if __name__ == '__main__':
     search_space = {
-        "momentum": tune.uniform(0.1, 0.9),
+        "momentum": tune.uniform(0.8, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
         "lr": tune.loguniform(1e-4, 1e-1),
         "label_noise": tune.uniform(0.0, 0.5),
         "decay": tune.loguniform(5e-7, 5e-3),
         "epochs": tune.qrandint(5, 15),
-        "batch_size": tune.loguniform(4, 10, 2)
+        "batch_size": tune.qlograndint(4, 10, 2),
     }
-    config={"wandb": {"project": "rayTune", "monitor_gym": True}}
+    config={"wandb": {"project": "rayTune3", "monitor_gym": True}}
     # runtime_env = RuntimeEnv(
     #     conda='pt',
     #     working_dir="/home/eugene/irontorch",
     #     # py_modules=[Helper, test, train]
     #
     # )
-    hyperopt_search = HyperOptSearch(search_space, metric="mean_accuracy", mode="max")
+    hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
 
-    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch"})
+    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch"},
+             include_dashboard=True, dashboard_port=9999, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=config, num_samples=1000,
+    analysis = tune.run(tune_run, config=config, num_samples=10,
                         search_alg=hyperopt_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
-                        resources_per_trial=tune.PlacementGroupFactory([{"CPU": 2, "GPU": 1}])
+                        resources_per_trial=tune.PlacementGroupFactory([{"CPU": 2, "GPU": 1}]),
+                        log_to_file=True
                         )
