@@ -93,7 +93,7 @@ if __name__ == '__main__':
         "epochs": 12,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
         "drop_label_proportion": 0.95,
-        "multi_objective_alpha": 0.95,
+        "multi_objective_alpha": 0.99,
         "poisoning_proportion": 0.0005,
         "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
     }
