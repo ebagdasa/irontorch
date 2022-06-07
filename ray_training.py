@@ -83,18 +83,19 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
+    exp_name = 'mo_0005'
     search_space = {
         "momentum": tune.uniform(0.7, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
         "lr": tune.loguniform(1e-4, 1e-1, 5e-5),
-        "label_noise": tune.uniform(0.0, 0.3),
+        # "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(5e-7, 5e-3),
         "epochs": 12,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
         "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.95,
-        "poisoning_proportion": 0.0007,
-        "wandb": {"project": "rayTune5", "monitor_gym": True}
+        "poisoning_proportion": 0.0005,
+        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',
@@ -120,8 +121,8 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=200,
-                        name="mo1",
+    analysis = tune.run(tune_run, config=search_space, num_samples=400,
+                        name=exp_name,
                         # scheduler=asha_scheduler,
                         search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
