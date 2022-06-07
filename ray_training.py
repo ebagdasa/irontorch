@@ -2,6 +2,7 @@ import argparse
 from ray.tune.integration.wandb import WandbLogger
 from ray.runtime_env import RuntimeEnv
 from ray.tune.suggest.hyperopt import HyperOptSearch
+from ray.tune.suggest.optuna import OptunaSearch
 
 import training
 import helper
@@ -34,20 +35,21 @@ def run(hlpr):
         logging.disable(logging.DEBUG)
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
-        #
-        # hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
-        logging.disable(logging.NOTSET)
-        # hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
-        # hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
-        main_obj = metrics[hlpr.params.multi_objective_metric]
-        back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
-        alpha = hlpr.params.multi_objective_alpha
-        multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-        tune.report(accuracy=main_obj, epoch=epoch,
-                    backdoor_accuracy=back_obj,
-                    multi_objective=multi_obj)
+    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
+    #
+    # hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
+    backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
+    logging.disable(logging.NOTSET)
+    # hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
+    # hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
+    main_obj = metrics[hlpr.params.multi_objective_metric]
+    back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
+    alpha = hlpr.params.multi_objective_alpha
+    multi_obj = alpha * main_obj - (1 - alpha) * back_obj
+    tune.report(accuracy=main_obj, epoch=epoch,
+                backdoor_accuracy=back_obj,
+                multi_objective=multi_obj)
+     # main_obj, back_obj
         # hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
 
@@ -66,15 +68,15 @@ if __name__ == '__main__':
     search_space = {
         "momentum": tune.uniform(0.8, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
-        "lr": tune.loguniform(1e-4, 1e-1),
+        "lr": tune.loguniform(1e-4, 1e-1, 5e-5),
         "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(5e-7, 5e-3),
         "epochs": 12,
-        "batch_size": tune.qlograndint(4, 10, 2),
+        "batch_size": tune.choice([32, 64, 128, 256, 512]),
         "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.95,
         "poisoning_proportion": 0.0007,
-        "wandb": {"project": "rayTune3", "monitor_gym": True}
+        "wandb": {"project": "rayTune4", "monitor_gym": True}
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',
@@ -92,6 +94,7 @@ if __name__ == '__main__':
     #
     # )
     # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
+    optuna_search = OptunaSearch(metric="accuracy", mode="max")
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
@@ -99,11 +102,22 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     analysis = tune.run(tune_run, config=search_space, num_samples=1000,
+                        name="so",
                         # scheduler=asha_scheduler,
+                        search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
-                        metric='multi_objective',
+                        metric='accuracy',
                         mode='max'
                         )
+
+    print(
+        "Best hyperparameters for accuracy found were: ",
+        analysis.get_best_config("accuracy", "min"),
+    )
+    print(
+        "Best hyperparameters for backdoor_accuracy found were: ",
+        analysis.get_best_config("backdoor_accuracy", "max"),
+    )
