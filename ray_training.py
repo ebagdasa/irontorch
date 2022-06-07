@@ -65,8 +65,8 @@ def tune_run(config):
         acc, back_acc, mo = run(helper)
         main_obj.append(acc)
         back_obj.append(back_acc)
-        multi_obj.append(multi_obj)
-        if acc <= 85 or back_acc >= 90:
+        multi_obj.append(mo)
+        if acc <= 80 or back_acc >= 90:
             tune.report(accuracy=np.mean(main_obj),
                         backdoor_accuracy=np.mean(back_obj),
                         multi_objective=np.mean(multi_obj),
@@ -120,15 +120,15 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
-                        name="so",
+    analysis = tune.run(tune_run, config=search_space, num_samples=200,
+                        name="mo1",
                         # scheduler=asha_scheduler,
                         search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
-                        metric='accuracy',
+                        metric='multi_objective',
                         mode='max'
                         )
 
