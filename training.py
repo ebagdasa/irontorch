@@ -32,7 +32,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     criterion = hlpr.task.criterion
     model.train()
 
-    for i, data in tqdm(enumerate(train_loader)):
+    for i, data in tqdm(enumerate(train_loader), disable=True):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad(set_to_none=True)
         if hlpr.params.label_noise:

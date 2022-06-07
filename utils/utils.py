@@ -71,7 +71,7 @@ def create_logger():
         Setup the logging environment
     """
     log = logging.getLogger('logger')  # root logger
-    log.setLevel(logging.DEBUG)
+    log.setLevel(logging.ERROR)
     format_str = '%(asctime)s - %(levelname)-8s - %(message)s'
     date_format = '%Y-%m-%d %H:%M:%S'
     if os.isatty(2):
@@ -88,7 +88,7 @@ def create_logger():
     stream_handler = logging.StreamHandler()
     stream_handler.setFormatter(formatter)
     log.addHandler(stream_handler)
-    return logging.getLogger('logger')
+    return log
 
 
 def th(vector):

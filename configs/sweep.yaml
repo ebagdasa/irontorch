@@ -18,6 +18,8 @@ parameters:
     values: [0.81]
   poisoning_proportion:
     values: [0.0007]
+  epochs:
+    [12]
 #  label_noise:
 #    values: [0.1, 0.3, 0.5]
 
