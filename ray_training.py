@@ -46,9 +46,7 @@ def run(hlpr):
     back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
     alpha = hlpr.params.multi_objective_alpha
     multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-    tune.report(accuracy=main_obj, epoch=epoch,
-                backdoor_accuracy=back_obj,
-                multi_objective=multi_obj)
+    return main_obj, back_obj, multi_obj
      # main_obj, back_obj
         # hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
@@ -60,13 +58,33 @@ def tune_run(config):
     for key, value in config.items():
         if params.get(key, None) is not None:
             params[key] = value
+
     helper = Helper(params)
-    run(helper)
+    main_obj, back_obj, multi_obj = list(), list(), list()
+    for x in range(5):
+        acc, back_acc, mo = run(helper)
+        main_obj.append(acc)
+        back_obj.append(back_acc)
+        multi_obj.append(multi_obj)
+        if acc <= 85 or back_acc >= 90:
+            tune.report(accuracy=np.mean(main_obj),
+                        backdoor_accuracy=np.mean(back_obj),
+                        multi_objective=np.mean(multi_obj),
+                        acc_std=np.std(main_obj),
+                        back_std=np.std(back_obj)
+                        )
+            return
+
+    tune.report(accuracy=np.mean(main_obj),
+                backdoor_accuracy=np.mean(back_obj),
+                multi_objective=np.mean(multi_obj),
+                acc_std=np.std(main_obj),
+                back_std=np.std(back_obj))
 
 
 if __name__ == '__main__':
     search_space = {
-        "momentum": tune.uniform(0.8, 0.99),
+        "momentum": tune.uniform(0.7, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
         "lr": tune.loguniform(1e-4, 1e-1, 5e-5),
         "label_noise": tune.uniform(0.0, 0.3),
@@ -76,7 +94,7 @@ if __name__ == '__main__':
         "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.95,
         "poisoning_proportion": 0.0007,
-        "wandb": {"project": "rayTune4", "monitor_gym": True}
+        "wandb": {"project": "rayTune5", "monitor_gym": True}
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',
@@ -94,7 +112,8 @@ if __name__ == '__main__':
     #
     # )
     # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
-    optuna_search = OptunaSearch(metric="accuracy", mode="max")
+    # optuna_search = OptunaSearch(metric="accuracy", mode="max")
+    optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
