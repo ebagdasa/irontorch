@@ -36,12 +36,13 @@ def run(hlpr):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
         metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
+        drop_class = hlpr.task.metrics['accuracy'].get_value()['_Accuracy_Drop_5']
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
         main_obj = metrics[hlpr.params.multi_objective_metric]
         back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-        tune.report(accuracy=main_obj,
+        tune.report(accuracy=main_obj, drop_class=drop_class,
                     backdoor_accuracy=back_obj,
                     multi_objective=multi_obj, epoch=epoch)
     # return main_obj, back_obj, multi_obj
@@ -90,7 +91,7 @@ if __name__ == '__main__':
         "decay": tune.loguniform(5e-7, 5e-3),
         "epochs": 15,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
-        "drop_label_proportion": 0.95,
+        # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
         "poisoning_proportion": 0.0005,
         "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
