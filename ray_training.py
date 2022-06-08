@@ -128,8 +128,10 @@ if __name__ == '__main__':
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
-                        metric='multi_objective',
-                        mode='max'
+                        fail_fast=True,
+                        keep_checkpoints_num=1
+                        # metric='multi_objective',
+                        # mode='max'
                         )
 
     print(
