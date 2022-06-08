@@ -83,7 +83,7 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'mo_0005'
+    exp_name = 'so_0005'
     search_space = {
         "momentum": tune.uniform(0.7, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
@@ -113,8 +113,8 @@ if __name__ == '__main__':
     #
     # )
     # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
-    # optuna_search = OptunaSearch(metric="accuracy", mode="max")
-    optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
+    optuna_search = OptunaSearch(metric="accuracy", mode="max")
+    # optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
