@@ -62,16 +62,16 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'good_poison_001'
+    exp_name = 'mo_poison_001'
     iterations = 20
     search_space = {
-        "momentum": 0.726799,
+        "momentum": 0.80333,
         "optimizer": 'Adam',
-        "lr": 0.000178,
+        "lr": 0.00072,
         # "label_noise": tune.uniform(0.0, 0.3),
-        "decay": 0.00006,
+        "decay": 0.0000048,
         "epochs": 15,
-        "batch_size": 64,
+        "batch_size": 128,
         "random_seed": tune.grid_search(list(range(iterations))),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
