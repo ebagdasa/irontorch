@@ -62,8 +62,8 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'mo_poison_001'
-    iterations = 20
+    exp_name = 'mo_poison_0005'
+    iterations = 10
     search_space = {
         "momentum": 0.80333,
         "optimizer": 'Adam',
@@ -75,7 +75,7 @@ if __name__ == '__main__':
         "random_seed": tune.grid_search(list(range(iterations))),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 0.001,
+        "poisoning_proportion": 0.0005,
 
         "wandb": {"project": f"random_seed", "group": exp_name, "monitor_gym": True}
     }
