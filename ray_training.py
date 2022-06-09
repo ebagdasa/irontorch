@@ -121,7 +121,7 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1500,
+    analysis = tune.run(tune_run, config=search_space, num_samples=500,
                         name=exp_name,
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,
@@ -130,7 +130,8 @@ if __name__ == '__main__':
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         fail_fast=True,
-                        keep_checkpoints_num=1
+                        keep_checkpoints_num=1,
+                        sync_to_driver=False,
                         # metric='multi_objective',
                         # mode='max'
                         )
