@@ -63,7 +63,7 @@ def tune_run(config):
 
 if __name__ == '__main__':
     exp_name = 'mo_poison_0005'
-    iterations = 10
+    iterations = 9
     search_space = {
         "momentum": 0.80333,
         "optimizer": 'Adam',
