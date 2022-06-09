@@ -280,7 +280,7 @@ class Helper:
     def fix_random(seed=1):
         from torch.backends import cudnn
 
-        logger.warning('Setting random_seed seed for reproducible results.')
+        logger.error(f'Setting random_seed seed {seed} for reproducible results.')
         random.seed(seed)
         torch.manual_seed(seed)
         torch.cuda.manual_seed_all(seed)
