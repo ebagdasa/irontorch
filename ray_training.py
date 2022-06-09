@@ -5,7 +5,6 @@ from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.optuna import OptunaSearch
 
 import training
-import helper
 
 from helper import Helper
 from training import train, test
@@ -61,19 +60,21 @@ def tune_run(config):
     helper = Helper(params)
     run(helper)
     # main_obj, back_obj, multi_obj = list(), list(), list()
-    # for x in range(1):
-    # acc, back_acc, mo = run(helper)
-    # main_obj.append(acc)
-    # back_obj.append(back_acc)
-    # multi_obj.append(mo)
-        # if acc <= 80 or back_acc >= 90:
-        #     tune.report(accuracy=np.mean(main_obj),
-        #                 backdoor_accuracy=np.mean(back_obj),
-        #                 multi_objective=np.mean(multi_obj),
-        #                 acc_std=np.std(main_obj),
-        #                 back_std=np.std(back_obj)
-        #                 )
-        #     return
+    # for x in range(10):
+    #     params['random_seed'] = x
+    #     helper = Helper(params)
+    #     acc, back_acc, mo = run(helper)
+    #     main_obj.append(acc)
+    #     back_obj.append(back_acc)
+    #     multi_obj.append(mo)
+    #     if acc <= 80 or back_acc >= 90:
+    #         tune.report(accuracy=np.mean(main_obj),
+    #                     backdoor_accuracy=np.mean(back_obj),
+    #                     multi_objective=np.mean(multi_obj),
+    #                     acc_std=np.std(main_obj),
+    #                     back_std=np.std(back_obj)
+    #                     )
+    #         return
     # tune.report(accuracy=np.mean(main_obj),
     #             backdoor_accuracy=np.mean(back_obj),
     #             multi_objective=np.mean(multi_obj),
@@ -82,7 +83,7 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'asha_so_0005'
+    exp_name = 'asha_mo_001'
     search_space = {
         "momentum": tune.uniform(0.7, 0.99),
         "optimizer": tune.choice(['Adam', 'SGD']),
@@ -93,7 +94,7 @@ if __name__ == '__main__':
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 0.0005,
+        "poisoning_proportion": 0.001,
         "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
     }
     asha_scheduler = ASHAScheduler(
@@ -101,8 +102,8 @@ if __name__ == '__main__':
         metric='multi_objective',
         mode='max',
         max_t=15,
-        grace_period=2,
-        reduction_factor=4,
+        grace_period=5,
+        reduction_factor=3,
     )
     config={}
     # runtime_env = RuntimeEnv(
@@ -112,15 +113,15 @@ if __name__ == '__main__':
     #
     # )
     # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
-    optuna_search = OptunaSearch(metric="accuracy", mode="max")
-    # optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
+    # optuna_search = OptunaSearch(metric="accuracy", mode="max")
+    optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
+    analysis = tune.run(tune_run, config=search_space, num_samples=1500,
                         name=exp_name,
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,
