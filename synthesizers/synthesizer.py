@@ -5,6 +5,9 @@ from tasks.batch import Batch
 from tasks.task import Task
 from utils.parameters import Params
 from numpy.random import Generator, PCG64
+import logging
+
+logger = logging.getLogger('logger')
 
 class Synthesizer:
     params: Params
@@ -79,5 +82,5 @@ class Synthesizer:
                 indices = new_indices
         else:
             indices = indices_arr.nonzero().T[0].numpy()
-        print(f'Poisoned total of {len(indices)} out of {dataset_len}.')
+        logger.error(f'Poisoned total of {len(indices)} out of {dataset_len}.')
         return indices_arr, indices
