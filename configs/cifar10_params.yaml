@@ -2,6 +2,8 @@ project: "all_mix"
 name: "CLEAN_ALL"
 dataset: "CIFAR10"
 
+data_path: /home/eugene/irontorch/.data
+
 task: Cifar10
 synthesizer: Pattern
 
@@ -54,10 +56,10 @@ scheduler_milestones: [150, 225]
   #'conv1.weight'
   #'fc.weight'
 
-#save_model: True
-#tb: False
-#log: True
-#wandb: True
+save_model: False
+tb: False
+log: False
+wandb: False
 #plot_conf_matrix: True
 
 transform_train: True
