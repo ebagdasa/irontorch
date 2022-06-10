@@ -50,7 +50,7 @@ class Helper:
         if self.params.backdoor:
             self.modify_datasets()
         self.task.test_attack_dataset = self.attack.attack_dataset(
-                self.task.test_attack_dataset, 1.0)
+                self.task.test_attack_dataset, 'ALL')
         self.task.make_loaders()
         self.task.make_opacus()
         self.best_loss = float('inf')

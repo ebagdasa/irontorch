@@ -27,7 +27,7 @@ grad_clip: 0.7
 
 pretrained: False
 
-scheduler: True
+scheduler: False
 scheduler_milestones: [150, 225]
 #
 #poisoning_proportion: 0.0005
@@ -54,11 +54,11 @@ scheduler_milestones: [150, 225]
   #'conv1.weight'
   #'fc.weight'
 
-save_model: True
+#save_model: True
 #tb: False
-log: True
-wandb: True
-plot_conf_matrix: True
+#log: True
+#wandb: True
+#plot_conf_matrix: True
 
 transform_train: True
 

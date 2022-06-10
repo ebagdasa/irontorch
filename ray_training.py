@@ -83,15 +83,15 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'asha_mo_001'
+    exp_name = 'gs_001'
     search_space = {
-        "momentum": tune.uniform(0.7, 0.99),
-        "optimizer": tune.choice(['Adam', 'SGD']),
-        "lr": tune.loguniform(1e-4, 1e-1, 5e-5),
+        "optimizer": 'SGD',
+        "lr": tune.loguniform(1e-7, 1e-1, 10),
+        "momentum": tune.uniform(0, 1),
         # "label_noise": tune.uniform(0.0, 0.3),
-        "decay": tune.loguniform(5e-7, 5e-3),
+        "decay": tune.loguniform(1e-7, 1e-1, 10),
         "epochs": 15,
-        "batch_size": tune.choice([32, 64, 128, 256, 512]),
+        "batch_size": tune.grid_search([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
         "poisoning_proportion": 0.001,
@@ -121,10 +121,10 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=500,
+    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
                         name=exp_name,
-                        scheduler=asha_scheduler,
-                        # search_alg=optuna_search,
+                        # scheduler=asha_scheduler,
+                        search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
@@ -132,8 +132,8 @@ if __name__ == '__main__':
                         fail_fast=True,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
-                        # metric='multi_objective',
-                        # mode='max'
+                        metric='multi_objective',
+                        mode='max'
                         )
 
     print(

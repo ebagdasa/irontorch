@@ -60,9 +60,15 @@ class Synthesizer:
     def get_indices(self, indices_arr, proportion, dataset, clean_label=None):
         dataset_len = len(dataset)
         indices_cover = range(self.params.clean_subset, dataset_len) if dataset.train else range(dataset_len)
+        if proportion == 'ALL':
+            backdoor_counts = dataset_len
+        elif proportion < 1:
+            backdoor_counts = int(proportion * dataset_len)
+        else:
+            backdoor_counts = proportion
         if indices_arr is None:
             rs = Generator(PCG64(self.params.random_seed))
-            indices = rs.choice(indices_cover, int(proportion * dataset_len),
+            indices = rs.choice(indices_cover, backdoor_counts,
                                        replace=False)
             indices_arr = torch.zeros(dataset_len, dtype=torch.int32)
             if clean_label:

@@ -50,7 +50,7 @@ def run(hlpr):
 
 
 def tune_run(config):
-    with open('/home/eugene/irontorch/configs/mnist_params.yaml') as f:
+    with open('/home/eugene/irontorch/configs/cifar10_params.yaml') as f:
         params = yaml.load(f, Loader=yaml.FullLoader)
 
     for key, value in config.items():
@@ -59,47 +59,82 @@ def tune_run(config):
 
     helper = Helper(params)
     run(helper)
+    # main_obj, back_obj, multi_obj = list(), list(), list()
+    # for x in range(10):
+    #     params['random_seed'] = x
+    #     helper = Helper(params)
+    #     acc, back_acc, mo = run(helper)
+    #     main_obj.append(acc)
+    #     back_obj.append(back_acc)
+    #     multi_obj.append(mo)
+    #     if acc <= 80 or back_acc >= 90:
+    #         tune.report(accuracy=np.mean(main_obj),
+    #                     backdoor_accuracy=np.mean(back_obj),
+    #                     multi_objective=np.mean(multi_obj),
+    #                     acc_std=np.std(main_obj),
+    #                     back_std=np.std(back_obj)
+    #                     )
+    #         return
+    # tune.report(accuracy=np.mean(main_obj),
+    #             backdoor_accuracy=np.mean(back_obj),
+    #             multi_objective=np.mean(multi_obj),
+    #             acc_std=np.std(main_obj),
+    #             back_std=np.std(back_obj))
 
 
 if __name__ == '__main__':
-    exp_name = 'mo_poison_0001_large'
-    iterations = 9
+    exp_name = 'cifar_30'
     search_space = {
-        "momentum": 0.80333,
-        "optimizer": 'Adam',
-        "lr": 0.00072,
+        "optimizer": 'SGD',
+        "lr": tune.loguniform(1e-7, 3e-1, 10),
+        # "scheduler": tune.choice([False, True]),
+        "momentum": tune.uniform(0, 1),
         # "label_noise": tune.uniform(0.0, 0.3),
-        "decay": 0.0000048,
-        "epochs": 15,
-        "batch_size": 128,
-        "random_seed": tune.grid_search(list(range(iterations))),
+        "decay": tune.loguniform(1e-7, 1e-1, 10),
+        "epochs": 100,
+        "batch_size": tune.grid_search([32, 64, 128, 256]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 20,
-
-        "wandb": {"project": f"random_seed", "group": exp_name, "monitor_gym": True}
+        "poisoning_proportion": 30,
+        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
     }
+    asha_scheduler = ASHAScheduler(
+        time_attr='epoch',
+        metric='multi_objective',
+        mode='max',
+        max_t=100,
+        grace_period=10,
+        reduction_factor=3,
+    )
     config={}
     # runtime_env = RuntimeEnv(
+    #     conda='pt',
+    #     working_dir="/home/eugene/irontorch",
+    #     # py_modules=[Helper, test, train]
+    #
+    # )
+    # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
+    # optuna_search = OptunaSearch(metric="accuracy", mode="max")
+    optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1,
+    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
                         name=exp_name,
-                        # scheduler=asha_scheduler,
+                        scheduler=asha_scheduler,
                         # search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
-                        log_to_file=False,
+                        log_to_file=True,
                         fail_fast=True,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
-                        # metric='multi_objective',
-                        # mode='max'
+                        metric='multi_objective',
+                        mode='max'
                         )
 
     print(
