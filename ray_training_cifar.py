@@ -131,7 +131,7 @@ if __name__ == '__main__':
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         fail_fast=True,
-                        max_failures=1,
+                        # max_failures=1,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
                         # metric='multi_objective',
