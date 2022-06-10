@@ -130,7 +130,6 @@ if __name__ == '__main__':
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
-                        loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         fail_fast=True,
