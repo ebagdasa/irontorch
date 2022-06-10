@@ -86,10 +86,10 @@ if __name__ == '__main__':
     exp_name = 'mnist_50'
     search_space = {
         "optimizer": 'SGD',
-        "lr": tune.loguniform(1e-7, 1e-1, 10),
+        "lr": tune.loguniform(1e-5, 1e-1, 10),
         "momentum": tune.uniform(0, 1),
         # "label_noise": tune.uniform(0.0, 0.3),
-        "decay": tune.loguniform(1e-7, 1e-1, 10),
+        "decay": tune.loguniform(1e-7, 1e-3, 10),
         "epochs": 15,
         "batch_size": tune.grid_search([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
@@ -106,8 +106,8 @@ if __name__ == '__main__':
         metric='multi_objective',
         mode='max',
         max_t=15,
-        grace_period=1,
-        reduction_factor=3,
+        grace_period=2,
+        reduction_factor=4,
     )
     config={}
     # runtime_env = RuntimeEnv(
@@ -125,7 +125,7 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
+    analysis = tune.run(tune_run, config=search_space, num_samples=100,
                         name=exp_name,
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,

@@ -18,10 +18,10 @@ data_path: /home/eugene/irontorch/.data
 
 batch_size: 128
 test_batch_size: 100
-lr: 0.01
+lr: 0.1
 momentum: 0.95
 decay: 0.0001
-epochs: 5
+epochs: 10
 save_on_epochs: []
 optimizer: SGD
 log_interval: 1000
@@ -44,7 +44,7 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 0.0001
+poisoning_proportion: 50
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
