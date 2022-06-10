@@ -83,7 +83,7 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'gs_001'
+    exp_name = 'mnist_50'
     search_space = {
         "optimizer": 'SGD',
         "lr": tune.loguniform(1e-7, 1e-1, 10),
@@ -94,15 +94,21 @@ if __name__ == '__main__':
         "batch_size": tune.grid_search([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 0.001,
-        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
+        "poisoning_proportion": 50,
+        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True,
+                  "excludes": ["time_since_restore", "training_iteration",
+                               "warmup_time",
+                               "iterations_since_restore", "time_this_iter_s",
+                               "time_total_s",
+                               "timestamp", "timesteps_since_restore"]
+                  }
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',
         metric='multi_objective',
         mode='max',
         max_t=15,
-        grace_period=5,
+        grace_period=1,
         reduction_factor=3,
     )
     config={}
@@ -123,8 +129,8 @@ if __name__ == '__main__':
 
     analysis = tune.run(tune_run, config=search_space, num_samples=1000,
                         name=exp_name,
-                        # scheduler=asha_scheduler,
-                        search_alg=optuna_search,
+                        scheduler=asha_scheduler,
+                        # search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         loggers=[WandbLogger],
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
@@ -132,8 +138,8 @@ if __name__ == '__main__':
                         fail_fast=True,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
-                        metric='multi_objective',
-                        mode='max'
+                        # metric='multi_objective',
+                        # mode='max'
                         )
 
     print(
