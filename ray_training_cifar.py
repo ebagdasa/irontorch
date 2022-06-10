@@ -122,7 +122,7 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=10,
+    analysis = tune.run(tune_run, config=search_space, num_samples=100,
                         name=exp_name,
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,
