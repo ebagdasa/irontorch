@@ -28,6 +28,8 @@ grad_clip: 0.7
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: False
+multi_objective_metric: accuracy
+multi_objective_alpha: 0.9
 
 scheduler: False
 scheduler_milestones: [150, 225]
