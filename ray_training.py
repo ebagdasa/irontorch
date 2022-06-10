@@ -50,7 +50,7 @@ def run(hlpr):
 
 
 def tune_run(config):
-    with open('./configs/mnist_params.yaml') as f:
+    with open('/home/eugene/irontorch/configs/cifar10_params.yaml') as f:
         params = yaml.load(f, Loader=yaml.FullLoader)
 
     for key, value in config.items():
