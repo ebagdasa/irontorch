@@ -87,11 +87,11 @@ if __name__ == '__main__':
     search_space = {
         "optimizer": 'SGD',
         "lr": tune.loguniform(1e-7, 3e-1, 10),
-        # "scheduler": tune.choice([False, True]),
+        "scheduler": tune.choice([False, True]),
         "momentum": tune.uniform(0, 1),
         # "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(1e-7, 1e-1, 10),
-        "epochs": 100,
+        "epochs": 200,
         "batch_size": tune.grid_search([32, 64, 128, 256]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
@@ -102,7 +102,7 @@ if __name__ == '__main__':
         time_attr='epoch',
         metric='multi_objective',
         mode='max',
-        max_t=100,
+        max_t=200,
         grace_period=10,
         reduction_factor=3,
     )
