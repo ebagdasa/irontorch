@@ -1,5 +1,5 @@
 import argparse
-from ray.tune.integration.wandb import WandbLogger
+from ray.tune.integration.wandb import WandbLogger, WandbLoggerCallback
 from ray.runtime_env import RuntimeEnv
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.optuna import OptunaSearch
@@ -96,10 +96,6 @@ if __name__ == '__main__':
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
         "poisoning_proportion": 200,
-        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True,
-                  "excludes": ["time_since_restore", "training_iteration", "warmup_time",
-                               "iterations_since_restore", "time_this_iter_s", "time_total_s",
-                               "timestamp", "timesteps_since_restore"]}
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',
@@ -109,7 +105,11 @@ if __name__ == '__main__':
         grace_period=10,
         reduction_factor=3,
     )
-    config={}
+    callbacks = [WandbLoggerCallback(f"rayTune_{exp_name}",
+                                     excludes=["time_since_restore", "training_iteration", "warmup_time",
+                                       "iterations_since_restore", "time_this_iter_s", "time_total_s",
+                                       "timestamp", "timesteps_since_restore"])
+    ]
     # runtime_env = RuntimeEnv(
     #     conda='pt',
     #     working_dir="/home/eugene/irontorch",
@@ -134,6 +134,7 @@ if __name__ == '__main__':
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         fail_fast=True,
+                        callbacks=callbacks,
                         # max_failures=1,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
