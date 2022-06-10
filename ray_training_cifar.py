@@ -83,7 +83,7 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'cifar_30'
+    exp_name = 'cifar_100'
     search_space = {
         "optimizer": 'SGD',
         "lr": tune.loguniform(1e-7, 3e-1, 10),
@@ -95,7 +95,7 @@ if __name__ == '__main__':
         "batch_size": tune.grid_search([32, 64, 128, 256]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 30,
+        "poisoning_proportion": 100,
         "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
     }
     asha_scheduler = ASHAScheduler(
