@@ -15,7 +15,7 @@ from ray.tune.schedulers import ASHAScheduler
 import numpy as np
 import logging
 import functools
-
+logger = logging.getLogger('logger')
 
 def disable_logging(func):
     @functools.wraps(func)
@@ -56,7 +56,7 @@ def tune_run(config):
     for key, value in config.items():
         if params.get(key, None) is not None:
             params[key] = value
-
+            logger.error(f'Updating {key} with {value}')
     helper = Helper(params)
     run(helper)
     # main_obj, back_obj, multi_obj = list(), list(), list()
@@ -122,7 +122,7 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=1000,
+    analysis = tune.run(tune_run, config=search_space, num_samples=10,
                         name=exp_name,
                         scheduler=asha_scheduler,
                         # search_alg=optuna_search,
@@ -131,6 +131,7 @@ if __name__ == '__main__':
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
                         fail_fast=True,
+                        max_failures=1,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
                         # metric='multi_objective',
