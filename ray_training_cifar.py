@@ -95,8 +95,11 @@ if __name__ == '__main__':
         "batch_size": tune.grid_search([32, 64, 128, 256]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 100,
-        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True}
+        "poisoning_proportion": 200,
+        "wandb": {"project": f"rayTune_{exp_name}", "monitor_gym": True,
+                  "excludes": ["time_since_restore", "training_iteration", "warmup_time",
+                               "iterations_since_restore", "time_this_iter_s", "time_total_s",
+                               "timestamp", "timesteps_since_restore"]}
     }
     asha_scheduler = ASHAScheduler(
         time_attr='epoch',

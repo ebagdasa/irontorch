@@ -65,7 +65,7 @@ class Synthesizer:
         elif proportion < 1:
             backdoor_counts = int(proportion * dataset_len)
         else:
-            backdoor_counts = proportion
+            backdoor_counts = int(proportion)
         if indices_arr is None:
             rs = Generator(PCG64(self.params.random_seed))
             indices = rs.choice(indices_cover, backdoor_counts,
