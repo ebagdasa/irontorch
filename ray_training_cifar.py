@@ -133,8 +133,8 @@ if __name__ == '__main__':
                         fail_fast=True,
                         keep_checkpoints_num=1,
                         # sync_to_driver=False,
-                        metric='multi_objective',
-                        mode='max'
+                        # metric='multi_objective',
+                        # mode='max'
                         )
 
     print(
