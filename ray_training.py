@@ -83,18 +83,18 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'optuna_mnist_50'
+    exp_name = 'optuna_mnist_100'
     search_space = {
         "optimizer": 'SGD',
         "lr": tune.loguniform(1e-5, 1e-1, 10),
-        "momentum": tune.uniform(0, 1),
+        "momentum": tune.uniform(0.8, 0.97),
         # "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(1e-7, 1e-3, 10),
         "epochs": 15,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
-        "poisoning_proportion": 50,
+        "poisoning_proportion": 100,
 
     }
     callbacks = [WandbLoggerCallback(f"rayTune_{exp_name}",
