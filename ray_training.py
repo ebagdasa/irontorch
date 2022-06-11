@@ -91,7 +91,7 @@ if __name__ == '__main__':
         # "label_noise": tune.uniform(0.0, 0.3),
         "decay": tune.loguniform(1e-7, 1e-3, 10),
         "epochs": 15,
-        "batch_size": tune.grid_search([32, 64, 128, 256, 512]),
+        "batch_size": tune.choice([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.99,
         "poisoning_proportion": 50,
