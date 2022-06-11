@@ -83,7 +83,7 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'mnist_50'
+    exp_name = 'optuna_mnist_50'
     search_space = {
         "optimizer": 'SGD',
         "lr": tune.loguniform(1e-5, 1e-1, 10),
@@ -125,10 +125,10 @@ if __name__ == '__main__':
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=100,
+    analysis = tune.run(tune_run, config=search_space, num_samples=300,
                         name=exp_name,
-                        scheduler=asha_scheduler,
-                        # search_alg=optuna_search,
+                        # scheduler=asha_scheduler,
+                        search_alg=optuna_search,
                         # resources_per_trial={'gpu': 1, 'cpu': 2},
                         resources_per_trial=tune.PlacementGroupFactory([{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
