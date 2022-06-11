@@ -135,7 +135,6 @@ if __name__ == '__main__':
                         fail_fast=True,
                         callbacks=callbacks,
                         keep_checkpoints_num=1,
-                        resume=True
                         # sync_to_driver=False,
                         # metric='multi_objective',
                         # mode='max'
