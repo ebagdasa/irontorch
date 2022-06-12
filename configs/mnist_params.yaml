@@ -44,7 +44,7 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 50
+poisoning_proportion: 200
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
