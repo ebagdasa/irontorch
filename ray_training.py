@@ -93,7 +93,7 @@ if __name__ == '__main__':
         "epochs": 15,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
         # "drop_label_proportion": 0.95,
-        "multi_objective_alpha": 0.99,
+        "multi_objective_alpha": 0.95,
         "poisoning_proportion": 200,
 
     }
