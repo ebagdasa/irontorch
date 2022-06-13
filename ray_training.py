@@ -1,6 +1,7 @@
 import argparse
 from ray.tune.integration.wandb import WandbLogger, WandbLoggerCallback
 from ray.runtime_env import RuntimeEnv
+from ray.tune.stopper import MaximumIterationStopper
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.optuna import OptunaSearch
 
@@ -96,14 +97,15 @@ def tune_run(exp_name, search_space):
         asha_scheduler = None
     else:
         optuna_search = None
-
-    analysis = tune.run(run, config=search_space, num_samples=300,
+    stopper = MaximumIterationStopper(search_space['max_iterations'])
+    analysis = tune.run(run, config=search_space, num_samples=-1,
                     name=exp_name,
                     search_alg=optuna_search,
                     scheduler=asha_scheduler,
                     resources_per_trial=tune.PlacementGroupFactory(
                         [{"CPU": 4, "GPU": 1}]),
                     log_to_file=True,
+                    stopper=stopper,
                     fail_fast=True,
                     callbacks=callbacks,
                     keep_checkpoints_num=1,
@@ -129,6 +131,7 @@ if __name__ == '__main__':
         poisoning_proportion = 200
         search_alg = 'asha'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
+        max_iterations = 300
         search_space = {
             "optimizer": tune.choice(['SGD', 'Adam']),
             "lr": tune.loguniform(1e-5, 1e-1, 10),
@@ -142,6 +145,7 @@ if __name__ == '__main__':
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
+            "max_iterations": max_iterations
 
         }
         tune_run(exp_name, search_space)
