@@ -105,7 +105,7 @@ def tune_run(exp_name, search_space):
                     resources_per_trial=tune.PlacementGroupFactory(
                         [{"CPU": 4, "GPU": 1}]),
                     log_to_file=True,
-                    stopper=stopper,
+                    stop=stopper,
                     fail_fast=True,
                     callbacks=callbacks,
                     keep_checkpoints_num=1,
