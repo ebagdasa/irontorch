@@ -35,8 +35,8 @@ scheduler: False
 scheduler_milestones: [150, 225]
 #
 #poisoning_proportion: 0.0005
-#backdoor_label: 8
-#backdoor: True
+backdoor_label: 8
+backdoor: True
 ##
 drop_label_proportion: 0.9
 drop_label: 5
