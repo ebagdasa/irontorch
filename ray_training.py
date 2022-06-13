@@ -136,6 +136,7 @@ if __name__ == '__main__':
             "optimizer": tune.choice(['SGD', 'Adam']),
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
+            "grace_period": 4,
             # "label_noise": tune.uniform(0.0, 0.3),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
             "epochs": 15,
