@@ -33,6 +33,7 @@ if __name__ == '__main__':
         search_space = {
             "name": name,
             "optimizer": 'SGD',
+            "grace_period": 4,
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
