@@ -37,7 +37,7 @@ if __name__ == '__main__':
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
-            "epochs": 20,
+            "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
