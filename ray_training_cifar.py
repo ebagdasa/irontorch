@@ -25,18 +25,17 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['so', 'mo']:
+    for name in ['so', 'mo', 'multi']:
         poisoning_proportion = 200
-        search_alg = 'asha'
-        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
+        search_alg = 'optuna'
+        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
         search_space = {
             "optimizer": tune.choice(['SGD', 'Adam']),
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
-            # "label_noise": tune.uniform(0.0, 0.3),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
-            "epochs": 15,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "epochs": 100,
+            "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,

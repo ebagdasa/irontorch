@@ -129,7 +129,7 @@ if __name__ == '__main__':
 
     for name in ['so', 'mo']:
         poisoning_proportion = 200
-        search_alg = 'asha'
+        search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
         max_iterations = 5
         search_space = {
