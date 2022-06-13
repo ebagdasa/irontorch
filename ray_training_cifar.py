@@ -31,6 +31,7 @@ if __name__ == '__main__':
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
         max_iterations = 5
         search_space = {
+            "name": name,
             "optimizer": 'SGD',
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
