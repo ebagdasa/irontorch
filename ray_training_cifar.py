@@ -29,7 +29,7 @@ if __name__ == '__main__':
         poisoning_proportion = 200
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
-        max_iterations = 5
+        max_iterations = 100
         search_space = {
             "name": name,
             "optimizer": 'SGD',
