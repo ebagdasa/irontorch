@@ -26,7 +26,7 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['so', 'mo', 'multi']:
-        poisoning_proportion = 200
+        poisoning_proportion = 1000
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
         max_iterations = 100
@@ -37,7 +37,7 @@ if __name__ == '__main__':
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
-            "epochs": 100,
+            "epochs": 20,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
