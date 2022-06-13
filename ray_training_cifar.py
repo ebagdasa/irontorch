@@ -29,8 +29,9 @@ if __name__ == '__main__':
         poisoning_proportion = 200
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
+        max_iterations = 5
         search_space = {
-            "optimizer": tune.choice(['SGD', 'Adam']),
+            "optimizer": 'SGD',
             "lr": tune.loguniform(1e-5, 1e-1, 10),
             "momentum": tune.uniform(0, 1),
             "decay": tune.loguniform(1e-7, 1e-3, 10),
@@ -41,6 +42,6 @@ if __name__ == '__main__':
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
-
+            "max_iterations": max_iterations
         }
         tune_run(exp_name, search_space)
