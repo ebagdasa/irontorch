@@ -97,15 +97,13 @@ def tune_run(exp_name, search_space):
         asha_scheduler = None
     else:
         optuna_search = None
-    stopper = MaximumIterationStopper(search_space['max_iterations'])
-    analysis = tune.run(run, config=search_space, num_samples=-1,
+    analysis = tune.run(run, config=search_space, num_samples=search_space['max_iterations'],
                     name=exp_name,
                     search_alg=optuna_search,
                     scheduler=asha_scheduler,
                     resources_per_trial=tune.PlacementGroupFactory(
                         [{"CPU": 4, "GPU": 1}]),
                     log_to_file=True,
-                    stop=stopper,
                     fail_fast=True,
                     callbacks=callbacks,
                     keep_checkpoints_num=1,
