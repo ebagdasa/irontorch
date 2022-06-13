@@ -83,50 +83,56 @@ def tune_run(config):
 
 
 if __name__ == '__main__':
-    exp_name = 'optuna_mo_mnist_50'
-    search_space = {
-        "optimizer": tune.choice(['SGD', 'Adam']),
-        "lr": tune.loguniform(1e-5, 1e-1, 10),
-        "momentum": tune.uniform(0, 1),
-        # "label_noise": tune.uniform(0.0, 0.3),
-        "decay": tune.loguniform(1e-7, 1e-3, 10),
-        "epochs": 15,
-        "batch_size": tune.choice([32, 64, 128, 256, 512]),
-        # "drop_label_proportion": 0.95,
-        "multi_objective_alpha": 0.95,
-        "poisoning_proportion": 50,
-
-    }
-    callbacks = [WandbLoggerCallback(f"rayTune_{exp_name}",
-                                     excludes=["time_since_restore", "training_iteration", "warmup_time",
-                                       "iterations_since_restore", "time_this_iter_s", "time_total_s",
-                                       "timestamp", "timesteps_since_restore"])]
-    asha_scheduler = ASHAScheduler(
-        time_attr='epoch',
-        metric='multi_objective',
-        mode='max',
-        max_t=15,
-        grace_period=2,
-        reduction_factor=4,
-    )
-    config={}
-    # runtime_env = RuntimeEnv(
-    #     conda='pt',
-    #     working_dir="/home/eugene/irontorch",
-    #     # py_modules=[Helper, test, train]
-    #
-    # )
-    # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
-    # optuna_search = OptunaSearch(metric="accuracy", mode="max")
-    optuna_search = OptunaSearch(metric="multi_objective", mode="max")
-    # optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
 
     ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
                                                                'excludes': ['.git',
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    analysis = tune.run(tune_run, config=search_space, num_samples=300,
+    for name in ['so', 'mo', 'multi']:
+        poisoning_proportion = 25
+        exp_name = f'optuna_{name}_mnist_{poisoning_proportion}'
+        search_space = {
+            "optimizer": tune.choice(['SGD', 'Adam']),
+            "lr": tune.loguniform(1e-5, 1e-1, 10),
+            "momentum": tune.uniform(0, 1),
+            # "label_noise": tune.uniform(0.0, 0.3),
+            "decay": tune.loguniform(1e-7, 1e-3, 10),
+            "epochs": 15,
+            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            # "drop_label_proportion": 0.95,
+            "multi_objective_alpha": 0.95,
+            "poisoning_proportion": poisoning_proportion,
+
+        }
+        callbacks = [WandbLoggerCallback(f"rayTune_{exp_name}",
+                                         excludes=["time_since_restore",
+                                                   "training_iteration",
+                                                   "warmup_time",
+                                                   "iterations_since_restore",
+                                                   "time_this_iter_s",
+                                                   "time_total_s",
+                                                   "timestamp",
+                                                   "timesteps_since_restore"])]
+        # asha_scheduler = ASHAScheduler(
+        #     time_attr='epoch',
+        #     metric='multi_objective',
+        #     mode='max',
+        #     max_t=15,
+        #     grace_period=2,
+        #     reduction_factor=4,
+        # )
+        # hyperopt_search = HyperOptSearch(search_space, metric="multi_objective", mode="max")
+        if name == 'so':
+            optuna_search = OptunaSearch(metric="accuracy", mode="max")
+        elif name == 'mo':
+            optuna_search = OptunaSearch(metric="multi_objective", mode="max")
+        elif name == 'multi':
+            optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"], mode=["max", "min"])
+        else:
+            raise ValueError(name)
+
+        analysis = tune.run(tune_run, config=search_space, num_samples=300,
                         name=exp_name,
                         # scheduler=asha_scheduler,
                         search_alg=optuna_search,
