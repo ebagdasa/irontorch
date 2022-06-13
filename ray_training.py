@@ -76,13 +76,13 @@ def tune_run(exp_name, search_space):
 
     if name == 'so':
         optuna_search = OptunaSearch(metric="accuracy", mode="max")
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='accuracy',
+        asha_scheduler = ASHAScheduler(time_attr='epochs', metric='accuracy',
                                        mode='max', max_t=search_space['epoch'],
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
     elif name == 'mo':
         optuna_search = OptunaSearch(metric="multi_objective", mode="max")
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
+        asha_scheduler = ASHAScheduler(time_attr='epochs', metric='multi_objective',
                                        mode='max', max_t=search_space['epoch'],
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
