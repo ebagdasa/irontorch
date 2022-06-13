@@ -73,7 +73,7 @@ def tune_run(exp_name, search_space):
                                                "time_total_s",
                                                "timestamp",
                                                "timesteps_since_restore"])]
-
+    name = search_space['name']
     if name == 'so':
         optuna_search = OptunaSearch(metric="accuracy", mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric='accuracy',
