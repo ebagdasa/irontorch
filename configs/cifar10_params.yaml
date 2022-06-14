@@ -34,7 +34,7 @@ multi_objective_alpha: 0.9
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-#poisoning_proportion: 0.0005
+poisoning_proportion: 200
 backdoor_label: 8
 backdoor: True
 ##
