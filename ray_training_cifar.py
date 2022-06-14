@@ -26,10 +26,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 10
+        poisoning_proportion = 25
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
-        max_iterations = 100
+        max_iterations = 700
         search_space = {
             "name": name,
             "optimizer": 'SGD',
@@ -42,6 +42,11 @@ if __name__ == '__main__':
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
+            "transform_sharpness": tune.uniform(0, 1),
+            "transform_erase": tune.uniform(0, 1),
+            "grad_sigma": tune.loguniform(1e-5, 1e-1, 10),
+            "grad_clip": tune.loguniform(1e-1, 10, 10),
+            "label_noise": tune.uniform(0.0, 1.0),
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations

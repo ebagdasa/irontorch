@@ -7,10 +7,10 @@ data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 
-#grad_sigma: 0.01
-#grad_clip: 10
-#batch_clip: True
-#label_noise: 0.1
+grad_sigma: 0.0
+grad_clip: 1000
+batch_clip: True
+label_noise: 0.0
 
 #opacus: True
 #saved_grads: True

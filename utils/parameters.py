@@ -68,6 +68,9 @@ class Params:
     # `backdoor_multi`.
     loss_tasks: List[str] = None
 
+    transform_erase: float = 0.0
+    transform_sharpness: float = 0.0
+
     loss_balance: str = 'MGDA'
     "loss_balancing: `fixed` or `MGDA`"
 

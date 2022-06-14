@@ -125,11 +125,11 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['so', 'mo']:
-        poisoning_proportion = 200
+    for name in ['multi']:
+        poisoning_proportion = 100
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
-        max_iterations = 5
+        max_iterations = 500
         search_space = {
             "name": name,
             "optimizer": tune.choice(['SGD', 'Adam']),
@@ -140,6 +140,11 @@ if __name__ == '__main__':
             "decay": tune.loguniform(1e-7, 1e-3, 10),
             "epochs": 15,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "transform_sharpness": tune.uniform(0, 1),
+            "transform_erase": tune.uniform(0, 1),
+            "grad_sigma": tune.loguniform(1e-5, 1e-1, 10),
+            "grad_clip": tune.loguniform(1e-1, 10, 10),
+            "label_noise": tune.uniform(0.0, 1.0),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
