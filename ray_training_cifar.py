@@ -25,8 +25,8 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['so', 'mo', 'multi']:
-        poisoning_proportion = 50
+    for name in ['multi']:
+        poisoning_proportion = 10
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
         max_iterations = 100
