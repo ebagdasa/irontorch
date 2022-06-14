@@ -21,17 +21,6 @@ class Cifar10Task(Task):
     def load_data(self):
         self.load_cifar_data()
 
-    def make_transformations(self):
-        transformations = list()
-        # transforms.RandomCrop(32, padding=4)
-        # transforms.RandomPerspective(0.2, 0.2, 0.2, 0.2)
-        transformations.append(
-            transforms.RandomAdjustSharpness(0.3, p=self.params.transform_sharpness))
-        transformations.append(transforms.RandomErasing(p=self.params.transform_erase,
-                                                        scale=(0.02, 0.03),
-                                                        ratio=(0.3, 3.3), value=0,
-                                                        inplace=False))
-        return transformations
 
     def load_cifar_data(self):
         if self.params.transform_train:
@@ -40,7 +29,11 @@ class Cifar10Task(Task):
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 self.normalize,
-                self.make_transformations(),
+                transforms.RandomAdjustSharpness(0.3, p=self.params.transform_sharpness),
+                transforms.RandomErasing(p=self.params.transform_erase,
+                                                                scale=(0.02, 0.03),
+                                                                ratio=(0.3, 3.3), value=0,
+                                                                inplace=False)
             ])
         else:
             transform_train = transforms.Compose([
