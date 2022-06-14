@@ -26,10 +26,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['so', 'mo', 'multi']:
-        poisoning_proportion = 200
+        poisoning_proportion = 2000
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
-        max_iterations = 100
+        max_iterations = 5
         search_space = {
             "name": name,
             "optimizer": 'SGD',
