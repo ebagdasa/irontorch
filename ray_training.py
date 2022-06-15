@@ -129,16 +129,15 @@ if __name__ == '__main__':
     for name in ['multi']:
         poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_n'
-        max_iterations = 400
+        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_full'
+        max_iterations = 1000
         search_space = {
             "name": name,
-            "optimizer": "Adam", # tune.choice(['SGD', 'Adam']),
-            "lr": 0.001, #tune.qloguniform(1e-4, 1e-1, 10, 1e-4),
-            "momentum": 0.7683,
+            "optimizer": tune.choice(['SGD', 'Adam']),
+            "lr": tune.qloguniform(1e-4, 1e-1, 10, 1e-4),
+            "momentum": tune.quniform(0.0, 0.95, 0.05),
             "grace_period": 4,
-            # "label_noise": tune.uniform(0.0, 0.3),
-            "decay": 2.07e-7, #tune.qloguniform(1e-7, 1e-4, 10, 5e-7),
+            "decay": tune.qloguniform(1e-7, 1e-4, 10, 5e-7),
             "epochs": 15,
             "batch_size": 256,
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
