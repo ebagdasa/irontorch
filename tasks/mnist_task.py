@@ -31,7 +31,6 @@ class MNISTTask(Task):
         transform_train = transforms.Compose([
             transforms.ToTensor(),
             self.normalize,
-            self.make_transformations(),
 
         ])
 
