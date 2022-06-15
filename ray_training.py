@@ -129,7 +129,7 @@ if __name__ == '__main__':
     for name in ['multi']:
         poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
+        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_n'
         max_iterations = 400
         search_space = {
             "name": name,
