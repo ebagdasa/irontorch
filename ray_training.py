@@ -57,7 +57,7 @@ def run(config):
                     multi_objective=multi_obj, epoch=epoch)
 
 
-def tune_run(exp_name, search_space):
+def tune_run(exp_name, search_space, resume=False):
     """
     Tune the model and return the best model.
     :param exp_name:
@@ -107,6 +107,7 @@ def tune_run(exp_name, search_space):
                     fail_fast=True,
                     callbacks=callbacks,
                     keep_checkpoints_num=1,
+                    resume=resume
                     )
     print(
         "Best hyperparameters for accuracy found were: ",
@@ -129,22 +130,22 @@ if __name__ == '__main__':
         poisoning_proportion = 100
         search_alg = 'optuna'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}'
-        max_iterations = 500
+        max_iterations = 400
         search_space = {
             "name": name,
-            "optimizer": tune.choice(['SGD', 'Adam']),
-            "lr": tune.loguniform(1e-5, 1e-1, 10),
-            "momentum": tune.uniform(0.6, 0.999),
+            "optimizer": "SGD", # tune.choice(['SGD', 'Adam']),
+            "lr": 0.01, #tune.qloguniform(1e-4, 1e-1, 10, 1e-4),
+            "momentum": tune.quniform(0.6, 0.95, 0.05),
             "grace_period": 4,
             # "label_noise": tune.uniform(0.0, 0.3),
-            "decay": tune.loguniform(1e-7, 1e-3, 10),
+            "decay": 1e-5, #tune.qloguniform(1e-7, 1e-4, 10, 5e-7),
             "epochs": 15,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            "grad_sigma": tune.loguniform(1e-7, 1e-1, 10),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 10, 5e-6),
             # "grad_clip": tune.loguniform(1e-1, 10, 10),
-            "label_noise": tune.uniform(0.0, 0.5),
+            "label_noise": tune.quniform(0.0, 0.5, 0.1),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,

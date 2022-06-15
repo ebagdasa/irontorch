@@ -35,20 +35,20 @@ if __name__ == '__main__':
             "optimizer": 'SGD',
             "grace_period": 4,
             "lr": tune.loguniform(1e-5, 1e-1, 10),
-            "momentum": tune.uniform(0, 1),
-            "decay": tune.loguniform(1e-7, 1e-3, 10),
+            "momentum": 0.9, #tune.uniform(0, 1),
+            "decay": 1e-5, #tune.loguniform(1e-7, 1e-3, 10),
             "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
-            "transform_sharpness": tune.uniform(0, 1),
-            "transform_erase": tune.uniform(0, 1),
-            "grad_sigma": tune.loguniform(1e-5, 1e-1, 10),
-            "grad_clip": tune.loguniform(1e-1, 10, 10),
-            "label_noise": tune.uniform(0.0, 1.0),
+            "transform_sharpness": tune.loguniform(1e-4, 1, 10),
+            "transform_erase": tune.loguniform(1e-4, 1, 10),
+            "grad_sigma": tune.loguniform(1e-5, 5e-2, 10),
+            "grad_clip": "5",
+            "label_noise": tune.loguniform(0.0, 1.0),
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
         }
-        tune_run(exp_name, search_space)
+        tune_run(exp_name, search_space, resume=True)
