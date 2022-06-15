@@ -137,7 +137,7 @@ if __name__ == '__main__':
             "lr": tune.qloguniform(1e-4, 1e-1, 10, 1e-4),
             "momentum": tune.quniform(0.0, 0.95, 0.05),
             "grace_period": 4,
-            "decay": tune.qloguniform(1e-7, 1e-4, 10, 5e-7),
+            "decay": tune.qloguniform(1e-7, 1e-4, 5e-7),
             "epochs": 15,
             "batch_size": 256,
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
