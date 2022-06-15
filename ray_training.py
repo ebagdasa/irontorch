@@ -154,4 +154,4 @@ if __name__ == '__main__':
             "max_iterations": max_iterations
 
         }
-        tune_run(exp_name, search_space)
+        tune_run(exp_name, search_space, resume=True)
