@@ -134,7 +134,7 @@ if __name__ == '__main__':
         search_space = {
             "name": name,
             "optimizer": tune.choice(['SGD', 'Adam']),
-            "lr": tune.quniform(1e-5, 2e-1, 1e-4),
+            "lr": tune.quniform(1e-5, 2e-1, 1e-5),
             "momentum": tune.quniform(0.0, 0.95, 0.05),
             "grace_period": 4,
             "decay": tune.quniform(1e-7, 1e-3, 5e-7),
