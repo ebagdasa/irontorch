@@ -143,7 +143,7 @@ if __name__ == '__main__':
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            # "grad_clip": tune.loguniform(1e-1, 10, 10),
+            "grad_clip": tune.quniform(1, 10, 2),
             "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
