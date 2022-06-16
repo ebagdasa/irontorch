@@ -126,7 +126,7 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['so']:
+    for name in ['mo']:
         poisoning_proportion = 50
         search_alg = 'asha'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_full'
@@ -146,7 +146,7 @@ if __name__ == '__main__':
             "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.95,
+            "multi_objective_alpha": 0.97,
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',

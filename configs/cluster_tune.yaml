@@ -9,3 +9,13 @@ min_workers: 2
 max_workers: 2
 setup_commands:  # Set up each node.
     - conda activate pt && echo 'conda activate pt' >> ~/.bashrc
+# Patterns for files to exclude when running rsync up or rsync down
+rsync_exclude:
+    - "**/.git"
+    - "**/.git/**"
+
+# Pattern files to use for filtering out files when running rsync up or rsync down. The file is searched for
+# in the source directory and recursively through all subdirectories. For example, if .gitignore is provided
+# as a value, the behavior will match git's behavior for finding and using .gitignore files.
+rsync_filter:
+    - ".gitignore"
