@@ -25,18 +25,18 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['multi']:
+    for name in ['mo']:
         poisoning_proportion = 25
-        search_alg = 'optuna'
+        search_alg = 'asha'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
-        max_iterations = 700
+        max_iterations = 1000
         search_space = {
             "name": name,
             "optimizer": tune.choice(['SGD', 'Adam']),
-            "grace_period": 4,
-            "lr": tune.qloguniform(1e-5, 1e-1, 10),
-            "momentum": tune.uniform(0, 1),
-            "decay": tune.loguniform(1e-7, 1e-3, 10),
+            "grace_period": 2,
+            "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
+            "momentum": tune.quniform(0.1, 1.0, 0.05),
+            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
@@ -44,9 +44,9 @@ if __name__ == '__main__':
             "search_alg": search_alg,
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            # "grad_sigma": tune.loguniform(1e-5, 5e-2, 10),
-            # "grad_clip": "5",
-            # "label_noise": tune.loguniform(0.0, 1.0),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_clip": tune.quniform(1, 20, 1),
+            "label_noise": tune.quniform(0.0, 0.5, 0.05),
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
