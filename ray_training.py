@@ -121,7 +121,7 @@ def tune_run(exp_name, search_space, resume=False):
 
 if __name__ == '__main__':
 
-    ray.init(address='ray://128.84.84.162:10001',
+    ray.init(address='ray://128.84.84.8:10001',
              runtime_env={"working_dir": "/home/eugene/irontorch",
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
