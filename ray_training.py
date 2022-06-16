@@ -126,25 +126,25 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['multi']:
+    for name in ['so']:
         poisoning_proportion = 50
-        search_alg = 'optuna'
+        search_alg = 'asha'
         exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_full'
         max_iterations = 1000
         search_space = {
             "name": name,
             "optimizer": tune.choice(['SGD', 'Adam']),
-            "lr": tune.quniform(1e-5, 2e-1, 1e-5),
+            "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
             "momentum": tune.quniform(0.0, 0.95, 0.05),
-            "grace_period": 4,
-            "decay": tune.quniform(1e-7, 1e-3, 1e-7),
+            "grace_period": 2,
+            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7),
             "epochs": 15,
             "batch_size": 256,
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            "grad_sigma": tune.quniform(1e-5, 1e-1, 5e-6),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6),
             # "grad_clip": tune.loguniform(1e-1, 10, 10),
-            "label_noise": tune.quniform(0.0, 0.8, 0.05),
+            "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
