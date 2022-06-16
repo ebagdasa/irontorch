@@ -64,7 +64,7 @@ def tune_run(exp_name, search_space, resume=False):
     :param search_space:
     :return:
     """
-    callbacks = [WandbLoggerCallback(f"rayTune_{exp_name}",
+    callbacks = [WandbLoggerCallback(exp_name,
                                      excludes=["time_since_restore",
                                                "training_iteration",
                                                "warmup_time",
