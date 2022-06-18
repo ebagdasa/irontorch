@@ -29,7 +29,7 @@ if __name__ == '__main__':
         poisoning_proportion = 25
         search_alg = 'asha'
         exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
-        max_iterations = 1000
+        max_iterations = 2000
         search_space = {
             "name": name,
             "optimizer": tune.choice(['SGD', 'Adam']),
