@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for name in ['mo']:
         poisoning_proportion = 25
         search_alg = 'asha'
-        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}_t'
+        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
         max_iterations = 1000
         search_space = {
             "name": name,
@@ -51,4 +51,4 @@ if __name__ == '__main__':
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
         }
-        tune_run(exp_name, search_space)
+        tune_run(exp_name, search_space, resume=True)
