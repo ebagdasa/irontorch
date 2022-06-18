@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for name in ['mo']:
         poisoning_proportion = 25
         search_alg = 'asha'
-        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
+        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}_t'
         max_iterations = 1000
         search_space = {
             "name": name,
@@ -42,10 +42,10 @@ if __name__ == '__main__':
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
-            # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
-            # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            "grad_clip": tune.quniform(1, 20, 1),
+            "transform_sharpness": tune.quniform(0.0, 0.5, 0.01),
+            "transform_erase": tune.quniform(0.0, 0.5, 0.01),
+            "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
+            "grad_clip": tune.qloguniform(1, 32, 1, base=2),
             "label_noise": tune.quniform(0.0, 0.5, 0.05),
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
