@@ -31,7 +31,7 @@ class Cifar10Task(Task):
                 self.normalize,
                 transforms.RandomAdjustSharpness(0.3, p=self.params.transform_sharpness),
                 transforms.RandomErasing(p=self.params.transform_erase,
-                                                                scale=(0.02, 0.03),
+                                                                scale=(0.01, 0.02),
                                                                 ratio=(0.3, 3.3), value=0,
                                                                 inplace=False)
             ])

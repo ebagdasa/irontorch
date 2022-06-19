@@ -32,12 +32,13 @@ if __name__ == '__main__':
         max_iterations = 2000
         search_space = {
             "name": name,
-            "optimizer": tune.choice(['SGD', 'Adam']),
+            "optimizer": 'SGD', #tune.choice(['SGD', 'Adam']),
+            "scheduler": tune.choice(['SGD', 'Adam']),
             "grace_period": 2,
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
             "momentum": tune.quniform(0.1, 1.0, 0.05),
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": 30,
+            "epochs": 90,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
@@ -46,7 +47,7 @@ if __name__ == '__main__':
             "transform_erase": tune.quniform(0.0, 0.5, 0.01),
             "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
             "grad_clip": tune.qloguniform(1, 32, 1, base=2),
-            "label_noise": tune.quniform(0.0, 0.5, 0.05),
+            "label_noise": tune.quniform(0.0, 0.5, 0.01),
             "poisoning_proportion": poisoning_proportion,
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
