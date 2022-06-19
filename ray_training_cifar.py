@@ -33,7 +33,7 @@ if __name__ == '__main__':
         search_space = {
             "name": name,
             "optimizer": 'SGD', #tune.choice(['SGD', 'Adam']),
-            "scheduler": tune.choice(['SGD', 'Adam']),
+            "scheduler": tune.choice([True, False]),
             "grace_period": 2,
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
             "momentum": tune.quniform(0.1, 1.0, 0.05),
