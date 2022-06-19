@@ -28,7 +28,7 @@ if __name__ == '__main__':
     for name in ['mo']:
         poisoning_proportion = 25
         search_alg = 'asha'
-        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
+        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}_long'
         max_iterations = 2000
         search_space = {
             "name": name,
