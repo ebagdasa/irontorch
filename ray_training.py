@@ -148,7 +148,7 @@ if __name__ == '__main__':
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.97,
             "search_alg": search_alg,
-            "poisoning_proportion": tune.qloguniform(2, 50000, base=10),
+            "poisoning_proportion": tune.qloguniform(2, 50000, 1, base=10),
             "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
             "max_iterations": max_iterations
 
