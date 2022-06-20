@@ -87,8 +87,8 @@ def tune_run(exp_name, search_space, resume=False):
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
     elif name == 'multi' and search_space['search_alg'] == 'optuna':
-        optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"],
-                                     mode=["max", "min"])
+        optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy", 'poisoning_proportion'],
+                                     mode=["max", "min", "max"])
         asha_scheduler = None
     else:
         raise ValueError(name + search_space['search_alg'])
@@ -126,10 +126,10 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['mo']:
+    for name in ['multi']:
         poisoning_proportion = 50
-        search_alg = 'asha'
-        exp_name = f'{search_alg}_{name}_mnist_{poisoning_proportion}_full'
+        search_alg = 'optuna'
+        exp_name = f'{search_alg}_{name}_mnist_multi'
         max_iterations = 1000
         search_space = {
             "name": name,
@@ -148,7 +148,7 @@ if __name__ == '__main__':
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.97,
             "search_alg": search_alg,
-            "poisoning_proportion": poisoning_proportion,
+            "poisoning_proportion": tune.qloguniform(2, 50000, base=10),
             "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
             "max_iterations": max_iterations
 
