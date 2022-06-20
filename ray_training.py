@@ -54,7 +54,9 @@ def run(config):
         multi_obj = alpha * main_obj - (1 - alpha) * back_obj
         tune.report(accuracy=main_obj, drop_class=drop_class,
                     backdoor_accuracy=back_obj,
-                    multi_objective=multi_obj, epoch=epoch)
+                    multi_objective=multi_obj, epoch=epoch,
+                    poisoning_proportion=config['poisoning_proportion']
+                    )
 
 
 def tune_run(exp_name, search_space, resume=False):
