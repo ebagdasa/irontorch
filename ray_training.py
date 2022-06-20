@@ -141,7 +141,7 @@ if __name__ == '__main__':
             "grace_period": 2,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": 15,
-            "batch_size": tune.choice([32, 64, 128, 256]),
+            "batch_size": tune.choice([32, 64, 128, 256, 512]),
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
