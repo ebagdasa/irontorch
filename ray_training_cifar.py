@@ -26,19 +26,19 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 25
+        poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}_cifar_{poisoning_proportion}'
+        exp_name = f'{search_alg}_{name}_c{poisoning_proportion}_short'
         max_iterations = 2000
         search_space = {
             "name": name,
-            "optimizer": 'SGD', #tune.choice(['SGD', 'Adam']),
-            "scheduler": tune.choice([True, False]),
+            "optimizer": tune.choice(['SGD', 'Adam']),
+            # "scheduler": tune.choice([True, False]),
             "grace_period": 2,
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
             "momentum": tune.quniform(0.1, 1.0, 0.05),
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": 90,
+            "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256]),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.95,
