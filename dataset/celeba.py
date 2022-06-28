@@ -59,8 +59,8 @@ class CelebADataset(Dataset):
         splits = pd.read_csv(fn("list_eval_partition.csv"), delim_whitespace=False, header=0,
                              index_col=0)
         #         This file is not available in Kaggle
-        identity = pd.read_csv(fn("identity_CelebA.txt"), delim_whitespace=True, header=None,
-                               index_col=0)
+        # identity = pd.read_csv(fn("identity_CelebA.txt"), delim_whitespace=True, header=None,
+        #                        index_col=0)
         bbox = pd.read_csv(fn("list_bbox_celeba.csv"), delim_whitespace=False, header=0,
                            index_col=0)
         landmarks_align = pd.read_csv(fn("list_landmarks_align_celeba.csv"), delim_whitespace=False,
@@ -71,7 +71,7 @@ class CelebADataset(Dataset):
         mask = slice(None) if split_ is None else (splits['partition'] == split_)
 
         self.filename = splits[mask].index.values
-        self.identity = torch.as_tensor(identity[mask].values)
+        # self.identity = torch.as_tensor(identity[mask].values)
         self.bbox = torch.as_tensor(bbox[mask].values)
         self.landmarks_align = torch.as_tensor(landmarks_align[mask].values)
         self.attr = torch.as_tensor(attr[mask].values)
@@ -140,8 +140,8 @@ class CelebADataset(Dataset):
         for t in self.target_type:
             if t == "attr":
                 target.append(self.attr[index, :])
-            elif t == "identity":
-                target.append(self.identity[index, 0])
+            # elif t == "identity":
+            #     target.append(self.identity[index, 0])
             elif t == "bbox":
                 target.append(self.bbox[index, :])
             elif t == "landmarks":
