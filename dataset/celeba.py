@@ -1,71 +1,49 @@
 from functools import partial
-import torch
+import pandas as pd
 import os
 import PIL
-from torchvision.datasets import VisionDataset
-from torchvision.datasets.utils import download_file_from_google_drive, check_integrity, verify_str_arg
-from collections import defaultdict
-import random
+import glob
 
-class CelebA(VisionDataset):
-    """`Large-scale CelebFaces Attributes (CelebA) Dataset <http://mmlab.ie.cuhk.edu.hk/projects/CelebA.html>`_ Dataset.
+import torch
+from torch.utils.data import Dataset, DataLoader, random_split
+from torchvision import transforms, utils, io
+from torchvision.datasets.utils import verify_str_arg
 
-    Args:
-        root (string): Root directory where images are downloaded to.
-        split (string): One of {'train', 'valid', 'test', 'all'}.
-            Accordingly dataset is selected.
-        target_type (string or list, optional): Type of target to use, ``attr``, ``identity``, ``bbox``,
-            or ``landmarks``. Can also be a list to output a tuple with all specified target types.
-            The targets represent:
-                ``attr`` (np.array shape=(40,) dtype=int): binary (0, 1) labels for attributes
-                ``identity`` (int): label for each person (data points with the same identity are the same person)
-                ``bbox`` (np.array shape=(4,) dtype=int): bounding box (x, y, width, height)
-                ``landmarks`` (np.array shape=(10,) dtype=int): landmark points (lefteye_x, lefteye_y, righteye_x,
-                    righteye_y, nose_x, nose_y, leftmouth_x, leftmouth_y, rightmouth_x, rightmouth_y)
-            Defaults to ``attr``.
-        transform (callable, optional): A function/transform that  takes in an PIL image
-            and returns a transformed version. E.g, ``transforms.ToTensor``
-        target_transform (callable, optional): A function/transform that takes in the
-            target and transforms it.
-        download (bool, optional): If true, downloads the dataset from the internet and
-            puts it in root directory. If dataset is already downloaded, it is not
-            downloaded again.
-    """
+# import pytorch_lightning as pl
 
-    base_folder = "celeba"
-    # There currently does not appear to be a easy way to extract 7z in python (without introducing additional
-    # dependencies). The "in-the-wild" (not aligned+cropped) images are only in 7z, so they are not available
-    # right now.
-    file_list = [
-        # File ID                         MD5 Hash                            Filename
-        ("0B7EVK8r0v71pZjFTYXZWM3FlRnM", "00d2c5bc6d35e252742224ab0c1e8fcb", "img_align_celeba.zip"),
-        # ("0B7EVK8r0v71pbWNEUjJKdDQ3dGc", "b6cd7e93bc7a96c2dc33f819aa3ac651", "img_align_celeba_png.7z"),
-        # ("0B7EVK8r0v71peklHb0pGdDl6R28", "b6cd7e93bc7a96c2dc33f819aa3ac651", "img_celeba.7z"),
-        ("0B7EVK8r0v71pblRyaVFSWGxPY0U", "75e246fa4810816ffd6ee81facbd244c", "list_attr_celeba.txt"),
-        ("1_ee_0u7vcNLOfNLegJRHmolfH5ICW-XS", "32bd1bd63d3c78cd57e08160ec5ed1e2", "identity_CelebA.txt"),
-        ("0B7EVK8r0v71pbThiMVRxWXZ4dU0", "00566efa6fedff7a56946cd1c10f1c16", "list_bbox_celeba.txt"),
-        ("0B7EVK8r0v71pd0FJY3Blby1HUTQ", "cc24ecafdb5b50baae59b03474781f8c", "list_landmarks_align_celeba.txt"),
-        # ("0B7EVK8r0v71pTzJIdlJWdHczRlU", "063ee6ddb681f96bc9ca28c6febb9d1a", "list_landmarks_celeba.txt"),
-        ("0B7EVK8r0v71pY0NSMzRuSXJEVkk", "d32c9cbf5e040fd4025c592c306e6668", "list_eval_partition.txt"),
-    ]
 
-    def __init__(self, root, split="train", target_type="attr", transform=None,
-                 target_transform=None, download=False):
-        import pandas
-        super(CelebA, self).__init__(root, transform=transform,
-                                     target_transform=target_transform)
+class CelebADataset(Dataset):
+    """CelebA Dataset class"""
+
+    def __init__(self,
+                 root,
+                 split="train",
+                 target_type="attr",
+                 transform=None,
+                 target_transform=None,
+                 download=False,
+                 main_attr=None
+                 ):
+        """
+        """
+
+        self.root = root
         self.split = split
+        self.target_type = target_type
+        self.transform = transform
+        self.target_transform = target_transform
+        self.main_attr = main_attr
+
         if isinstance(target_type, list):
             self.target_type = target_type
         else:
             self.target_type = [target_type]
 
-        if download:
-            self.download()
+        if not self.target_type and self.target_transform is not None:
+            raise RuntimeError('target_transform is specified but target_type is empty')
 
-        if not self._check_integrity():
-            raise RuntimeError('Dataset not found or corrupted.' +
-                               ' You can use download=True to download it')
+        if download:
+            self.download_from_kaggle()
 
         split_map = {
             "train": 0,
@@ -73,17 +51,24 @@ class CelebA(VisionDataset):
             "test": 2,
             "all": None,
         }
-        split = split_map[verify_str_arg(split.lower(), "split",
-                                         ("train", "valid", "test", "all"))]
 
-        fn = partial(os.path.join, self.root, self.base_folder)
-        splits = pandas.read_csv(fn("list_eval_partition.txt"), delim_whitespace=True, header=None, index_col=0)
-        identity = pandas.read_csv(fn("identity_CelebA.txt"), delim_whitespace=True, header=None, index_col=0)
-        bbox = pandas.read_csv(fn("list_bbox_celeba.txt"), delim_whitespace=True, header=1, index_col=0)
-        landmarks_align = pandas.read_csv(fn("list_landmarks_align_celeba.txt"), delim_whitespace=True, header=1)
-        attr = pandas.read_csv(fn("list_attr_celeba.txt"), delim_whitespace=True, header=1)
+        split_ = split_map[
+            verify_str_arg(split.lower(), "split", ("train", "valid", "test", "all"))]
 
-        mask = slice(None) if split is None else (splits[1] == split)
+        fn = partial(os.path.join, self.root)
+        splits = pd.read_csv(fn("list_eval_partition.csv"), delim_whitespace=False, header=0,
+                             index_col=0)
+        #         This file is not available in Kaggle
+        identity = pd.read_csv(fn("identity_CelebA.txt"), delim_whitespace=True, header=None,
+                               index_col=0)
+        bbox = pd.read_csv(fn("list_bbox_celeba.csv"), delim_whitespace=False, header=0,
+                           index_col=0)
+        landmarks_align = pd.read_csv(fn("list_landmarks_align_celeba.csv"), delim_whitespace=False,
+                                      header=0, index_col=0)
+        attr = pd.read_csv(fn("list_attr_celeba.csv"), delim_whitespace=False, header=0,
+                           index_col=0)
+
+        mask = slice(None) if split_ is None else (splits['partition'] == split_)
 
         self.filename = splits[mask].index.values
         self.identity = torch.as_tensor(identity[mask].values)
@@ -93,57 +78,63 @@ class CelebA(VisionDataset):
         self.attr = (self.attr + 1) // 2  # map from {-1, 1} to {0, 1}
         self.attr_names = list(attr.columns)
 
-        self.identities_dict = defaultdict(list)
-        for i, [x] in enumerate(self.identity.tolist()):
-            self.identities_dict[x].append(i)
-        self.identities_dict = dict(self.identities_dict)
-        self.identities_set = set(self.identities_dict.keys())
+    def download_from_kaggle(self):
 
-        empty_identities = [key for key, value in self.identities_dict.items() if len(value)<1]
-        self.identities_set.difference_update(empty_identities)
+        # Annotation files will be downloaded at the end
+        label_files = ['list_attr_celeba.csv', 'list_bbox_celeba.csv', 'list_eval_partition.csv',
+                       'list_landmarks_align_celeba.csv']
 
+        # Check if files have been downloaded already
+        files_exist = False
+        for label_file in label_files:
+            if os.path.isfile(os.path.join(self.root, label_file)):
+                files_exist = True
+            else:
+                files_exist = False
 
-    def _check_integrity(self):
-        for (_, md5, filename) in self.file_list:
-            fpath = os.path.join(self.root, self.base_folder, filename)
-            _, ext = os.path.splitext(filename)
-            # Allow original archive to be deleted (zip and 7z)
-            # Only need the extracted images
-            if ext not in [".zip", ".7z"] and not check_integrity(fpath, md5):
-                return False
-
-        # Should check a hash of the images
-        return os.path.isdir(os.path.join(self.root, self.base_folder, "img_align_celeba"))
-
-    def download(self):
-        import zipfile
-
-        if self._check_integrity():
-            print('Files already downloaded and verified')
-            return
-
-        for (file_id, md5, filename) in self.file_list:
-            download_file_from_google_drive(file_id, os.path.join(self.root, self.base_folder), filename, md5)
-
-        with zipfile.ZipFile(os.path.join(self.root, self.base_folder, "img_align_celeba.zip"), "r") as f:
-            f.extractall(os.path.join(self.root, self.base_folder))
-
-    def __getitem__(self, index):
-        X, target = self.getitem_helper(index)
-        identity = target.item()
-        if len(self.identities_dict[identity])>1:
-            pos = random.sample(set(self.identities_dict[identity]).difference([index]), 1)[0]
+        if files_exist:
+            print("Files exist already")
         else:
-            pos = identity
-        neg_ident = random.sample(self.identities_set.difference([identity]), 1)[0]
-        neg = random.sample(self.identities_dict[neg_ident], 1)[0]
-        Y, identity_pos = self.getitem_helper(pos)
-        Z, identity_neg = self.getitem_helper(neg)
+            print(
+                "Downloading dataset. Please while while the download and extraction processes complete")
+            # Download files from Kaggle using its API as per
+            # https://stackoverflow.com/questions/55934733/documentation-for-kaggle-api-within-python
 
-        return (X, Y, Z), target
+            # Kaggle authentication
+            # Remember to place the API token from Kaggle in $HOME/.kaggle
+            from kaggle.api.kaggle_api_extended import KaggleApi
+            api = KaggleApi()
+            api.authenticate()
 
-    def getitem_helper(self, index):
-        X = PIL.Image.open(os.path.join(self.root, self.base_folder, "img_align_celeba", self.filename[index]))
+            # Download all files of a dataset
+            # Signature: dataset_download_files(dataset, path=None, force=False, quiet=True, unzip=False)
+            api.dataset_download_files(dataset='jessicali9530/celeba-dataset',
+                                       path=self.root,
+                                       unzip=True,
+                                       force=False,
+                                       quiet=False)
+
+            # Downoad the label files
+            # Signature: dataset_download_file(dataset, file_name, path=None, force=False, quiet=True)
+            for label_file in label_files:
+                api.dataset_download_file(dataset='jessicali9530/celeba-dataset',
+                                          file_name=label_file,
+                                          path=self.root,
+                                          force=False,
+                                          quiet=False)
+
+            # Clear any remaining *.csv.zip files
+            files_to_delete = glob.glob(os.path.join(self.root, "*.csv.zip"))
+            for f in files_to_delete:
+                os.remove(f)
+
+            print("Done!")
+
+    def __getitem__(self, index: int, attr=None):
+        X = PIL.Image.open(os.path.join(self.root,
+                                        "img_align_celeba",
+                                        "img_align_celeba",
+                                        self.filename[index]))
 
         target = []
         for t in self.target_type:
@@ -156,20 +147,84 @@ class CelebA(VisionDataset):
             elif t == "landmarks":
                 target.append(self.landmarks_align[index, :])
             else:
-                raise ValueError("Target type \"{}\" is not recognized.".format(t))
-        target = tuple(target) if len(target) > 1 else target[0]
+                raise ValueError(f"Target type {t} is not recognized")
 
         if self.transform is not None:
             X = self.transform(X)
 
-        if self.target_transform is not None:
-            target = self.target_transform(target)
+        if target:
+            target = tuple(target) if len(target) > 1 else target[0]
+
+            if self.target_transform is not None:
+                target = self.target_transform(target)
+        else:
+            target = None
+
+        if self.main_attr:
+            target = target[self.main_attr]
 
         return X, target
 
-    def __len__(self):
+    def __len__(self) -> int:
         return len(self.attr)
 
-    def extra_repr(self):
-        lines = ["Target type: {target_type}", "Split: {split}"]
-        return '\n'.join(lines).format(**self.__dict__)
+#
+# class CelebADataModule(pl.LightningDataModule):
+#
+#     def __init__(self,
+#                  data_dir,
+#                  target_type="attr",
+#                  train_transform=None,
+#                  val_transform=None,
+#                  target_transform=None,
+#                  download=False,
+#                  batch_size=32,
+#                  num_workers=8):
+#         super().__init__()
+#
+#         self.data_dir = data_dir
+#         self.target_type = target_type
+#         self.train_transform = train_transform
+#         self.val_transform = val_transform
+#         self.target_transform = target_transform
+#         self.download = download
+#
+#         self.batch_size = batch_size
+#         self.num_workers = num_workers
+#
+#     def setup(self, stage=None):
+#         # Training dataset
+#         self.celebA_trainset = CelebADataset(root=self.data_dir,
+#                                              split='train',
+#                                              target_type=self.target_type,
+#                                              download=self.download,
+#                                              transform=self.train_transform,
+#                                              target_transform=self.target_transform)
+#
+#         # Validation dataset
+#         self.celebA_valset = CelebADataset(root=self.data_dir,
+#                                            split='valid',
+#                                            target_type=self.target_type,
+#                                            download=False,
+#                                            transform=self.val_transform,
+#                                            target_transform=self.target_transform)
+#
+#         # Test dataset
+#         self.celebA_testset = CelebADataset(root=self.data_dir,
+#                                             split='test',
+#                                             target_type=self.target_type,
+#                                             download=False,
+#                                             transform=self.val_transform,
+#                                             target_transform=self.target_transform)
+#
+#     def train_dataloader(self):
+#         return DataLoader(self.celebA_trainset, batch_size=self.batch_size, shuffle=True,
+#                           drop_last=True, num_workers=self.num_workers)
+#
+#     def val_dataloader(self):
+#         return DataLoader(self.celebA_valset, batch_size=self.batch_size, shuffle=False,
+#                           drop_last=False, num_workers=self.num_workers)
+#
+#     def test_dataloader(self):
+#         return DataLoader(self.celebA_testset, batch_size=self.batch_size, shuffle=False,
+#                           drop_last=False, num_workers=self.num_workers)
