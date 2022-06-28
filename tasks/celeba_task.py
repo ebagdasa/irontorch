@@ -23,9 +23,11 @@ class CelebaTask(Task):
 
 
     def load_celeba_data(self):
+        image_size = 32
         if self.params.transform_train:
             transform_train = transforms.Compose([
-                transforms.RandomCrop(32, padding=4),
+                transforms.CenterCrop((170,170)),
+                transforms.Resize((image_size, image_size)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
                 self.normalize,
@@ -139,7 +141,7 @@ class CelebaTask(Task):
                                            unpoisoned_images))
 
     def make_attack_pattern(self, pattern_tensor, x_top, y_top, mask_value):
-        full_image = torch.zeros(self.train_dataset.data[0].shape)
+        full_image = torch.zeros(self.train_dataset[0][0].shape)
         full_image.fill_(mask_value)
 
         x_bot = x_top + pattern_tensor.shape[0]
