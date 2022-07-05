@@ -11,7 +11,7 @@ if __name__ == '__main__':
 
     for _ in ['multi']:
         poisoning_proportion = 50
-        search_alg = 'optuna'
+        search_alg = None #'optuna'
         exp_name = f'cifar_run_normal'
         max_iterations = 50
         search_space = {
@@ -26,7 +26,7 @@ if __name__ == '__main__':
             # "batch_size": tune.choice([32, 64, 128, 256]),
             # # "drop_label_proportion": 0.95,
             # "multi_objective_alpha": 0.95,
-            # "search_alg": search_alg,
+            "search_alg": search_alg,
             # # "transform_sharpness": tune.quniform(0.0, 0.5, 0.01),
             # "transform_erase": tune.quniform(0.0, 1.0, 0.01),
             # "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
