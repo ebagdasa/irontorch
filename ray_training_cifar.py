@@ -10,30 +10,30 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 50
+        # poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}_c{poisoning_proportion}_short'
-        max_iterations = 2000
+        exp_name = f'{search_alg}_{name}'
+        max_iterations = 50
         search_space = {
-            "name": name,
-            "optimizer": tune.choice(['SGD', 'Adam']),
-            # "scheduler": tune.choice([True, False]),
-            "grace_period": 2,
-            "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
-            "momentum": tune.quniform(0.1, 1.0, 0.05),
-            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": 30,
-            "batch_size": tune.choice([32, 64, 128, 256]),
-            # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.95,
-            "search_alg": search_alg,
-            # "transform_sharpness": tune.quniform(0.0, 0.5, 0.01),
-            "transform_erase": tune.quniform(0.0, 1.0, 0.01),
-            "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
-            "grad_clip": tune.qloguniform(1, 32, 1, base=2),
-            "label_noise": tune.quniform(0.0, 0.5, 0.01),
-            "poisoning_proportion": poisoning_proportion,
+            # "name": name,
+            # "optimizer": tune.choice(['SGD', 'Adam']),
+            # # "scheduler": tune.choice([True, False]),
+            # "grace_period": 2,
+            # "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
+            # "momentum": tune.quniform(0.1, 1.0, 0.05),
+            # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            # "epochs": 30,
+            # "batch_size": tune.choice([32, 64, 128, 256]),
+            # # "drop_label_proportion": 0.95,
+            # "multi_objective_alpha": 0.95,
+            # "search_alg": search_alg,
+            # # "transform_sharpness": tune.quniform(0.0, 0.5, 0.01),
+            # "transform_erase": tune.quniform(0.0, 1.0, 0.01),
+            # "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
+            # "grad_clip": tune.qloguniform(1, 32, 1, base=2),
+            # "label_noise": tune.quniform(0.0, 0.5, 0.01),
+            "poisoning_proportion": tune.lograndint(1, 10000, base=10),
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
-            "max_iterations": max_iterations
+            # "max_iterations": max_iterations
         }
         tune_run(exp_name, search_space, resume=True)
