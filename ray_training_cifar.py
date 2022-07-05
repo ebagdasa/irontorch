@@ -15,7 +15,7 @@ if __name__ == '__main__':
         exp_name = f'cifar_run_normal'
         max_iterations = 50
         search_space = {
-            # "name": name,
+            "name": None,
             # "optimizer": tune.choice(['SGD', 'Adam']),
             # # "scheduler": tune.choice([True, False]),
             # "grace_period": 2,
