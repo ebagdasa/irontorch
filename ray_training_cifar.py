@@ -9,10 +9,10 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['multi']:
-        # poisoning_proportion = 50
+    for _ in ['multi']:
+        poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}'
+        exp_name = f'cifar_run_normal'
         max_iterations = 50
         search_space = {
             # "name": name,

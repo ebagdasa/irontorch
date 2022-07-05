@@ -93,7 +93,8 @@ def tune_run(exp_name, search_space, resume=False):
                                      mode=["max", "min"])
         asha_scheduler = None
     else:
-        raise ValueError(name + search_space['search_alg'])
+        optuna_search = None
+        asha_scheduler = None
 
     if search_space['search_alg'] == 'optuna':
         asha_scheduler = None
