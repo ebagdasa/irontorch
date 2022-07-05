@@ -34,6 +34,6 @@ if __name__ == '__main__':
             # "label_noise": tune.quniform(0.0, 0.5, 0.01),
             "poisoning_proportion": tune.lograndint(1, 10000, base=10),
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
-            # "max_iterations": max_iterations
+            "max_iterations": max_iterations
         }
         tune_run(exp_name, search_space, resume=True)
