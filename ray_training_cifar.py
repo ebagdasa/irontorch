@@ -13,7 +13,7 @@ if __name__ == '__main__':
         poisoning_proportion = 50
         search_alg = None #'optuna'
         exp_name = f'cifar_run_normal2'
-        max_iterations = 40
+        max_iterations = 80
         search_space = {
             "name": 'normal',
             "batch_size": 128,
@@ -33,7 +33,7 @@ if __name__ == '__main__':
             # "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
             # "grad_clip": tune.qloguniform(1, 32, 1, base=2),
             # "label_noise": tune.quniform(0.0, 0.5, 0.01),
-            "poisoning_proportion": tune.randint(1, 200),
+            "poisoning_proportion": tune.randint(5, 60),
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
         }
