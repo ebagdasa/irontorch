@@ -55,7 +55,7 @@ def run(config):
         tune.report(accuracy=main_obj, drop_class=drop_class,
                     backdoor_accuracy=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
-                    # poisoning_proportion=config['poisoning_proportion']
+                    poisoning_proportion=config['poisoning_proportion']
                     )
 
 
