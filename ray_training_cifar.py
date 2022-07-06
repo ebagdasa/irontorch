@@ -13,7 +13,7 @@ if __name__ == '__main__':
         poisoning_proportion = 50
         search_alg = None #'optuna'
         exp_name = f'cifar_run_normal2'
-        max_iterations = 25
+        max_iterations = 40
         search_space = {
             "name": 'robust',
             "batch_size": 64,
