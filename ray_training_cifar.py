@@ -33,7 +33,7 @@ if __name__ == '__main__':
             # "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
             # "grad_clip": tune.qloguniform(1, 32, 1, base=2),
             # "label_noise": tune.quniform(0.0, 0.5, 0.01),
-            "poisoning_proportion": tune.randint(50, 150),
+            "poisoning_proportion": tune.randint(30, 150),
             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
             "max_iterations": max_iterations
         }
