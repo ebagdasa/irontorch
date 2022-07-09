@@ -29,6 +29,7 @@ class CelebADataset(Dataset):
 
         self.root = root
         self.split = split
+        self.train = True if split == 'train' else False
         self.target_type = target_type
         self.transform = transform
         self.target_transform = target_transform
@@ -77,6 +78,11 @@ class CelebADataset(Dataset):
         self.attr = torch.as_tensor(attr[mask].values)
         self.attr = (self.attr + 1) // 2  # map from {-1, 1} to {0, 1}
         self.attr_names = list(attr.columns)
+
+        if self.main_attr:
+            self.true_targets = self.attr[:, self.main_attr]
+            self.targets = self.attr[:, self.main_attr]
+
 
     def download_from_kaggle(self):
 
@@ -163,7 +169,11 @@ class CelebADataset(Dataset):
         if self.main_attr:
             target = target[self.main_attr]
 
-        return X, target
+        # if self.attack_indices is not None:
+        #     if index in self.attack_indices:
+        #         X, target = self.apply_attack(X, target)
+        #     return X, target, 0, 0
+        return X, target.item(), index, 0
 
     def __len__(self) -> int:
         return len(self.attr)

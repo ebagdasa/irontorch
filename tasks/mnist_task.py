@@ -80,20 +80,8 @@ class MNISTTask(Task):
             download=True,
             transform=transform_test)
 
-        self.test_loader = torch_data.DataLoader(self.test_dataset,
-                                                 batch_size=100,
-                                                 shuffle=False,
-                                                 num_workers=0)
-
-        self.test_attack_loader = torch_data.DataLoader(
-            self.test_attack_dataset,
-            batch_size=100,
-            shuffle=False,
-            num_workers=0)
-
         self.classes = self.train_dataset.classes
         return True
-
 
     def build_model(self):
         return SimpleNet(num_classes=len(self.classes))
@@ -108,6 +96,6 @@ class MNISTTask(Task):
         full_image[x_top:x_bot, y_top:y_bot] = pattern_tensor
 
         mask = 1 * (full_image != mask_value)
-        pattern = 255 * full_image
+        pattern = full_image
 
         return mask, pattern

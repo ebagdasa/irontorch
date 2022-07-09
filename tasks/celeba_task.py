@@ -7,8 +7,8 @@ from torchvision.transforms import transforms
 import torch.utils.data as torch_data
 from copy import copy
 
-# from models.resnet import resnet18, resnet50
-from models.resnet_cifar import resnet18
+from models.resnet import resnet18, resnet50
+# from models.resnet_cifar import resnet18
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 from dataset.celeba import CelebADataset
@@ -43,6 +43,8 @@ class CelebaTask(Task):
                 self.normalize,
             ])
         transform_test = transforms.Compose([
+            transforms.CenterCrop((170, 170)),
+            transforms.Resize((image_size, image_size)),
             transforms.ToTensor(),
             self.normalize,
         ])
@@ -88,19 +90,13 @@ class CelebaTask(Task):
             main_attr=31,
             download=True,
             transform=transform_test)
-        self.test_loader = DataLoader(self.test_dataset,
-                                      batch_size=self.params.test_batch_size,
-                                      shuffle=False, num_workers=0)
-
         self.test_attack_dataset =  CelebADataset(
             root=self.params.data_path,
             split='test',
             main_attr=31,
             download=True,
             transform=transform_test)
-        self.test_attack_loader = DataLoader(self.test_attack_dataset,
-                                      batch_size=self.params.test_batch_size,
-                                      shuffle=False, num_workers=0)
+
         self.classes = ['No', 'Yes']
         return True
 
@@ -147,9 +143,9 @@ class CelebaTask(Task):
         x_bot = x_top + pattern_tensor.shape[0]
         y_bot = y_top + pattern_tensor.shape[1]
 
-        full_image[x_top:x_bot, y_top:y_bot, :] = pattern_tensor.unsqueeze(-1)
+        full_image[:, x_top:x_bot, y_top:y_bot] = pattern_tensor.unsqueeze(0)
 
         mask = 1 * (full_image != mask_value)
         pattern = 255 * full_image
 
-        return mask.numpy(), pattern.numpy()
+        return mask, pattern

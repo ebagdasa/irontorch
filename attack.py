@@ -4,7 +4,9 @@ from typing import Dict
 import torch
 import numpy as np
 from copy import deepcopy
+import types
 
+from dataset.celeba import CelebADataset
 from models.model import Model
 from models.nc_model import NCModel
 from synthesizers.synthesizer import Synthesizer
@@ -31,16 +33,35 @@ class Attack:
             self.nc_model = NCModel(params.input_shape[1]).to(params.device)
             self.nc_optim = torch.optim.Adam(self.nc_model.parameters(), 0.01)
 
-    def attack_dataset(self, dataset, proportion, indices_arr=None, clean_label=False):
-        indices_arr, indices = self.synthesizer.get_indices(indices_arr, proportion,
+    def attack_dataset(cls, dataset, proportion, indices_arr=None, clean_label=False):
+        indices_arr, indices = cls.synthesizer.get_indices(indices_arr, proportion,
                                                             dataset, clean_label)
-        for index in indices:
-            dataset.data[index] = self.synthesizer.apply_mask(dataset.data[index])
-            dataset.targets[index] = self.params.backdoor_label
-            indices_arr[index] = 1
-        dataset.attacked_indices = indices_arr
 
-        return dataset
+        class AttackDataset(object):
+            def __init__(self, dataset):
+                self.obj = dataset
+                self.indices = indices
+                self.indices_arr = indices_arr
+
+
+            def __getattr__(self, attr):
+                return getattr(self.obj, attr)
+
+            def __len__(self):
+                return self.obj.__len__()
+
+            def __getitem__(self, index):
+                X, target, _, _ = self.obj.__getitem__(index)
+                X = X.clone()
+                target = torch.tensor(target, device='cpu')
+                if index in self.indices:
+                    X = cls.synthesizer.apply_mask(X)
+                    target = torch.tensor(cls.params.backdoor_label, device=target.device)
+                return X, target, index, self.indices_arr[index]
+
+
+        return AttackDataset(dataset)
+
 
     def compute_blind_loss(self, model, criterion, batch, attack):
         """

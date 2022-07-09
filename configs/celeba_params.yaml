@@ -7,16 +7,18 @@ data_path: /home/eugene/irontorch/.data
 task: Celeba
 synthesizer: Pattern
 
-batch_size: 128
+#device: cpu
+
+batch_size: 64
 test_batch_size: 100
-lr: 0.1
+lr: 0.001
 momentum: 0.9
 decay: 0.0005
-epochs: 200
+epochs: 10
 save_on_epochs: []
-optimizer: SGD
+optimizer: Adam
 log_interval: 100
-
+max_batch_id: 100
 #opacus: True
 #batch_clip: True
 #saved_grads: True
@@ -28,16 +30,16 @@ log_interval: 100
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
-#pretrained: False
+pretrained: True
 #multi_objective_metric: accuracy
 #multi_objective_alpha: 0.9
 
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-#poisoning_proportion: 200
-#backdoor_label: 8
-#backdoor: True
+poisoning_proportion: 5000
+backdoor_label: 0
+backdoor: False
 ##
 #drop_label_proportion: 0.9
 #drop_label: 5
@@ -61,8 +63,8 @@ scheduler_milestones: [150, 225]
 
 save_model: False
 tb: False
-log: False
-wandb: False
+#log: True
+#wandb: True
 #plot_conf_matrix: True
 
 transform_train: True

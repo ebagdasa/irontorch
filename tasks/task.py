@@ -122,6 +122,16 @@ class Task:
                                                   batch_size=self.params.batch_size,
                                                   shuffle=True,
                                                   num_workers=0)
+        self.test_loader = torch_data.DataLoader(self.test_dataset,
+                                                 batch_size=100,
+                                                 shuffle=False,
+                                                 num_workers=0)
+
+        self.test_attack_loader = torch_data.DataLoader(
+            self.test_attack_dataset,
+            batch_size=100,
+            shuffle=False,
+            num_workers=0)
 
     def make_optimizer(self, model=None) -> Optimizer:
         if model is None:

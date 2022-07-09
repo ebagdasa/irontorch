@@ -17,6 +17,7 @@ import yaml
 from torch.utils.tensorboard import SummaryWriter
 
 from attack import Attack
+from dataset.attack_dataset import AttackDataset
 from synthesizers.synthesizer import Synthesizer
 from tasks.fl.fl_task import FederatedLearningTask
 from tasks.task import Task
@@ -47,10 +48,8 @@ class Helper:
         self.make_synthesizer()
         self.attack = Attack(self.params, self.synthesizer)
 
-        if self.params.backdoor:
-            self.modify_datasets()
-        self.task.test_attack_dataset = self.attack.attack_dataset(
-                self.task.test_attack_dataset, 'ALL')
+        self.modify_datasets()
+
         self.task.make_loaders()
         self.task.make_opacus()
         self.best_loss = float('inf')
@@ -155,20 +154,14 @@ class Helper:
             logger.warning('Initialized Wandb.')
 
     def modify_datasets(self):
-        if self.params.recover_indices:
-            indices_results = torch.load(self.params.recover_indices)
-            self.task.train_dataset = self.attack.attack_dataset(
-                self.task.train_dataset,
-                self.params.poisoning_proportion, indices_results['indices'],
-                clean_label=self.params.clean_label)
-
-        else:
-            self.task.train_dataset = self.attack.attack_dataset(self.task.train_dataset,
-                                                             self.params.poisoning_proportion, None,
-                                                             clean_label=self.params.clean_label)
-            # self.task.clean_dataset = self.attack.attack_dataset(self.task.clean_dataset,
-            #                                                  0.1, None,
-            #                                                  clean_label=self.params.clean_label)
+        self.task.test_attack_dataset = AttackDataset(self.params, self.task.test_attack_dataset,
+                                                      self.synthesizer, 'ALL')
+        if self.params.backdoor:
+            self.task.train_dataset = AttackDataset(self.params, self.task.train_dataset,
+                                                    self.synthesizer,
+                                                    self.params.poisoning_proportion,
+                                                    mask=self.task.test_attack_dataset.mask,
+                                                    pattern=self.task.test_attack_dataset.pattern)
 
         return
 

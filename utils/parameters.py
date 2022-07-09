@@ -50,15 +50,31 @@ class Params:
     "No need to set, updated by the Task class."
     bn_enable = True
 
+    celeba_main_attr = 31
+    "Celeba attribute. See the dataset class for more info."
+
     # gradient shaping/DP params
     dp: bool = None
 
     # attack params
     backdoor: bool = False
+    "If True, the attack will be performed on the backdoor."
+
     backdoor_label: int = 8
-    poisoning_proportion: float = 1.0  # backdoors proportion in backdoor loss
+    "Label for the backdoor."
+
+    poisoning_proportion: float = 1.0
+    "Proportion of the dataset to use for poisoning."
+
     synthesizer: str = 'pattern'
+    "Synthesizer to use for the backdoor loss."
+
     backdoor_dynamic_position: bool = False
+    "If True, the backdoor position is dynamically determined."
+
+    backdoor_cover_percentage: float = None
+    "Size of the backdoor cover (0.5 -> 50% of input covered by backdoor)."
+
     clean_label: bool = False
 
     multi_objective_metric: str = None

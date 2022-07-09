@@ -140,7 +140,7 @@ class MNIST(VisionDataset):
         if self.target_transform is not None:
             target = self.target_transform(target)
         is_attacked = self.attacked_indices[index] if self.attacked_indices is not None else 0
-        return img, target, index, is_attacked
+        return img, target, index, 0
 
 
     def __len__(self) -> int:

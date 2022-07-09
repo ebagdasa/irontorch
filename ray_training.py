@@ -132,7 +132,7 @@ if __name__ == '__main__':
     for name in ['multi']:
         poisoning_proportion = 50
         search_alg = 'optuna'
-        exp_name = f'{search_alg}_{name}_mnist_multi'
+        exp_name = f'mnist_{search_alg}_{name}_p{poisoning_proportion}'
         max_iterations = 1000
         search_space = {
             "name": name,
@@ -141,7 +141,7 @@ if __name__ == '__main__':
             "momentum": tune.quniform(0.5, 0.95, 0.05),
             "grace_period": 2,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": 15,
+            "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),

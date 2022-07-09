@@ -40,28 +40,28 @@ class PatternSynthesizer(Synthesizer):
 
     def __init__(self, task: Task):
         super().__init__(task)
-        self.make_pattern(self.pattern_tensor, self.x_top, self.y_top)
-
-    def make_pattern(self, pattern_tensor, x_top, y_top):
-        self.mask, self.pattern = self.task.make_attack_pattern(pattern_tensor,
-                                                                x_top, y_top,
-                                                                self.mask_value)
-
-    def get_pattern(self):
-        if self.params.backdoor_dynamic_position:
-            resize = random.randint(self.resize_scale[0], self.resize_scale[1])
-            pattern = self.pattern_tensor
-            if random.random() > 0.5:
-                pattern = functional.hflip(pattern)
-            image = transform_to_image(pattern)
-            pattern = transform_to_tensor(
-                functional.resize(image,
-                    resize, interpolation=0)).squeeze()
-
-            x = random.randint(0, self.params.input_shape[1] \
-                               - pattern.shape[0] - 1)
-            y = random.randint(0, self.params.input_shape[2] \
-                               - pattern.shape[1] - 1)
-            self.make_pattern(pattern, x, y)
-
-        return self.pattern, self.mask
+    #     self.make_pattern(self.pattern_tensor, self.x_top, self.y_top)
+    #
+    # def make_pattern(self, pattern_tensor, x_top, y_top):
+    #     self.mask, self.pattern = self.task.make_attack_pattern(pattern_tensor,
+    #                                                             x_top, y_top,
+    #                                                             self.mask_value)
+    #
+    # def get_pattern(self):
+    #     if self.params.backdoor_dynamic_position:
+    #         resize = random.randint(self.resize_scale[0], self.resize_scale[1])
+    #         pattern = self.pattern_tensor
+    #         if random.random() > 0.5:
+    #             pattern = functional.hflip(pattern)
+    #         image = transform_to_image(pattern)
+    #         pattern = transform_to_tensor(
+    #             functional.resize(image,
+    #                 resize, interpolation=0)).squeeze()
+    #
+    #         x = random.randint(0, self.params.input_shape[1] \
+    #                            - pattern.shape[0] - 1)
+    #         y = random.randint(0, self.params.input_shape[2] \
+    #                            - pattern.shape[1] - 1)
+    #         self.make_pattern(pattern, x, y)
+    #
+    #     return self.pattern, self.mask

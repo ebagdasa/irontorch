@@ -24,7 +24,7 @@ decay: 0.0001
 epochs: 10
 save_on_epochs: []
 optimizer: SGD
-log_interval: 1000
+log_interval: 100
 scheduler: False
 drop_label_proportion: 0.9
 drop_label: 5
@@ -44,11 +44,12 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 20
+poisoning_proportion: 50
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
+backdoor_cover_percentage: 0.5
 
 loss_balance: MGDA
 mgda_normalize: loss
