@@ -49,7 +49,7 @@ backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
-backdoor_cover_percentage: 0.5
+backdoor_cover_percentage: 0.1
 
 loss_balance: MGDA
 mgda_normalize: loss
