@@ -135,37 +135,57 @@ if __name__ == '__main__':
         poisoning_proportion = 50
         search_alg = 'optuna'
         exp_name = f'mnist_{search_alg}_{name}_p{poisoning_proportion}'
-        max_iterations = 1000
+        max_iterations = 50
         search_space = {
-            "name": name,
-            "optimizer": tune.choice(['SGD', 'Adam']),
-            "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
-            "momentum": tune.quniform(0.5, 0.95, 0.05),
-            "grace_period": 2,
-            "group": "search_for_hyperparameters",
-            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": 30,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
-            # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
-            # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            "grad_clip": tune.quniform(1, 10, 1),
-            "label_noise": tune.quniform(0.0, 0.5, 0.05),
-            # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.97,
-            "search_alg": search_alg,
-            "poisoning_proportion": poisoning_proportion, #tune.qloguniform(2, 50000, 1, base=10),
-            "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
-            "max_iterations": max_iterations
-
+            'name': 'multi',
+            'group': 'p15',
+            'random_seed': tune.choice(list(range(1, 50))),
+             'optimizer': 'Adam',
+             'lr': 9.211724509411425e-05,
+             'momentum': 0.65,
+             'grace_period': 2,
+             'decay': 5.7183260054281126e-05,
+             'epochs': 30,
+             'batch_size': 32,
+             'grad_sigma': 1.9652434554749976e-05,
+             'grad_clip': 10.0,
+             'label_noise': 0.25,
+             'multi_objective_alpha': 0.97,
+             'search_alg': 'optuna',
+             'poisoning_proportion': 15,
+             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+             'max_iterations': 50
         }
+        # search_space = {
+        #     "name": name,
+        #     "optimizer": tune.choice(['SGD', 'Adam']),
+        #     "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
+        #     "momentum": tune.quniform(0.5, 0.95, 0.05),
+        #     "grace_period": 2,
+        #     "group": "search_for_hyperparameters",
+        #     "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+        #     "epochs": 30,
+        #     "batch_size": tune.choice([32, 64, 128, 256, 512]),
+        #     # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
+        #     # "transform_erase": tune.loguniform(1e-4, 1, 10),
+        #     "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+        #     "grad_clip": tune.quniform(1, 10, 1),
+        #     "label_noise": tune.quniform(0.0, 0.5, 0.05),
+        #     # "drop_label_proportion": 0.95,
+        #     "multi_objective_alpha": 0.97,
+        #     "search_alg": search_alg,
+        #     "poisoning_proportion": poisoning_proportion, #tune.qloguniform(2, 50000, 1, base=10),
+        #     "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
+        #     "max_iterations": max_iterations
+        #
+        # }
         analysis = tune_run(exp_name, search_space, resume=True)
-        print('Finished tuning')
-        config = analysis.get_best_config("multi_objective", "max")
-        print(config)
-        config['poisoning_proportion'] = tune.choice(list(range(0, 500, 5)))
-        config['max_iterations'] = 100
-        config['group'] = 'robust'
-        config['search_alg'] = None
-        tune_run(exp_name, config)
+        # print('Finished tuning')
+        # config = analysis.get_best_config("multi_objective", "max")
+        # print(config)
+        # config['poisoning_proportion'] = tune.choice(list(range(0, 500, 5)))
+        # config['max_iterations'] = 100
+        # config['group'] = 'robust'
+        # config['search_alg'] = None
+        # tune_run(exp_name, config)
 
