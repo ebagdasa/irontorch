@@ -66,7 +66,7 @@ def tune_run(exp_name, search_space, resume=False):
     :param search_space:
     :return:
     """
-    callbacks = [WandbLoggerCallback(exp_name,
+    callbacks = [WandbLoggerCallback(exp_name, group=search_space.get('group', None),
                                      excludes=["time_since_restore",
                                                "training_iteration",
                                                "warmup_time",
@@ -121,6 +121,8 @@ def tune_run(exp_name, search_space, resume=False):
         analysis.get_best_config("backdoor_accuracy", "max"),
     )
 
+    return analysis
+
 
 if __name__ == '__main__':
 
@@ -140,6 +142,7 @@ if __name__ == '__main__':
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
             "momentum": tune.quniform(0.5, 0.95, 0.05),
             "grace_period": 2,
+            "group": "search_for_hyperparameters",
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": 30,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
@@ -156,4 +159,13 @@ if __name__ == '__main__':
             "max_iterations": max_iterations
 
         }
-        tune_run(exp_name, search_space)
+        analysis = tune_run(exp_name, search_space, resume=True)
+        print('Finished tuning')
+        config = analysis.get_best_config("multi_objective", "max")
+        print(config)
+        config['poisoning_proportion'] = tune.choice(list(range(0, 500, 5)))
+        config['max_iterations'] = 100
+        config['group'] = 'robust'
+        config['search_alg'] = None
+        tune_run(exp_name, config)
+
