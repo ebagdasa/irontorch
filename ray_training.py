@@ -179,7 +179,7 @@ if __name__ == '__main__':
         #     "max_iterations": max_iterations
         #
         # }
-        analysis = tune_run(exp_name, search_space, resume=True)
+        analysis = tune_run(exp_name, search_space, resume=False)
         # print('Finished tuning')
         # config = analysis.get_best_config("multi_objective", "max")
         # print(config)
