@@ -152,7 +152,7 @@ if __name__ == '__main__':
         max_iterations = 50
         search_space = {
             'name': 'multi',
-            'group': 'p15.5b',
+            'group': 'p15.1b',
             'random_seed': tune.choice(list(range(0, max_iterations))),
              'optimizer': 'Adam',
              'lr': 9.211724509411425e-05,
@@ -165,7 +165,7 @@ if __name__ == '__main__':
              'grad_clip': 10.0,
              'label_noise': 0.25,
              'multi_objective_alpha': 0.97,
-             'backdoor_cover_percentage': 0.5,
+             'backdoor_cover_percentage': 0.1,
              'search_alg': 'optuna',
              'poisoning_proportion': poisoning_proportion,
              'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
