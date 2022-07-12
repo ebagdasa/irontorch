@@ -149,23 +149,15 @@ if __name__ == '__main__':
         poisoning_proportion = 15
         search_alg = 'optuna'
         exp_name = f'mnist_{search_alg}_{name}_p{poisoning_proportion}'
-        max_iterations = 50
+        max_iterations = 200
         search_space = {
             'name': 'multi',
             'group': 'p15.1f',
-            'random_seed': 33,
-             'optimizer': 'Adam',
-             'lr': 9.211724509411425e-05,
-             'momentum': 0.65,
-             'grace_period': 2,
-             'decay': 5.7183260054281126e-05,
-             'epochs': 3,
+            'random_seed': tune.choice(list(range(0, max_iterations//10))),
+            'backdoor_label': tune.choice(list(range(0, 10))),
+             'epochs': 2,
              'batch_size': 32,
-             'grad_sigma': 1.9652434554749976e-05,
-             'grad_clip': 10.0,
-             'label_noise': 0.25,
-             'multi_objective_alpha': 0.97,
-             'backdoor_cover_percentage': 0.1,
+             'backdoor_cover_percentage': 0.5,
              'search_alg': None,
              'poisoning_proportion': poisoning_proportion,
              'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',

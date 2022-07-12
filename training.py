@@ -89,7 +89,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None):
 
 
 def run(hlpr):
-    # acc = test(hlpr, hlpr.task.model, backdoor=False, epoch=0)
+    acc = test(hlpr, hlpr.task.model, backdoor=True, epoch=0)
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,

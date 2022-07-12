@@ -116,8 +116,6 @@ class AttackDataset(object):
         self.mask.view(-1)[indices] = 1
         self.pattern = input_placeholder
 
-        # # input_placeholder = (self.max_val - self.min_val) * \
-        # #                     torch.rand_like(self.average_input_values) + self.min_val
         # input_placeholder = torch.zeros_like(self.average_input_values).fill_(self.max_val)
         # total_elements = input_placeholder.view(-1).shape[0]
         #
@@ -125,4 +123,5 @@ class AttackDataset(object):
         # indices = torch.randint(total_elements, [cover_size])
         # self.mask = torch.zeros_like(input_placeholder)
         # self.mask.view(-1)[:cover_size] = 1
+        # self.pattern = input_placeholder
 
