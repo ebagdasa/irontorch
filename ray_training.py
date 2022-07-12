@@ -38,6 +38,20 @@ def run(config):
             params[key] = value
 
     hlpr = Helper(params)
+    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0)
+    drop_class = hlpr.task.metrics['accuracy'].get_value()[
+        '_Accuracy_Drop_5']
+    backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
+                            epoch=0)
+    main_obj = metrics[hlpr.params.multi_objective_metric]
+    back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
+    alpha = hlpr.params.multi_objective_alpha
+    multi_obj = alpha * main_obj - (1 - alpha) * back_obj
+    tune.report(accuracy=main_obj, drop_class=drop_class,
+                backdoor_accuracy=back_obj,
+                multi_objective=multi_obj, epoch=0,
+                poisoning_proportion=config['poisoning_proportion']
+                )
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         logging.disable(logging.DEBUG)
