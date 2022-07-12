@@ -159,7 +159,7 @@ if __name__ == '__main__':
              'momentum': 0.65,
              'grace_period': 2,
              'decay': 5.7183260054281126e-05,
-             'epochs': 5,
+             'epochs': 3,
              'batch_size': 32,
              'grad_sigma': 1.9652434554749976e-05,
              'grad_clip': 10.0,
