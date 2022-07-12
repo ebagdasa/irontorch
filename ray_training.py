@@ -152,7 +152,7 @@ if __name__ == '__main__':
         max_iterations = 200
         search_space = {
             'name': 'multi',
-            'group': 'p5.5_labels',
+            'group': 'p1.5_labels',
             'random_seed': tune.choice(list(range(0, max_iterations//10))),
             'backdoor_label': tune.choice(list(range(0, 10))),
              'epochs': 2,
