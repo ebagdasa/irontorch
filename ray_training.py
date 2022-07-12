@@ -146,13 +146,13 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 15
+        poisoning_proportion = 5
         search_alg = 'optuna'
         exp_name = f'mnist_{search_alg}_{name}_p{poisoning_proportion}'
         max_iterations = 200
         search_space = {
             'name': 'multi',
-            'group': 'p15.5_labels',
+            'group': 'p5.5_labels',
             'random_seed': tune.choice(list(range(0, max_iterations//10))),
             'backdoor_label': tune.choice(list(range(0, 10))),
              'epochs': 2,
