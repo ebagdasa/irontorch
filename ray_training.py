@@ -152,8 +152,8 @@ if __name__ == '__main__':
         max_iterations = 50
         search_space = {
             'name': 'multi',
-            'group': 'p15.1b',
-            'random_seed': tune.choice(list(range(0, max_iterations))),
+            'group': 'p15.1f',
+            'random_seed': 33,
              'optimizer': 'Adam',
              'lr': 9.211724509411425e-05,
              'momentum': 0.65,

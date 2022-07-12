@@ -7,23 +7,23 @@ data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 
-grad_sigma: 0.0
-grad_clip: 1000
+grad_sigma: 1.9652434554749976e-05
+grad_clip: 10
 batch_clip: True
-label_noise: 0.0
+label_noise: 0.25
 
 #opacus: True
 #saved_grads: True
 #max_batch_id: 100
 
-batch_size: 128
+batch_size: 32
 test_batch_size: 100
-lr: 0.1
-momentum: 0.95
-decay: 0.0001
+lr: 9.2117245e-05
+momentum: 0.65
+decay: 5.718326e-05
 epochs: 10
 save_on_epochs: []
-optimizer: SGD
+optimizer: Adam
 log_interval: 100
 scheduler: False
 drop_label_proportion: 0.9
@@ -44,13 +44,13 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 50
+poisoning_proportion: 15
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
-backdoor_cover_percentage: 0.5
-random_seed: 5
+backdoor_cover_percentage: 0.1
+random_seed: 33
 
 
 loss_balance: MGDA
