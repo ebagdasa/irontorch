@@ -146,10 +146,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 50
+        poisoning_proportion = 15
         search_alg = 'optuna'
         exp_name = f'mnist_{search_alg}_{name}_p{poisoning_proportion}'
-        max_iterations = 100
+        max_iterations = 50
         search_space = {
             'name': 'multi',
             'group': 'p15.5b',
@@ -167,7 +167,7 @@ if __name__ == '__main__':
              'multi_objective_alpha': 0.97,
              'backdoor_cover_percentage': 0.5,
              'search_alg': 'optuna',
-             'poisoning_proportion': 15,
+             'poisoning_proportion': poisoning_proportion,
              'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
              'max_iterations': max_iterations
         }
