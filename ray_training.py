@@ -146,7 +146,7 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
 
     for name in ['multi']:
-        poisoning_proportion = 5
+        poisoning_proportion = 1
         search_alg = 'optuna'
         exp_name = f'mnist_{search_alg}_{name}_p15'
         max_iterations = 200

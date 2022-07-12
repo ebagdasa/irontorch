@@ -16,7 +16,7 @@ label_noise: 0.0
 #saved_grads: True
 #max_batch_id: 100
 
-batch_size: 128
+batch_size: 32
 test_batch_size: 100
 lr: 0.001
 momentum: 0.95
@@ -44,13 +44,13 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 50
+poisoning_proportion: 5
 backdoor_label: 8
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
 backdoor_cover_percentage: 0.5
-random_seed: 33
+random_seed: 18
 
 loss_balance: MGDA
 mgda_normalize: loss
