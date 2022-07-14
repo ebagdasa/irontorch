@@ -80,7 +80,8 @@ def tune_run(exp_name, search_space, resume=False):
     :param search_space:
     :return:
     """
-    callbacks = [WandbLoggerCallback(exp_name, group=search_space.get('group', None),
+    callbacks = [WandbLoggerCallback(search_space.get('wandb_name', exp_name),
+                                     group=search_space.get('group', None),
                                      excludes=["time_since_restore",
                                                "training_iteration",
                                                "warmup_time",
@@ -89,7 +90,7 @@ def tune_run(exp_name, search_space, resume=False):
                                                "time_total_s",
                                                "timestamp",
                                                "timesteps_since_restore"])]
-    name = search_space['name']
+    name = search_space.get('name', None)
     if name == 'so':
         optuna_search = OptunaSearch(metric="accuracy", mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric='accuracy',
@@ -145,24 +146,49 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
 
-    for name in ['multi']:
-        poisoning_proportion = 0.00000001
-        search_alg = 'optuna'
-        exp_name = f'mnist_{search_alg}_{name}_p15'
-        max_iterations = 200
-        search_space = {
-            'name': 'multi',
-            'group': 'p0.5_labels',
-            'random_seed': tune.choice(list(range(0, max_iterations//10))),
-            'backdoor_label': tune.choice(list(range(0, 10))),
-             'epochs': 2,
-             'batch_size': 32,
-             'backdoor_cover_percentage': 0.5,
-             'search_alg': None,
-             'poisoning_proportion': poisoning_proportion,
-             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
-             'max_iterations': max_iterations
-        }
+    # stage 1
+    wandb_name = 'stage1'
+    search_alg = 'optuna'
+    exp_name = 'it1'
+    full_exp_name = f'mnist_{search_alg}_{wandb_name}_{exp_name}'
+    max_iterations = 200
+    search_space = {
+        'wandb_name': 'stage1',
+        'group': wandb_name,
+        'random_seed': tune.choice(list(range(0, 50))),
+        'backdoor_label': tune.choice(list(range(0, 10))),
+        'epochs': 2,
+        'backdoor_cover_percentage': 0.1,
+        'search_alg': None,
+        'poisoning_proportion': 0,
+        'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+        'max_iterations': max_iterations
+    }
+    stage_1_results = tune_run(full_exp_name, search_space, resume=False)
+
+    # stage 2
+    # TBD
+
+    #
+    #
+    # for name in ['multi']:
+    #     poisoning_proportion = 0.00000001
+    #     search_alg = 'optuna'
+    #     full_exp_name = f'mnist_{search_alg}_{name}_p15'
+    #     max_iterations = 200
+    #     search_space = {
+    #         'name': 'multi',
+    #         'group': 'p0.5_labels',
+    #         'random_seed': tune.choice(list(range(0, max_iterations//10))),
+    #         'backdoor_label': tune.choice(list(range(0, 10))),
+    #          'epochs': 2,
+    #          'batch_size': 32,
+    #          'backdoor_cover_percentage': 0.5,
+    #          'search_alg': None,
+    #          'poisoning_proportion': poisoning_proportion,
+    #          'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+    #          'max_iterations': max_iterations
+    #     }
         # search_space = {
         #     "name": name,
         #     "optimizer": tune.choice(['SGD', 'Adam']),
@@ -186,7 +212,7 @@ if __name__ == '__main__':
         #     "max_iterations": max_iterations
         #
         # }
-        analysis = tune_run(exp_name, search_space, resume=False)
+        # analysis = tune_run(full_exp_name, search_space, resume=False)
         # print('Finished tuning')
         # config = analysis.get_best_config("multi_objective", "max")
         # print(config)

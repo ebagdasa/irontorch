@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 import logging
 from numpy.random import Generator, PCG64
@@ -38,8 +39,8 @@ class AttackDataset(object):
         for i, (inp, target, _, _) in tqdm(enumerate(self.dataset)):
             if i == 1000:
                 break
-            self.max_val = max(self.max_val, inp.max()) if self.max_val is not None else inp.max()
-            self.min_val = min(self.min_val, inp.min()) if self.min_val is not None else inp.min()
+            self.max_val = torch.max(self.max_val, inp) if self.max_val is not None else inp
+            self.min_val = torch.min(self.min_val, inp) if self.min_val is not None else inp
             if self.average_input_values is None:
                 self.average_input_values = inp.clone()
             else:
@@ -107,13 +108,13 @@ class AttackDataset(object):
 
     def make_attack_pattern_new(self):
         torch.manual_seed(self.params.random_seed)
-        input_placeholder = (self.max_val - self.min_val) * \
-                            torch.rand_like(self.average_input_values) + self.min_val
+        min_max_mask = 1 * (torch.rand_like(self.average_input_values) > 0.5)
+        input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
         total_elements = input_placeholder.view(-1).shape[0]
         cover_size = int(total_elements * self.params.backdoor_cover_percentage)
-        indices = torch.randint(total_elements, [cover_size])
+        start_index = np.random.randint(0, total_elements - cover_size - 1, size=1)[0]
         self.mask = torch.zeros_like(input_placeholder)
-        self.mask.view(-1)[indices] = 1
+        self.mask.view(-1)[start_index:start_index + cover_size] = 1
         self.pattern = input_placeholder
 
         # input_placeholder = torch.zeros_like(self.average_input_values).fill_(self.max_val)
