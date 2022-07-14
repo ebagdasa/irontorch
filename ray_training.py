@@ -4,7 +4,7 @@ from ray.runtime_env import RuntimeEnv
 from ray.tune.stopper import MaximumIterationStopper
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.optuna import OptunaSearch
-
+from collections import defaultdict
 import training
 
 from helper import Helper
@@ -140,34 +140,69 @@ def tune_run(exp_name, search_space, resume=False):
 
 
 if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Tuning')
+    parser.add_argument('--random_seed', default=None)
+    parser.add_argument('--backdoor_label', default=None)
+    parser.add_argument('--backdoor_proportion', default=None)
+
+    args = parser.parse_args()
 
     ray.init(address='ray://128.84.84.8:10001',
              runtime_env={"working_dir": "/home/eugene/irontorch",
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
-
-    # stage 1
-    wandb_name = 'stage1'
     search_alg = 'optuna'
-    exp_name = 'it1'
-    full_exp_name = f'mnist_{search_alg}_{wandb_name}_{exp_name}'
-    max_iterations = 200
-    search_space = {
-        'wandb_name': 'stage1',
-        'group': wandb_name,
-        'random_seed': tune.choice(list(range(0, 50))),
-        'backdoor_label': tune.choice(list(range(0, 10))),
-        'epochs': 2,
-        'backdoor_cover_percentage': 0.1,
-        'search_alg': None,
-        'poisoning_proportion': 0,
-        'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
-        'max_iterations': max_iterations
-    }
-    stage_1_results = tune_run(full_exp_name, search_space, resume=False)
+    exp_name = f'mnist_{search_alg}_it1'
+    if args.random_seed is None and args.backdoor_label is None:
+        # stage 1
+        print('Running stage 1')
+        group_name = 'stage1'
+        max_iterations = 50
+        full_exp_name = f'{exp_name}_{group_name}'
+        search_space = {
+            'wandb_name': exp_name,
+            'group': group_name,
+            'random_seed': tune.choice(list(range(0, 50))),
+            'backdoor_label': tune.choice(list(range(0, 10))),
+            'epochs': 2,
+            'backdoor_cover_percentage': 0.1,
+            'search_alg': None,
+            'poisoning_proportion': 0,
+            'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+            'max_iterations': max_iterations
+        }
+        stage_1_results = tune_run(full_exp_name, search_space, resume=False)
+        label = defaultdict(list)
+        for x in stage_1_results.trials:
+            if x.is_finished():
+                label[x.config['backdoor_label']].append( (x.conf['random_seed'], x.last_result['backdoor_accuracy']))
+        min_var_arg = np.argmin([np.var([z for _, z in label[x]]) for x in range(0, 10)])
+        backdoor_label = min_var_arg
+        random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[0][0]
+    else:
+        print(f'Reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
+        backdoor_label = args.backdoor_label
+        random_seed = args.random_seed
 
-    # stage 2
-    # TBD
+    if args.backdoor_proportion is None:
+        # stage 2
+        print('Running stage 2')
+        max_iterations = 50
+        group_name = 'stage2'
+        full_exp_name = f'{exp_name}_{group_name}'
+        search_space = {
+            'wandb_name': exp_name,
+            'group': group_name,
+            'random_seed': random_seed,
+            'backdoor_label': backdoor_label,
+            'epochs': 2,
+            'backdoor_cover_percentage': 0.1,
+            'search_alg': None,
+            'poisoning_proportion': tune.lograndint(0, 10000, base=10),
+            'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+            'max_iterations': max_iterations
+        }
+        stage_2_results = tune_run(full_exp_name, search_space, resume=False)
 
     #
     #
