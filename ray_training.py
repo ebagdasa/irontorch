@@ -198,7 +198,7 @@ if __name__ == '__main__':
             'epochs': 2,
             'backdoor_cover_percentage': 0.1,
             'search_alg': None,
-            'poisoning_proportion': tune.lograndint(0, 10000, base=10),
+            'poisoning_proportion': tune.lograndint(1, 10000, base=10),
             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
             'max_iterations': max_iterations
         }
