@@ -251,10 +251,14 @@ class Helper:
             self.save_grads(epoch, batch_id)
 
     def report_metrics(self, prefix, epoch=None):
+        all_metrics = dict()
         for metric in self.task.metrics.values():
             metric_values = metric.get_value(prefix=prefix)
             self.report_dict(dict_report=metric_values, step=epoch)
             logger.warning(f'Epoch: {epoch}. {prefix}, {metric_values}')
+            all_metrics.update(metric_values)
+
+        return all_metrics
 
     def plot_confusion_matrix(self, backdoor=False, epoch=1):
         metric = self.task.metrics.get('accuracy', None)

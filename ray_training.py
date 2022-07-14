@@ -67,6 +67,8 @@ def run(config):
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj - (1 - alpha) * back_obj
         tune.report(accuracy=main_obj, drop_class=drop_class,
+                    loss=metrics['loss'],
+                    backdoor_loss=backdoor_metrics['loss'],
                     backdoor_accuracy=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
                     poisoning_proportion=config['poisoning_proportion']
@@ -104,8 +106,8 @@ def tune_run(exp_name, search_space, resume=False):
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
     elif metric_name == 'multi' and search_space['search_alg'] == 'optuna':
-        optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"],
-                                     mode=["max", "min"])
+        optuna_search = OptunaSearch(metric=["loss", "backdoor_loss"],
+                                     mode=["min", "max"])
         asha_scheduler = None
     else:
         optuna_search = None
@@ -231,7 +233,7 @@ if __name__ == '__main__':
         "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
         "momentum": tune.quniform(0.5, 0.95, 0.05),
         "grace_period": 2,
-        "group": group_name,
+        "group": group_name + '_loss',
         "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
         "epochs": 10,
         "batch_size": tune.choice([32, 64, 128, 256, 512]),
