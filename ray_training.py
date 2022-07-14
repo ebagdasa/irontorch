@@ -65,13 +65,13 @@ def run(config):
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
                                 epoch=epoch)
         main_obj = metrics[hlpr.params.multi_objective_metric]
-        back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
+        back_obj = 100 - backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
-        multi_obj = alpha * main_obj - (1 - alpha) * back_obj
+        multi_obj = alpha * main_obj + (1 - alpha) * back_obj
         tune.report(accuracy=main_obj, drop_class=drop_class,
                     loss=metrics['loss'],
                     backdoor_loss=backdoor_metrics['loss'],
-                    backdoor_accuracy=back_obj,
+                    backdoor_error=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
                     poisoning_proportion=config['poisoning_proportion']
                     )
@@ -156,7 +156,7 @@ if __name__ == '__main__':
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
     search_alg = 'optuna'
-    exp_name = f'mnist_{search_alg}_it1'
+    exp_name = f'mnist_{search_alg}_it2'
     if args.random_seed is None and args.backdoor_label is None:
         # stage 1
         print('Running stage 1')

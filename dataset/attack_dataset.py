@@ -108,8 +108,9 @@ class AttackDataset(object):
 
     def make_attack_pattern_new(self):
         torch.manual_seed(self.params.random_seed)
-        min_max_mask = 1 * (torch.rand_like(self.average_input_values) > 0.5)
-        input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
+        # min_max_mask = 1 * (torch.zeros_like(self.average_input_values) > 0.5)
+        # input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
+        input_placeholder = torch.ones_like(self.average_input_values) * torch.max(self.max_val)
         total_elements = input_placeholder.view(-1).shape[0]
         cover_size = int(total_elements * self.params.backdoor_cover_percentage)
         start_index = np.random.randint(0, total_elements - cover_size - 1, size=1)[0]
