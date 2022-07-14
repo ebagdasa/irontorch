@@ -143,7 +143,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tuning')
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
-    parser.add_argument('--backdoor_proportion', default=None)
+    parser.add_argument('--poisoning_proportion', default=None, type=float)
 
     args = parser.parse_args()
 
@@ -184,7 +184,7 @@ if __name__ == '__main__':
         backdoor_label = args.backdoor_label
         random_seed = args.random_seed
 
-    if args.backdoor_proportion is None:
+    if args.poisoning_proportion is None:
         # stage 2
         print('Running stage 2')
         max_iterations = 50
@@ -209,9 +209,9 @@ if __name__ == '__main__':
                 pp[x.config['poisoning_proportion']] = x.last_result['backdoor_accuracy'] > 90
         z = sorted(pp.items(), key=lambda x: x[0])
         zz = [z[i][0] for i in range(1, len(z)-2) if z[i][1] and z[i+1][1]]
-        backdoor_proportion = min(zz)
+        poisoning_proportion = min(zz)
     else:
-        backdoor_proportion = args.backdoor_proportion
+        poisoning_proportion = args.poisoning_proportion
 
     # stage 3
 
@@ -240,7 +240,7 @@ if __name__ == '__main__':
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.97,
         "search_alg": search_alg,
-        "poisoning_proportion": backdoor_proportion,
+        "poisoning_proportion": poisoning_proportion,
         "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
         "max_iterations": max_iterations
     }
