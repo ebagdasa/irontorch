@@ -179,8 +179,9 @@ if __name__ == '__main__':
         min_var_arg = np.argmin([np.var([z for _, z in label[x]]) for x in range(0, 10)])
         backdoor_label = min_var_arg
         random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[0][0]
+        print(f'Finished stage 1: backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
     else:
-        print(f'Reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
+        print(f'Skipping stage 1: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
         backdoor_label = args.backdoor_label
         random_seed = args.random_seed
 
@@ -210,11 +211,13 @@ if __name__ == '__main__':
         z = sorted(pp.items(), key=lambda x: x[0])
         zz = [z[i][0] for i in range(1, len(z)-2) if z[i][1] and z[i+1][1]]
         poisoning_proportion = min(zz)
+        print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
     else:
+        print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
         poisoning_proportion = args.poisoning_proportion
 
     # stage 3
-
+    print('Running stage 3')
     search_alg = 'optuna'
     group_name = 'stage3'
     metric_name = 'multi'
@@ -246,9 +249,10 @@ if __name__ == '__main__':
     }
 
     analysis = tune_run(full_exp_name, search_space, resume=False)
-    print('Finished tuning')
+    print('Finished stage 3 tuning.')
 
     # stage 4
+    print('Running stage 4')
     group_name = 'stage4'
     full_exp_name = f'{exp_name}_{group_name}'
     config = analysis.get_best_config("multi_objective", "max")
