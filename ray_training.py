@@ -90,20 +90,20 @@ def tune_run(exp_name, search_space, resume=False):
                                                "time_total_s",
                                                "timestamp",
                                                "timesteps_since_restore"])]
-    name = search_space.get('name', None)
-    if name == 'so':
+    metric_name = search_space.get('metric_name', None)
+    if metric_name == 'so':
         optuna_search = OptunaSearch(metric="accuracy", mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric='accuracy',
                                        mode='max', max_t=search_space['epochs'],
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
-    elif name == 'mo':
+    elif metric_name == 'mo':
         optuna_search = OptunaSearch(metric="multi_objective", mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
                                        mode='max', max_t=search_space['epochs'],
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
-    elif name == 'multi' and search_space['search_alg'] == 'optuna':
+    elif metric_name == 'multi' and search_space['search_alg'] == 'optuna':
         optuna_search = OptunaSearch(metric=["accuracy", "backdoor_accuracy"],
                                      mode=["max", "min"])
         asha_scheduler = None
@@ -203,57 +203,59 @@ if __name__ == '__main__':
             'max_iterations': max_iterations
         }
         stage_2_results = tune_run(full_exp_name, search_space, resume=False)
+        pp = dict()
+        for x in stage_2_results.trials:
+            if x.is_finished() and x.last_result['epoch'] == x.config['epochs']:
+                pp[x.config['poisoning_proportion']] = x.last_result['backdoor_accuracy'] > 90
+        z = sorted(pp.items(), key=lambda x: x[0])
+        zz = [z[i][0] for i in range(1, len(z)-2) if z[i][1] and z[i+1][1]]
+        backdoor_proportion = min(zz)
+    else:
+        backdoor_proportion = args.backdoor_proportion
 
-    #
-    #
-    # for name in ['multi']:
-    #     poisoning_proportion = 0.00000001
-    #     search_alg = 'optuna'
-    #     full_exp_name = f'mnist_{search_alg}_{name}_p15'
-    #     max_iterations = 200
-    #     search_space = {
-    #         'name': 'multi',
-    #         'group': 'p0.5_labels',
-    #         'random_seed': tune.choice(list(range(0, max_iterations//10))),
-    #         'backdoor_label': tune.choice(list(range(0, 10))),
-    #          'epochs': 2,
-    #          'batch_size': 32,
-    #          'backdoor_cover_percentage': 0.5,
-    #          'search_alg': None,
-    #          'poisoning_proportion': poisoning_proportion,
-    #          'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
-    #          'max_iterations': max_iterations
-    #     }
-        # search_space = {
-        #     "name": name,
-        #     "optimizer": tune.choice(['SGD', 'Adam']),
-        #     "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
-        #     "momentum": tune.quniform(0.5, 0.95, 0.05),
-        #     "grace_period": 2,
-        #     "group": "search_for_hyperparameters",
-        #     "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-        #     "epochs": 30,
-        #     "batch_size": tune.choice([32, 64, 128, 256, 512]),
-        #     # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
-        #     # "transform_erase": tune.loguniform(1e-4, 1, 10),
-        #     "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-        #     "grad_clip": tune.quniform(1, 10, 1),
-        #     "label_noise": tune.quniform(0.0, 0.5, 0.05),
-        #     # "drop_label_proportion": 0.95,
-        #     "multi_objective_alpha": 0.97,
-        #     "search_alg": search_alg,
-        #     "poisoning_proportion": poisoning_proportion, #tune.qloguniform(2, 50000, 1, base=10),
-        #     "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
-        #     "max_iterations": max_iterations
-        #
-        # }
-        # analysis = tune_run(full_exp_name, search_space, resume=False)
-        # print('Finished tuning')
-        # config = analysis.get_best_config("multi_objective", "max")
-        # print(config)
-        # config['poisoning_proportion'] = tune.choice(list(range(0, 500, 5)))
-        # config['max_iterations'] = 100
-        # config['group'] = 'robust'
-        # config['search_alg'] = None
-        # tune_run(exp_name, config)
+    # stage 3
+
+    search_alg = 'optuna'
+    group_name = 'stage3'
+    metric_name = 'multi'
+    max_iterations = 500
+    full_exp_name = f'{exp_name}_{group_name}'
+
+    search_space = {
+        "metric_name": metric_name,
+        'wandb_name': exp_name,
+        "optimizer": tune.choice(['SGD', 'Adam']),
+        "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
+        "momentum": tune.quniform(0.5, 0.95, 0.05),
+        "grace_period": 2,
+        "group": group_name,
+        "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+        "epochs": 10,
+        "batch_size": tune.choice([32, 64, 128, 256, 512]),
+        # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
+        # "transform_erase": tune.loguniform(1e-4, 1, 10),
+        "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+        "grad_clip": tune.quniform(1, 10, 1),
+        "label_noise": tune.quniform(0.0, 0.5, 0.05),
+        # "drop_label_proportion": 0.95,
+        "multi_objective_alpha": 0.97,
+        "search_alg": search_alg,
+        "poisoning_proportion": backdoor_proportion,
+        "file_path": '/home/eugene/irontorch/configs/mnist_params.yaml',
+        "max_iterations": max_iterations
+    }
+
+    analysis = tune_run(full_exp_name, search_space, resume=False)
+    print('Finished tuning')
+
+    # stage 4
+    group_name = 'stage4'
+    full_exp_name = f'{exp_name}_{group_name}'
+    config = analysis.get_best_config("multi_objective", "max")
+    print(config)
+    config['group'] = group_name,
+    config['poisoning_proportion'] = tune.lograndint(1, 10000, base=10)
+    config['max_iterations'] = 100
+    config['search_alg'] = None
+    tune_run(full_exp_name, config)
 
