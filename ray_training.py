@@ -195,7 +195,7 @@ if __name__ == '__main__':
             'group': group_name,
             'random_seed': random_seed,
             'backdoor_label': backdoor_label,
-            'epochs': 2,
+            'epochs': 10,
             'backdoor_cover_percentage': 0.1,
             'search_alg': None,
             'poisoning_proportion': tune.lograndint(1, 10000, base=10),
