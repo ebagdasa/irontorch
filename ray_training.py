@@ -141,8 +141,8 @@ def tune_run(exp_name, search_space, resume=False):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Tuning')
-    parser.add_argument('--random_seed', default=None)
-    parser.add_argument('--backdoor_label', default=None)
+    parser.add_argument('--random_seed', default=None, type=int)
+    parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--backdoor_proportion', default=None)
 
     args = parser.parse_args()
