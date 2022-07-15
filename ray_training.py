@@ -73,7 +73,8 @@ def run(config):
                     backdoor_loss=backdoor_metrics['loss'],
                     backdoor_error=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
-                    poisoning_proportion=config['poisoning_proportion']
+                    poisoning_proportion=config['poisoning_proportion'],
+                    learning_rate=hlpr.task.scheduler.get_last_lr()[0]
                     )
 
 
