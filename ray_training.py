@@ -252,7 +252,7 @@ if __name__ == '__main__':
         "max_iterations": max_iterations
     }
 
-    analysis = tune_run(full_exp_name, search_space, resume=False)
+    analysis = tune_run(full_exp_name, search_space, resume=True)
     print('Finished stage 3 tuning.')
 
     # stage 4
