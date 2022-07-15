@@ -89,28 +89,28 @@ if __name__ == '__main__':
     # stage 3
     print('Running stage 3')
     search_alg = 'optuna'
-    group_name = 'stage3'
+    group_name = 'stage3_2'
     metric_name = 'multi'
-    max_iterations = 200
+    max_iterations = 500
     full_exp_name = f'{exp_name}_{group_name}'
     search_space = {
         "metric_name": metric_name,
         'wandb_name': exp_name,
         "group": group_name,
-        "optimizer": 'SGD', #tune.choice(['SGD', 'Adam']),
-        "scheduler": tune.choice([True, False]),
+        "optimizer": tune.choice(['SGD', 'Adam']),
+        "scheduler": False,
         "grace_period": 2,
-        "lr": tune.qloguniform(1e-5, 2e-1, 1e-5, base=10),
+        "lr": tune.qloguniform(1e-4, 2e-1, 1e-5, base=10),
         "momentum": tune.quniform(0.1, 1.0, 0.05),
         "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-        "epochs": 90,
-        "batch_size": tune.choice([32, 64, 128, 256]),
+        "epochs": 30,
+        "batch_size": tune.choice([64, 128, 256]),
         # "drop_label_proportion": 0.95,
         "multi_objective_alpha": 0.95,
         "search_alg": search_alg,
         "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
         "grad_clip": tune.qloguniform(1, 32, 1, base=2),
-        "label_noise": tune.quniform(0.0, 0.5, 0.01),
+        "label_noise": tune.quniform(0.0, 0.7, 0.01),
         "poisoning_proportion": poisoning_proportion,
         "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
         "max_iterations": max_iterations
