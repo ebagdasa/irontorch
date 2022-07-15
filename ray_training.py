@@ -203,7 +203,7 @@ if __name__ == '__main__':
             'epochs': 10,
             'backdoor_cover_percentage': 0.1,
             'search_alg': None,
-            'poisoning_proportion': tune.lograndint(1, 10000, base=10),
+            'poisoning_proportion': tune.qrandint(0, 200, q=5),
             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
             'max_iterations': max_iterations
         }
@@ -262,7 +262,7 @@ if __name__ == '__main__':
     config = analysis.get_best_config("multi_objective", "max")
     print(config)
     config['group'] = group_name
-    config['poisoning_proportion'] = tune.lograndint(1, 10000, base=10)
+    config['poisoning_proportion'] = tune.qrandint(0, 200, q=5)
     config['max_iterations'] = 100
     config['search_alg'] = None
     tune_run(full_exp_name, config)

@@ -59,7 +59,7 @@ if __name__ == '__main__':
     if args.poisoning_proportion is None:
         # stage 2
         print('Running stage 2')
-        max_iterations = 50
+        max_iterations = 40
         group_name = 'stage2'
         full_exp_name = f'{exp_name}_{group_name}'
         search_space = {
@@ -69,7 +69,7 @@ if __name__ == '__main__':
             'backdoor_label': backdoor_label,
             'epochs': 30,
             'search_alg': None,
-            'poisoning_proportion': tune.lograndint(1, 10000, base=10),
+            'poisoning_proportion': tune.qrandint(0, 200, q=5),
             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
             'max_iterations': max_iterations
         }
@@ -91,7 +91,7 @@ if __name__ == '__main__':
     search_alg = 'optuna'
     group_name = 'stage3'
     metric_name = 'multi'
-    max_iterations = 500
+    max_iterations = 200
     full_exp_name = f'{exp_name}_{group_name}'
     search_space = {
         "metric_name": metric_name,
@@ -126,7 +126,7 @@ if __name__ == '__main__':
     config = analysis.get_best_config("multi_objective", "max")
     print(config)
     config['group'] = group_name
-    config['poisoning_proportion'] = tune.lograndint(1, 10000, base=10)
+    config['poisoning_proportion'] = tune.qrandint(0, 200, q=5)
     config['max_iterations'] = 100
     config['search_alg'] = None
     tune_run(full_exp_name, config)
