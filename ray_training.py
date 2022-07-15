@@ -261,7 +261,7 @@ if __name__ == '__main__':
     full_exp_name = f'{exp_name}_{group_name}'
     config = analysis.get_best_config("multi_objective", "max")
     print(config)
-    config['group'] = group_name,
+    config['group'] = group_name
     config['poisoning_proportion'] = tune.lograndint(1, 10000, base=10)
     config['max_iterations'] = 100
     config['search_alg'] = None
