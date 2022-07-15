@@ -44,10 +44,10 @@ if __name__ == '__main__':
         for x in stage_1_results.trials:
             if x.is_finished():
                 label[x.config['backdoor_label']].append(
-                    (x.conf['random_seed'], x.last_result['backdoor_accuracy']))
-        min_var_arg = np.argmin([np.var([z for _, z in label[x]]) for x in range(0, 10)])
+                    (x.conf['random_seed'], x.last_result['backdoor_error']))
+        min_var_arg = np.argmax([np.var([z for _, z in label[x]]) for x in range(0, 10)])
         backdoor_label = min_var_arg
-        random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[0][0]
+        random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[-1][0]
         print(
             f'Finished stage 1: backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
     else:
