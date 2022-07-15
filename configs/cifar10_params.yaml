@@ -9,22 +9,23 @@ synthesizer: Pattern
 
 batch_size: 64
 test_batch_size: 100
-lr: 0.000488
-momentum: 0.3
-decay: 0.0000001
+lr: 0.1
+momentum: 0.9
+decay: 5e-5
 epochs: 30
 save_on_epochs: []
-optimizer: Adam
+optimizer: SGD
 log_interval: 100
 
 #opacus: True
 batch_clip: True
 #saved_grads: True
-grad_sigma: 0.000055
-grad_clip: 2.037
-label_noise: 0.19
-transform_erase: 0.57
+grad_sigma: 0.0
+grad_clip: 1000
+label_noise: 0.0
+transform_erase: 0.0
 transform_sharpness: 0.0
+backdoor_cover_percentage: 0.01
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
