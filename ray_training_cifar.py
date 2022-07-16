@@ -89,7 +89,7 @@ if __name__ == '__main__':
     # stage 3
     print('Running stage 3')
     search_alg = 'optuna'
-    group_name = 'stage3_2'
+    group_name = 'stage3_3'
     metric_name = 'multi'
     max_iterations = 500
     full_exp_name = f'{exp_name}_{group_name}'

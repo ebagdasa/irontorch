@@ -109,8 +109,8 @@ def tune_run(exp_name, search_space, resume=False):
                                        grace_period=search_space['grace_period'],
                                        reduction_factor=4)
     elif metric_name == 'multi' and search_space['search_alg'] == 'optuna':
-        optuna_search = OptunaSearch(metric=["loss", "backdoor_loss"],
-                                     mode=["min", "max"])
+        optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
+                                     mode=["max", "min"])
         asha_scheduler = None
     else:
         optuna_search = None
