@@ -22,7 +22,7 @@ batch_clip: True
 #saved_grads: True
 grad_sigma: 0.0
 grad_clip: 1000
-label_noise: 0.0
+label_noise: 0.2
 transform_erase: 0.0
 transform_sharpness: 0.0
 backdoor_cover_percentage: 0.01
@@ -36,7 +36,7 @@ multi_objective_alpha: 0.9
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 200
+poisoning_proportion: 50
 backdoor_label: 8
 backdoor: True
 ##
