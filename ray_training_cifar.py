@@ -94,7 +94,7 @@ if __name__ == '__main__':
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
-        max_iterations = 500
+        max_iterations = 100
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
         search_space = {
