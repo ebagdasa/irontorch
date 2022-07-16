@@ -12,7 +12,7 @@ if __name__ == '__main__':
     parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--poisoning_proportion', default=None, type=float)
     parser.add_argument('--skip_stage3', default=False, type=bool)
-    parser.add_argument('--exp_name', default=None, type=str)
+    parser.add_argument('--sub_exp_name', default=None, type=str)
 
     args = parser.parse_args()
 
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     if args.random_seed is None and args.backdoor_label is None:
         # stage 1
         print('Running stage 1')
-        group_name = f'stage1_{exp_name}'
+        group_name = f'stage1_{args.sub_exp_name}'
         max_iterations = 50
         full_exp_name = f'{exp_name}_{group_name}'
         search_space = {
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         # stage 2
         print('Running stage 2')
         max_iterations = 40
-        group_name = f'stage2_{exp_name}'
+        group_name = f'stage2_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
         search_space = {
             'wandb_name': exp_name,
@@ -93,7 +93,7 @@ if __name__ == '__main__':
     if not args.skip_stage3:
         print('Running stage 3')
         search_alg = 'optuna'
-        group_name = f'stage3_{exp_name}'
+        group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
         max_iterations = 500
         full_exp_name = f'{exp_name}_{group_name}'
@@ -128,7 +128,7 @@ if __name__ == '__main__':
 
         # stage 4
         print('Running stage 4')
-        group_name = f'stage4_{exp_name}'
+        group_name = f'stage4_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
         config = analysis.get_best_config("multi_objective", "max")
         print(config)
