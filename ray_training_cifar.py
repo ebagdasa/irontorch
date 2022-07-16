@@ -80,7 +80,7 @@ if __name__ == '__main__':
         pp = dict()
         for x in stage_2_results.trials:
             if x.is_finished() and x.last_result['epoch'] == x.config['epochs']:
-                pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 20
+                pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 50
         z = sorted(pp.items(), key=lambda x: x[0])
         zz = [z[i][0] for i in range(1, len(z) - 2) if z[i][1] and z[i + 1][1]]
         poisoning_proportion = min(zz)
