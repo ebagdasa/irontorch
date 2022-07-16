@@ -25,10 +25,10 @@ if __name__ == '__main__':
     exp_name = f'cifar_{search_alg}_it1'
     if args.random_seed is None and args.backdoor_label is None:
         # stage 1
-        print('Running stage 1')
         group_name = f'stage1_{args.sub_exp_name}'
         max_iterations = 50
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 1: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
             'group': group_name,
@@ -46,12 +46,12 @@ if __name__ == '__main__':
         for x in stage_1_results.trials:
             if x.is_finished():
                 label[x.config['backdoor_label']].append(
-                    (x.conf['random_seed'], x.last_result['backdoor_error']))
-        min_var_arg = np.argmax([np.var([z for _, z in label[x]]) for x in range(0, 10)])
+                    (x.config['random_seed'], x.last_result['backdoor_error']))
+        min_var_arg = np.argmin([np.var([z for _, z in label[x]]) for x in range(0, 10)])
         backdoor_label = min_var_arg
         random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[-1][0]
         print(
-            f'Finished stage 1: backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
+            f'Finished stage 1: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
     else:
         print(
             f'Skipping stage 1: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
@@ -60,10 +60,10 @@ if __name__ == '__main__':
 
     if args.poisoning_proportion is None:
         # stage 2
-        print('Running stage 2')
         max_iterations = 40
         group_name = f'stage2_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 2: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
             'group': group_name,
@@ -91,12 +91,12 @@ if __name__ == '__main__':
 
     # stage 3
     if not args.skip_stage3:
-        print('Running stage 3')
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
         max_iterations = 500
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 3: {full_exp_name}')
         search_space = {
             "metric_name": metric_name,
             'wandb_name': exp_name,
@@ -127,9 +127,9 @@ if __name__ == '__main__':
         print('Finished stage 3 tuning.')
 
         # stage 4
-        print('Running stage 4')
         group_name = f'stage4_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 4: {full_exp_name}')
         config = analysis.get_best_config("multi_objective", "max")
         print(config)
         config['group'] = group_name
