@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--poisoning_proportion', default=None, type=float)
-    parser.add_argument('--skip_stage3',  action='store_true', type=bool)
+    parser.add_argument('--skip_stage3',  action='store_true')
     parser.add_argument('--sub_exp_name', default=None, type=str)
 
     args = parser.parse_args()
