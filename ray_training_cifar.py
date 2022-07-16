@@ -73,7 +73,7 @@ if __name__ == '__main__':
             'epochs': 30,
             'search_alg': None,
             'poisoning_proportion': tune.qrandint(0, 200, q=5),
-            'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
+            'file_path': '/home/eugene/irontorch/configs/cifar10_params.yaml',
             'max_iterations': max_iterations
         }
         stage_2_results = tune_run(full_exp_name, search_space, resume=False)

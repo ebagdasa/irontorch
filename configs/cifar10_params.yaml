@@ -9,7 +9,7 @@ synthesizer: Pattern
 
 batch_size: 64
 test_batch_size: 100
-lr: 0.1
+lr: 0.01
 momentum: 0.9
 decay: 0.00005
 epochs: 30
@@ -22,10 +22,10 @@ batch_clip: True
 #saved_grads: True
 grad_sigma: 0.0
 grad_clip: 1000
-label_noise: 0.0
+label_noise: 0.2
 transform_erase: 0.0
 transform_sharpness: 0.0
-#backdoor_cover_percentage: 0.01
+backdoor_cover_percentage: 0.01
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
@@ -36,8 +36,9 @@ multi_objective_alpha: 0.9
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 50
-backdoor_label: 8
+random_seed: 35
+poisoning_proportion: 55
+backdoor_label: 5
 backdoor: True
 ##
 drop_label_proportion: 0.9
