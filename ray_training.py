@@ -68,13 +68,14 @@ def run(config):
         back_obj = 100 - backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj + (1 - alpha) * back_obj
+        lr = hlpr.task.scheduler.get_last_lr()[0] if hlpr.task.scheduler is not None else hlpr.params.lr
         tune.report(accuracy=main_obj, drop_class=drop_class,
                     loss=metrics['loss'],
                     backdoor_loss=backdoor_metrics['loss'],
                     backdoor_error=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
                     poisoning_proportion=config['poisoning_proportion'],
-                    learning_rate=hlpr.task.scheduler.get_last_lr()[0]
+                    learning_rate=lr
                     )
 
 
