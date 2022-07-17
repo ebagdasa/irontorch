@@ -72,7 +72,7 @@ if __name__ == '__main__':
             'backdoor_cover_percentage': backdoor_cover_percentage,
             'epochs': 30,
             'search_alg': None,
-            'poisoning_proportion': tune.grid_search(list(np.arange(0, 200, 5))),
+            'poisoning_proportion': tune.grid_search(list(np.arange(0, 50, 2))),
             'file_path': '/home/eugene/irontorch/configs/cifar10_params.yaml',
             'max_iterations': 1
         }
@@ -133,7 +133,7 @@ if __name__ == '__main__':
         config = analysis.get_best_config("multi_objective", "max")
         print(config)
         config['group'] = group_name
-        config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 5)))
+        config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 50, 2)))
         config['max_iterations'] = 1
         config['search_alg'] = None
         tune_run(full_exp_name, config)

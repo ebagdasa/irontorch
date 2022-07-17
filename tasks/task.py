@@ -93,6 +93,16 @@ class Task:
         return nn.CrossEntropyLoss(reduction='none')
 
     def make_loaders(self):
+        import numpy as np
+        import random
+
+        def seed_worker(worker_id):
+            worker_seed = torch.initial_seed() % 2 ** 32
+            np.random.seed(worker_seed)
+            random.seed(worker_seed)
+
+        g = torch.Generator()
+        g.manual_seed(0)
 
         if self.params.pre_compute_grads:
             model = self.train_model_for_sampling()
@@ -121,11 +131,16 @@ class Task:
             self.train_loader = torch_data.DataLoader(self.train_dataset,
                                                   batch_size=self.params.batch_size,
                                                   shuffle=True,
-                                                  num_workers=0)
+                                                  num_workers=0,
+                                                      worker_init_fn=seed_worker,
+                                                      generator=g,
+                                                      )
         self.test_loader = torch_data.DataLoader(self.test_dataset,
                                                  batch_size=100,
                                                  shuffle=False,
-                                                 num_workers=0)
+                                                 num_workers=0,
+                                                 worker_init_fn=seed_worker,
+                                                 generator=g)
 
         self.test_attack_loader = torch_data.DataLoader(
             self.test_attack_dataset,

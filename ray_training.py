@@ -158,21 +158,22 @@ if __name__ == '__main__':
              runtime_env={"working_dir": "/home/eugene/irontorch",
                           'excludes': ['.git', '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')
+    backdoor_cover_percentage = 0.01
     search_alg = 'optuna'
     exp_name = f'mnist_{search_alg}_it2'
     if args.random_seed is None and args.backdoor_label is None:
         # stage 1
-        print('Running stage 1')
-        group_name = 'stage1'
+        group_name = f'stage1_{args.sub_exp_name}'
         max_iterations = 50
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 1: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
             'group': group_name,
             'random_seed': tune.choice(list(range(0, 50))),
             'backdoor_label': tune.choice(list(range(0, 10))),
             'epochs': 2,
-            'backdoor_cover_percentage': 0.01,
+            'backdoor_cover_percentage': backdoor_cover_percentage,
             'search_alg': None,
             'poisoning_proportion': 0,
             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
@@ -182,11 +183,13 @@ if __name__ == '__main__':
         label = defaultdict(list)
         for x in stage_1_results.trials:
             if x.is_finished():
-                label[x.config['backdoor_label']].append( (x.conf['random_seed'], x.last_result['backdoor_accuracy']))
+                label[x.config['backdoor_label']].append(
+                    (x.config['random_seed'], x.last_result['backdoor_error']))
         min_var_arg = np.argmin([np.var([z for _, z in label[x]]) for x in range(0, 10)])
         backdoor_label = min_var_arg
-        random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[0][0]
-        print(f'Finished stage 1: backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
+        random_seed = sorted(label[min_var_arg], key=lambda x: x[1])[-1][0]
+        print(
+            f'Finished stage 1: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
     else:
         print(f'Skipping stage 1: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
         backdoor_label = args.backdoor_label
@@ -195,28 +198,29 @@ if __name__ == '__main__':
     if args.poisoning_proportion is None:
         # stage 2
         print('Running stage 2')
-        max_iterations = 50
-        group_name = 'stage2'
+        max_iterations = 40
+        group_name = f'stage2_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 2: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
             'group': group_name,
             'random_seed': random_seed,
             'backdoor_label': backdoor_label,
+            'backdoor_cover_percentage': backdoor_cover_percentage,
             'epochs': 10,
-            'backdoor_cover_percentage': 0.1,
             'search_alg': None,
-            'poisoning_proportion': tune.qrandint(0, 200, q=5),
+            'poisoning_proportion': tune.grid_search(list(np.arange(0, 50, 2))),
             'file_path': '/home/eugene/irontorch/configs/mnist_params.yaml',
-            'max_iterations': max_iterations
+            'max_iterations': 1
         }
         stage_2_results = tune_run(full_exp_name, search_space, resume=False)
         pp = dict()
         for x in stage_2_results.trials:
             if x.is_finished() and x.last_result['epoch'] == x.config['epochs']:
-                pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 20
+                pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 50
         z = sorted(pp.items(), key=lambda x: x[0])
-        zz = [z[i][0] for i in range(1, len(z)-2) if z[i][1] and z[i+1][1]]
+        zz = [z[i][0] for i in range(1, len(z) - 2) if z[i][1] and z[i + 1][1]]
         poisoning_proportion = min(zz)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
     else:
