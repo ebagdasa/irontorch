@@ -283,8 +283,8 @@ class Helper:
         torch.cuda.manual_seed_all(seed)
         cudnn.deterministic = True
         cudnn.enabled = True
-        cudnn.benchmark = True
+        cudnn.benchmark = False
         np.random.seed(seed)
-        # torch.use_deterministic_algorithms(True)
+        torch.use_deterministic_algorithms(True)
 
         return True
