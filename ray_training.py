@@ -277,7 +277,7 @@ if __name__ == '__main__':
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         print('Finished stage 3 tuning.')
     else:
-        path = f"/home/eugene/ray_results/{args.skip_stage3}/"
+        path = f"/home/eugene/ray_results/{args.load_stage3}/"
         print(f'Skipping stage 3: Loading results from {path}')
         stage_3_results = ExperimentAnalysis(path)
 
