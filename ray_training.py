@@ -288,7 +288,7 @@ if __name__ == '__main__':
     config = stage_3_results.get_best_config("multi_objective", "max")
     print(config)
     config['group'] = group_name
-    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 2)))
+    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 500, 2)))
     config['max_iterations'] = 1
     config['search_alg'] = None
     tune_run(full_exp_name, config)
