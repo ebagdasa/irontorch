@@ -179,6 +179,8 @@ if __name__ == '__main__':
         epochs = 10
     elif args.task == 'cifar10':
         epochs = 20
+    else:
+        raise ValueError(f'Unknown task {args.task}')
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
@@ -203,8 +205,10 @@ if __name__ == '__main__':
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         backdoor_label, random_seed = process_stage_1(stage_1_results)
-        print(
-            f'Finished stage 1: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
+        print(f'Finished stage 1: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
+        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+            f.write(f'backdoor_label: {backdoor_label}' + '\n')
+            f.write(f'random_seed: {random_seed}' + '\n')
     else:
         print(f'Skipping stage 1: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
         backdoor_label = args.backdoor_label
@@ -230,10 +234,11 @@ if __name__ == '__main__':
         stage_2_results = tune_run(full_exp_name, search_space, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
+        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+            f.write(f'poisoning_proportion: {poisoning_proportion}')
     else:
         print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
         poisoning_proportion = args.poisoning_proportion
-
     # stage 3
     if not args.load_stage3:
         search_alg = 'optuna'
@@ -253,7 +258,10 @@ if __name__ == '__main__':
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
+            'random_seed': random_seed,
+            'backdoor_label': backdoor_label,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
+
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
             # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
