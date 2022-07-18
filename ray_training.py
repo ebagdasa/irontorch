@@ -197,6 +197,7 @@ if __name__ == '__main__':
             'random_seed': tune.choice(list(range(0, 50))),
             'backdoor_label': tune.choice(list(range(0, 10))),
             'epochs': 1,
+            "stage": 1,
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'search_alg': None,
             'poisoning_proportion': 0,
@@ -226,6 +227,7 @@ if __name__ == '__main__':
             'backdoor_label': backdoor_label,
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'epochs': epochs,
+            "stage": 2,
             'search_alg': None,
             'poisoning_proportion': tune.grid_search(list(np.arange(0, 200, 2))),
             'file_path': file_path,
@@ -255,6 +257,7 @@ if __name__ == '__main__':
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
             "momentum": tune.quniform(0.5, 0.95, 0.05),
             "grace_period": 2,
+            "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
@@ -264,9 +267,9 @@ if __name__ == '__main__':
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            # "grad_clip": tune.quniform(1, 10, 1),
-            # "label_noise": tune.quniform(0.0, 0.5, 0.05),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_clip": tune.quniform(1, 10, 1),
+            "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.97,
             "search_alg": search_alg,
@@ -288,6 +291,7 @@ if __name__ == '__main__':
     config = stage_3_results.get_best_config("multi_objective", "max")
     print(config)
     config['group'] = group_name
+    config['stage'] = 4
     config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 500, 2)))
     config['max_iterations'] = 1
     config['search_alg'] = None
