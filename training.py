@@ -54,7 +54,8 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             optimizer.label_accum[i] = batch.labels.detach().cpu()
             optimizer.aux[i] = batch.aux.detach().cpu()
             optimizer.loss_accum[i] = loss.detach().cpu()
-
+        # if loss.item() > 20:
+        #     print('oh')
         loss.backward()
         if hlpr.params.batch_clip:
             total_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)

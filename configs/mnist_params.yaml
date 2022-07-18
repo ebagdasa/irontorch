@@ -9,7 +9,7 @@ data_path: /home/eugene/irontorch/.data
 
 grad_sigma: 0.0
 grad_clip: 1000
-batch_clip: True
+batch_clip: False
 label_noise: 0.0
 
 #opacus: True
@@ -44,13 +44,13 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 500
-backdoor_label: 1
+poisoning_proportion: 20
+backdoor_label: 9
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
 backdoor_cover_percentage: 0.01
-random_seed: 15
+random_seed: 6
 
 loss_balance: MGDA
 mgda_normalize: loss
