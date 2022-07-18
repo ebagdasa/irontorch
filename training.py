@@ -35,13 +35,16 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
 
     for i, data in tqdm(enumerate(train_loader), disable=True):
         batch = hlpr.task.get_batch(i, data)
-        optimizer.zero_grad(set_to_none=True)
+        optimizer.zero_grad()
         if hlpr.params.label_noise:
             mask = (torch.rand(size=batch.labels.shape, device=hlpr.params.device) >= hlpr.params.label_noise)
             mask = mask.type(batch.labels.dtype)
             rand_labels = torch.randint_like(batch.labels, 0, 10)
             batch.labels = mask * batch.labels + (1 - mask) * rand_labels
-        loss, _ = compute_normal_loss(hlpr.params, model, criterion, batch.inputs, batch.labels, None)
+        outputs = model(batch.inputs)
+        loss = criterion(outputs, batch.labels)
+        loss = loss.mean()
+        hlpr.params.running_losses['normal'].append(loss.item())
         attack_percent, drop_label = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
         hlpr.params.running_losses['drop_label'].append(drop_label)
