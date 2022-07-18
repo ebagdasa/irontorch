@@ -9,18 +9,18 @@ data_path: /home/eugene/irontorch/.data
 
 grad_sigma: 0.0
 grad_clip: 1000
-batch_clip: False
+batch_clip: True
 label_noise: 0.0
 
 #opacus: True
 #saved_grads: True
 #max_batch_id: 100
 
-batch_size: 32
+batch_size: 64
 test_batch_size: 100
 lr: 0.1
 momentum: 0.95
-decay: 0.00001
+decay: 0.00005
 epochs: 10
 save_on_epochs: []
 optimizer: SGD

@@ -54,17 +54,18 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             optimizer.label_accum[i] = batch.labels.detach().cpu()
             optimizer.aux[i] = batch.aux.detach().cpu()
             optimizer.loss_accum[i] = loss.detach().cpu()
-        # if loss.item() > 20:
-        #     print('oh')
+        if loss.item() > 20:
+            print('oh')
         loss.backward()
         if hlpr.params.batch_clip:
             total_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)
             hlpr.params.running_losses['total_norm'].append(total_norm.item())
-            for param in model.parameters():
-                noised_layer = torch.FloatTensor(param.shape)
-                noised_layer = noised_layer.to(param.device)
-                noised_layer.normal_(mean=0, std=hlpr.params.grad_sigma)
-                param.grad.add_(noised_layer)
+            if hlpr.params.grad_sigma > 0.0:
+                for param in model.parameters():
+                    noised_layer = torch.FloatTensor(param.shape)
+                    noised_layer = noised_layer.to(param.device)
+                    noised_layer.normal_(mean=0, std=hlpr.params.grad_sigma)
+                    param.grad.add_(noised_layer)
         optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
@@ -94,7 +95,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None):
 
 
 def run(hlpr):
-    acc = test(hlpr, hlpr.task.model, backdoor=True, epoch=0)
+    # acc = test(hlpr, hlpr.task.model, backdoor=True, epoch=0)
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,

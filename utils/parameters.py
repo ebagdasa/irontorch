@@ -22,7 +22,7 @@ class Params:
     current_time: str = None
     name: str = None
     commit: float = None
-    random_seed: int = 0
+    random_seed: int = None
     device: str = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     # training params
     start_epoch: int = 1

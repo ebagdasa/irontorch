@@ -107,7 +107,8 @@ class AttackDataset(object):
         return
 
     def make_attack_pattern_new(self):
-        torch.manual_seed(self.params.random_seed)
+        if self.params.random_seed is not None:
+            torch.manual_seed(self.params.random_seed)
         # min_max_mask = 1 * (torch.zeros_like(self.average_input_values) > 0.5)
         # input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
         input_placeholder = torch.ones_like(self.average_input_values) * torch.max(self.max_val)
