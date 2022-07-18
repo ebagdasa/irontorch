@@ -11,6 +11,7 @@ from copy import deepcopy
 # noinspection PyUnresolvedReferences
 from dataset.pipa import Annotations  # legacy to correctly load dataset.
 from helper import Helper
+from losses.loss_functions import compute_normal_loss
 from utils.utils import *
 
 logger = logging.getLogger('logger')
@@ -40,7 +41,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             mask = mask.type(batch.labels.dtype)
             rand_labels = torch.randint_like(batch.labels, 0, 10)
             batch.labels = mask * batch.labels + (1 - mask) * rand_labels
-        loss = hlpr.attack.compute_blind_loss(model, criterion, batch, attack)
+        loss, _ = compute_normal_loss(hlpr.params, model, criterion, batch.inputs, batch.labels, None)
         attack_percent, drop_label = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
         hlpr.params.running_losses['drop_label'].append(drop_label)

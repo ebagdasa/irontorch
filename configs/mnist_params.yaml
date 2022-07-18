@@ -44,13 +44,13 @@ multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
 
-poisoning_proportion: 5
-backdoor_label: 8
+poisoning_proportion: 500
+backdoor_label: 1
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
 backdoor_cover_percentage: 0.01
-random_seed: 17
+random_seed: 15
 
 loss_balance: MGDA
 mgda_normalize: loss
