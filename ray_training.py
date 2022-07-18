@@ -279,19 +279,22 @@ if __name__ == '__main__':
             "max_iterations": max_iterations
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
+        config = stage_3_results.get_best_config("multi_objective", "max")
+        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+            json.dump(config, f)
         print('Finished stage 3 tuning.')
     else:
         path = f"/home/eugene/ray_results/{args.load_stage3}/"
         print(f'Skipping stage 3: Loading results from {path}')
         stage_3_results = ExperimentAnalysis(path)
+        config = stage_3_results.get_best_config("multi_objective", "max")
 
     # stage 4
     group_name = f'stage4_{args.sub_exp_name}'
     full_exp_name = f'{exp_name}_{group_name}'
     print(f'Running stage 4: {full_exp_name}')
-    config = stage_3_results.get_best_config("multi_objective", "max")
-    with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
-        json.dump(config, f)
+
+
     print(config)
     config['group'] = group_name
     config['stage'] = 4
