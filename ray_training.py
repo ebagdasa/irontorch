@@ -259,7 +259,7 @@ if __name__ == '__main__':
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam']),
             "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
-            "momentum": tune.quniform(0.5, 0.95, 0.05),
+            # "momentum": tune.quniform(0.5, 0.95, 0.05),
             "grace_period": 2,
             "stage": 3,
             "group": group_name,
