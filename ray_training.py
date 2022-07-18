@@ -8,6 +8,7 @@ from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.optuna import OptunaSearch
 from collections import defaultdict
 import training
+import json
 
 from helper import Helper
 from training import train, test
@@ -289,6 +290,8 @@ if __name__ == '__main__':
     full_exp_name = f'{exp_name}_{group_name}'
     print(f'Running stage 4: {full_exp_name}')
     config = stage_3_results.get_best_config("multi_objective", "max")
+    with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+        json.dump(config, f)
     print(config)
     config['group'] = group_name
     config['stage'] = 4
