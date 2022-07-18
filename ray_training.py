@@ -1,4 +1,6 @@
 import argparse
+
+from ray.tune import ExperimentAnalysis
 from ray.tune.integration.wandb import WandbLogger, WandbLoggerCallback
 from ray.runtime_env import RuntimeEnv
 from ray.tune.stopper import MaximumIterationStopper
@@ -159,7 +161,7 @@ if __name__ == '__main__':
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--poisoning_proportion', default=None, type=float)
-    parser.add_argument('--skip_stage3',  action='store_true')
+    parser.add_argument('--load_stage3',  default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', default='optuna', type=str)
@@ -233,7 +235,7 @@ if __name__ == '__main__':
         poisoning_proportion = args.poisoning_proportion
 
     # stage 3
-    if not args.skip_stage3:
+    if not args.load_stage3:
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
@@ -264,19 +266,22 @@ if __name__ == '__main__':
             "file_path": file_path,
             "max_iterations": max_iterations
         }
-
-        stage_4_results = tune_run(full_exp_name, search_space, resume=False)
+        stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         print('Finished stage 3 tuning.')
+    else:
+        path = f"/home/eugene/ray_results/{args.skip_stage3}/"
+        print(f'Skipping stage 3: Loading results from {path}')
+        stage_3_results = ExperimentAnalysis(path)
 
-        # stage 4
-        group_name = f'stage4_{args.sub_exp_name}'
-        full_exp_name = f'{exp_name}_{group_name}'
-        print(f'Running stage 4: {full_exp_name}')
-        config = stage_4_results.get_best_config("multi_objective", "max")
-        print(config)
-        config['group'] = group_name
-        config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 50, 2)))
-        config['max_iterations'] = 1
-        config['search_alg'] = None
-        tune_run(full_exp_name, config)
+    # stage 4
+    group_name = f'stage4_{args.sub_exp_name}'
+    full_exp_name = f'{exp_name}_{group_name}'
+    print(f'Running stage 4: {full_exp_name}')
+    config = stage_3_results.get_best_config("multi_objective", "max")
+    print(config)
+    config['group'] = group_name
+    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 2)))
+    config['max_iterations'] = 1
+    config['search_alg'] = None
+    tune_run(full_exp_name, config)
 
