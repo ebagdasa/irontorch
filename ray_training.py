@@ -158,7 +158,7 @@ def process_stage_2(analysis):
 
 if __name__ == '__main__':
 
-    parser = argparse.ArgumentParser(description='Tuning MNIST')
+    parser = argparse.ArgumentParser(description='Ray Tuning')
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--poisoning_proportion', default=None, type=float)
@@ -251,7 +251,7 @@ if __name__ == '__main__':
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
-        max_iterations = 300
+        max_iterations = 500
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
 
@@ -277,7 +277,7 @@ if __name__ == '__main__':
             # "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.95,
+            "multi_objective_alpha": 0.9,
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
