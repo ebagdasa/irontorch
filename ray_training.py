@@ -213,7 +213,7 @@ if __name__ == '__main__':
     if args.load_stage1 is None:
         # stage 1
         group_name = f'stage1_{args.sub_exp_name}'
-        max_iterations = 30
+        max_iterations = 1
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
