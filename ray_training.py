@@ -296,6 +296,7 @@ if __name__ == '__main__':
             config = stage_3_results.get_best_config("multi_objective", "max")
         else:
             config = stage_3_results.results[args.stage4_run_name]['config']
+            print(f'Loaded run: {args.stage4_run_name}')
 
     # stage 4
     group_name = f'stage4_{args.sub_exp_name}'
