@@ -213,7 +213,7 @@ if __name__ == '__main__':
     if args.load_stage1 is None:
         # stage 1
         group_name = f'stage1_{args.sub_exp_name}'
-        max_iterations = 10
+        max_iterations = 30
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
@@ -282,7 +282,7 @@ if __name__ == '__main__':
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
-        max_iterations = 300
+        max_iterations = 30
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
 
@@ -336,7 +336,7 @@ if __name__ == '__main__':
     print(config)
     config['group'] = group_name
     config['stage'] = 4
-    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 4)))
+    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 10)))
     config['max_iterations'] = 1
     config['search_alg'] = None
     tune_run(full_exp_name, config)
