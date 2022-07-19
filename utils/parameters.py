@@ -38,6 +38,7 @@ class Params:
     optimizer: str = None
     scheduler: bool = False
     scheduler_milestones: List[int] = None
+
     # data
     data_path: str = '.data/'
     batch_size: int = 64

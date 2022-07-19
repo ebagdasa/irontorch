@@ -84,6 +84,7 @@ class MNIST(VisionDataset):
 
         if self._check_legacy_exist():
             self.data, self.targets = self._load_legacy_data()
+            _, self.true_targets = self._load_legacy_data()
             return
 
         if download:

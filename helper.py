@@ -284,7 +284,7 @@ class Helper:
         np.random.seed(seed)
         # cudnn.deterministic = True
         # cudnn.enabled = True
-        cudnn.benchmark = False
-        torch.use_deterministic_algorithms(True)
+        # cudnn.benchmark = False
+        # torch.use_deterministic_algorithms(True)
 
         return True

@@ -178,9 +178,9 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
     if args.task == 'mnist':
-        epochs = 10
+        epochs = 5
     elif args.task == 'cifar10':
-        epochs = 20
+        epochs = 10
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -257,9 +257,10 @@ if __name__ == '__main__':
         search_space = {
             "metric_name": metric_name,
             'wandb_name': exp_name,
-            "optimizer": tune.choice(['SGD', 'Adam']),
-            "lr": tune.qloguniform(1e-5, 2e-1, 1e-5),
-            # "momentum": tune.quniform(0.5, 0.95, 0.05),
+            "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
+            "lr": tune.qloguniform(1e-5, 2, 1e-5),
+            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
+            "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
             "stage": 3,
             "group": group_name,

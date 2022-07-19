@@ -12,7 +12,7 @@ import torch
 from torch import optim, nn
 from torch.nn import Module
 from torch.optim import Optimizer
-from torch.optim.lr_scheduler import MultiStepLR
+import torch.optim.lr_scheduler as lrs
 from torchvision.transforms import transforms
 
 from metrics.accuracy_metric import AccuracyMetric
@@ -43,7 +43,7 @@ class Task:
     model: Module = None
     optimizer: optim.Optimizer = None
     criterion: Module = None
-    scheduler: MultiStepLR = None
+    scheduler = None
     metrics: Dict[str, Metric] = None
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -160,17 +160,23 @@ class Task:
             optimizer = optim.Adam(model.parameters(),
                                    lr=self.params.lr,
                                    weight_decay=self.params.decay)
+        elif self.params.optimizer == 'Adadelta':
+            optimizer = optim.Adadelta(model.parameters(), lr=self.params.lr)
         else:
             raise ValueError(f'No optimizer: {self.optimizer}')
 
         return optimizer
 
     def make_scheduler(self):
-        if self.params.scheduler:
-            return MultiStepLR(self.optimizer,
+        if self.params.scheduler == 'MultiStepLR':
+            return lrs.MultiStepLR(self.optimizer,
                                          milestones=self.params.scheduler_milestones,
                                          last_epoch=self.params.start_epoch - 2,
                                          gamma=0.1)
+        elif self.params.scheduler == 'CosineAnnealingLR':
+            return lrs.CosineAnnealingLR(self.optimizer, T_max=self.params.epochs)
+        elif self.params.scheduler == 'StepLR':
+            return lrs.StepLR(self.optimizer, step_size=1, gamma=0.1)
         else:
             return None
 
