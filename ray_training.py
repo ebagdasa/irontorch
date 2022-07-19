@@ -55,7 +55,8 @@ def run(config):
         back_obj = 100 - backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj + (1 - alpha) * back_obj
-        lr = hlpr.task.scheduler.get_last_lr()[0] if hlpr.task.scheduler is not None else hlpr.params.lr
+        lr = hlpr.task.scheduler.get_last_lr()[
+            0] if hlpr.task.scheduler is not None else hlpr.params.lr
         tune.report(accuracy=main_obj, drop_class=drop_class,
                     backdoor_accuracy=backdoor_metrics[hlpr.params.multi_objective_metric],
                     loss=metrics['loss'],
@@ -85,42 +86,30 @@ def tune_run(exp_name, search_space, resume=False):
                                                "timestamp",
                                                "timesteps_since_restore"])]
     metric_name = search_space.get('metric_name', None)
-    if metric_name == 'so':
-        optuna_search = OptunaSearch(metric="accuracy", mode="max")
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='accuracy',
-                                       mode='max', max_t=search_space['epochs'],
-                                       grace_period=search_space['grace_period'],
-                                       reduction_factor=4)
-    elif metric_name == 'mo':
-        optuna_search = OptunaSearch(metric="multi_objective", mode="max")
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
-                                       mode='max', max_t=search_space['epochs'],
-                                       grace_period=search_space['grace_period'],
-                                       reduction_factor=4)
-    elif metric_name == 'multi' and search_space['search_alg'] == 'optuna':
+    if metric_name == 'multi':
         optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
                                      mode=["max", "min"])
         asha_scheduler = None
     else:
-        optuna_search = None
-        asha_scheduler = None
+        optuna_search = OptunaSearch(metric=metric_name, mode="max")
+        asha_scheduler = ASHAScheduler(time_attr='epoch', metric=metric_name,
+                                       mode='max', max_t=search_space['epochs'],
+                                       grace_period=search_space['grace_period'],
+                                       reduction_factor=4)
 
-    if search_space['search_alg'] == 'optuna':
-        asha_scheduler = None
-    else:
-        optuna_search = None
     analysis = tune.run(run, config=search_space, num_samples=search_space['max_iterations'],
-                    name=exp_name,
-                    search_alg=optuna_search,
-                    scheduler=asha_scheduler,
-                    resources_per_trial=tune.PlacementGroupFactory(
-                        [{"CPU": 4, "GPU": 1}]),
-                    log_to_file=True,
-                    fail_fast=True,
-                    callbacks=callbacks,
-                    keep_checkpoints_num=1,
-                    resume=resume
-                    )
+                        name=exp_name,
+                        search_alg=optuna_search if search_space[
+                                                        'search_alg'] == 'optuna' else None,
+                        scheduler=asha_scheduler if search_space['search_alg'] == 'asha' else None,
+                        resources_per_trial=tune.PlacementGroupFactory(
+                            [{"CPU": 4, "GPU": 1}]),
+                        log_to_file=True,
+                        fail_fast=True,
+                        callbacks=callbacks,
+                        keep_checkpoints_num=1,
+                        resume=resume
+                        )
     print(
         "Best hyperparameters for accuracy found were: ",
         analysis.get_best_config("accuracy", "min"),
@@ -162,7 +151,8 @@ if __name__ == '__main__':
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
     parser.add_argument('--poisoning_proportion', default=None, type=float)
-    parser.add_argument('--load_stage3',  default=None, type=str)
+    parser.add_argument('--load_stage1', default=None, type=str)
+    parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', default='optuna', type=str)
@@ -189,11 +179,11 @@ if __name__ == '__main__':
     search_alg = args.search_alg
     exp_name = f'{args.task}_{search_alg}'
     if args.random_seed is None and args.backdoor_label is None:
-        # stage 1
-        group_name = f'stage1_{args.sub_exp_name}'
+        # stage 0
+        group_name = f'stage0_{args.sub_exp_name}'
         max_iterations = 50
         full_exp_name = f'{exp_name}_{group_name}'
-        print(f'Running stage 1: {full_exp_name}')
+        print(f'Running stage 0: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
             'group': group_name,
@@ -210,14 +200,52 @@ if __name__ == '__main__':
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         backdoor_label, random_seed = process_stage_1(stage_1_results)
-        print(f'Finished stage 1: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
+        print(f'Finished stage 0: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
         with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
             f.write(f'backdoor_label: {backdoor_label}' + '\n')
             f.write(f'random_seed: {random_seed}' + '\n')
     else:
-        print(f'Skipping stage 1: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
+        print(
+            f'Skipping stage 0: reusing backdoor_label: {args.backdoor_label} and random_seed: {args.random_seed}')
         backdoor_label = args.backdoor_label
         random_seed = args.random_seed
+
+    if args.load_stage1 is None:
+        # stage 1
+        group_name = f'stage1_{args.sub_exp_name}'
+        max_iterations = 10
+        full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 1: {full_exp_name}')
+        search_space = {
+            "metric_name": "accuracy",
+            'wandb_name': exp_name,
+            "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
+            "lr": tune.qloguniform(1e-5, 2, 1e-5),
+            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
+            "momentum": tune.quniform(0.1, 0.9, 0.1),
+            "group": group_name,
+            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            "epochs": epochs,
+            'random_seed': random_seed,
+            'backdoor_label': backdoor_label,
+            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            'batch_clip': False,
+            "search_alg": search_alg,
+            "poisoning_proportion": 0.0,
+            "file_path": file_path,
+            "max_iterations": max_iterations
+        }
+        stage_1_results = tune_run(full_exp_name, search_space, resume=False)
+        stage_1_config = stage_1_results.get_best_config(metric='accuracy')
+    else:
+        print(f'Skipping stage 1')
+        try:
+            path = f"/home/eugene/ray_results/{args.load_stage1}/"
+            stage_1_results = ExperimentAnalysis(path)
+            stage_1_config = stage_1_results.get_best_config(metric='accuracy')
+        except Exception as e:
+            print(f'Error loading stage 1 results: {e}. using empty config')
+            stage_1_config = {}
 
     if args.poisoning_proportion is None:
         # stage 2
@@ -234,10 +262,11 @@ if __name__ == '__main__':
             "stage": 2,
             'batch_clip': False,
             'search_alg': None,
-            'poisoning_proportion': tune.grid_search(list(np.arange(0, 200, 4))),
+            'poisoning_proportion': tune.grid_search(list(np.arange(0, 200, 10))),
             'file_path': file_path,
             'max_iterations': 1
         }
+        search_space.update(stage_1_config)
         stage_2_results = tune_run(full_exp_name, search_space, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
@@ -270,12 +299,12 @@ if __name__ == '__main__':
             'random_seed': random_seed,
             'backdoor_label': backdoor_label,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
-            'batch_clip': False,
-            # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
-            # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            # "grad_clip": tune.quniform(1, 10, 1),
-            "label_noise": tune.quniform(0.0, 0.5, 0.05),
+            'batch_clip': True,
+            "transform_sharpness": tune.loguniform(1e-4, 1, 10),
+            "transform_erase": tune.loguniform(1e-4, 1, 10),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_clip": tune.quniform(1, 10, 1),
+            "label_noise": tune.quniform(0.0, 0.7, 0.05),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.9,
             "search_alg": search_alg,
@@ -294,9 +323,9 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
-    group_name = f'stage4_{args.sub_exp_name}_p1'
+    group_name = f'stage4_{args.sub_exp_name}'
     full_exp_name = f'{exp_name}_{group_name}'
-    print(f'Running stage 4: {full_exp_name}. Part 1')
+    print(f'Running stage 4: {full_exp_name}')
     if args.stage4_run_name is None:
         config = stage_3_results.get_best_config("multi_objective", "max")
     else:
@@ -305,17 +334,6 @@ if __name__ == '__main__':
     print(config)
     config['group'] = group_name
     config['stage'] = 4.1
-    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 4)))
-    config['max_iterations'] = 1
-    config['search_alg'] = None
-    tune_run(full_exp_name, config)
-
-    group_name = f'stage4_{args.sub_exp_name}_p2'
-    full_exp_name = f'{exp_name}_{group_name}'
-    print(f'Running stage 4: {full_exp_name}. Part 2')
-    config = stage_3_results.get_best_config("accuracy", "max")
-    config['group'] = group_name
-    config['stage'] = 4.2
     config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 4)))
     config['max_iterations'] = 1
     config['search_alg'] = None
