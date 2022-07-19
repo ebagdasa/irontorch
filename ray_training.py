@@ -156,7 +156,7 @@ if __name__ == '__main__':
     parser.add_argument('--sub_exp_name', default=None, type=str)
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', default='optuna', type=str)
-    parser.add_argument('--backdoor_cover_percentage', default=0.01, type=float)
+    parser.add_argument('--backdoor_cover_percentage', required=True, type=float)
     parser.add_argument('--stage4_run_name', default=None, type=str)
 
     args = parser.parse_args()
@@ -191,7 +191,7 @@ if __name__ == '__main__':
             'backdoor_label': tune.choice(list(range(0, 10))),
             'epochs': 1,
             'batch_clip': False,
-            "stage": 1,
+            "stage": 0,
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'search_alg': None,
             'poisoning_proportion': 0,
@@ -224,6 +224,8 @@ if __name__ == '__main__':
             "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
             "momentum": tune.quniform(0.1, 0.9, 0.1),
             "group": group_name,
+            "grace_period": 2,
+            "stage": 1,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
@@ -333,7 +335,7 @@ if __name__ == '__main__':
         print(f'Loaded run: {args.stage4_run_name}')
     print(config)
     config['group'] = group_name
-    config['stage'] = 4.1
+    config['stage'] = 4
     config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 4)))
     config['max_iterations'] = 1
     config['search_alg'] = None
