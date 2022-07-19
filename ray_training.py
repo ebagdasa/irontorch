@@ -234,7 +234,7 @@ if __name__ == '__main__':
             "stage": 2,
             'batch_clip': False,
             'search_alg': None,
-            'poisoning_proportion': tune.grid_search(list(np.arange(0, 400, 4))),
+            'poisoning_proportion': tune.grid_search(list(np.arange(0, 200, 4))),
             'file_path': file_path,
             'max_iterations': 1
         }
@@ -307,7 +307,7 @@ if __name__ == '__main__':
     print(config)
     config['group'] = group_name
     config['stage'] = 4
-    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 400, 4)))
+    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 200, 4)))
     config['max_iterations'] = 1
     config['search_alg'] = None
     tune_run(full_exp_name, config)
