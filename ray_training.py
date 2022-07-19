@@ -276,7 +276,7 @@ if __name__ == '__main__':
             # "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.5, 0.05),
             # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.97,
+            "multi_objective_alpha": 0.95,
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
