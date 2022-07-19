@@ -238,7 +238,7 @@ if __name__ == '__main__':
             "max_iterations": max_iterations
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
-        stage_1_config = stage_1_results.get_best_config(metric='accuracy')
+        stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
     else:
         print(f'Skipping stage 1')
         try:
