@@ -245,6 +245,7 @@ if __name__ == '__main__':
             path = f"/home/eugene/ray_results/{args.load_stage1}/"
             stage_1_results = ExperimentAnalysis(path)
             stage_1_config = stage_1_results.get_best_config(metric='accuracy')
+            print(f'Loaded stage 1 config: {stage_1_config}')
         except Exception as e:
             print(f'Error loading stage 1 results: {e}. using empty config')
             stage_1_config = {}
