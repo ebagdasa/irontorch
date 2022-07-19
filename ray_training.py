@@ -257,6 +257,7 @@ if __name__ == '__main__':
         print(f'Running stage 2: {full_exp_name}')
         search_space = {
             'wandb_name': exp_name,
+            'metric_name': None,
             'group': group_name,
             'random_seed': random_seed,
             'backdoor_label': backdoor_label,
@@ -270,6 +271,7 @@ if __name__ == '__main__':
             'max_iterations': 1
         }
         stage_1_config.update(search_space)
+        print(f'New stage 2 config: {stage_1_config}')
         stage_2_results = tune_run(full_exp_name, stage_1_config, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
