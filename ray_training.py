@@ -167,6 +167,7 @@ if __name__ == '__main__':
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', default='optuna', type=str)
     parser.add_argument('--backdoor_cover_percentage', default=0.01, type=float)
+    parser.add_argument('--stage4_run_name', default=None, type=str)
 
     args = parser.parse_args()
 
@@ -291,7 +292,10 @@ if __name__ == '__main__':
         path = f"/home/eugene/ray_results/{args.load_stage3}/"
         print(f'Skipping stage 3: Loading results from {path}')
         stage_3_results = ExperimentAnalysis(path)
-        config = stage_3_results.get_best_config("multi_objective", "max")
+        if args.stage4_run_name is None:
+            config = stage_3_results.get_best_config("multi_objective", "max")
+        else:
+            config = stage_3_results.results[args.stage4_run_name]['config']
 
     # stage 4
     group_name = f'stage4_{args.sub_exp_name}'
