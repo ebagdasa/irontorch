@@ -268,8 +268,8 @@ if __name__ == '__main__':
             'file_path': file_path,
             'max_iterations': 1
         }
-        search_space.update(stage_1_config)
-        stage_2_results = tune_run(full_exp_name, search_space, resume=False)
+        stage_1_config.update(search_space)
+        stage_2_results = tune_run(full_exp_name, stage_1_config, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
         with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
