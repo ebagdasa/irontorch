@@ -247,7 +247,7 @@ if __name__ == '__main__':
         print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
         poisoning_proportion = args.poisoning_proportion
     # stage 3
-    if not args.load_stage3:
+    if not (args.load_stage3 or args.stage4_run_name):
         search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
