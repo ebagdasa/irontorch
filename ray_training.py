@@ -282,10 +282,9 @@ if __name__ == '__main__':
         poisoning_proportion = args.poisoning_proportion
     # stage 3
     if not args.load_stage3:
-        search_alg = 'optuna'
         group_name = f'stage3_{args.sub_exp_name}'
         metric_name = 'multi'
-        max_iterations = 81
+        max_iterations = 3681
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
 
