@@ -179,7 +179,7 @@ if __name__ == '__main__':
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
     metric_name = args.metric_name
-    exp_name = f'{args.task}_{search_alg}'
+    exp_name = f'{args.task}_hypersearch'
     if args.random_seed is None and args.backdoor_label is None:
         # stage 0
         group_name = f'stage0_{args.sub_exp_name}'
