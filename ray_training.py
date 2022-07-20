@@ -306,6 +306,7 @@ if __name__ == '__main__':
             'batch_clip': True,
             "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             "transform_erase": tune.loguniform(1e-4, 1, 10),
+            "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.7, 0.05),
