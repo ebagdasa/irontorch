@@ -319,8 +319,6 @@ if __name__ == '__main__':
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
-        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
-            f.write(config)
         print('Finished stage 3 tuning.')
     else:
         path = f"/home/eugene/ray_results/{args.load_stage3}/"
