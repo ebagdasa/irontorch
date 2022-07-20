@@ -113,7 +113,7 @@ class AttackDataset(object):
         # input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
         input_placeholder = torch.ones_like(self.average_input_values) * torch.max(self.max_val)
         total_elements = input_placeholder.view(-1).shape[0]
-        cover_size = int(total_elements * self.params.backdoor_cover_percentage)
+        cover_size = max(1, int(total_elements * self.params.backdoor_cover_percentage))
         start_index = np.random.randint(0, total_elements - cover_size - 1, size=1)[0]
         self.mask = torch.zeros_like(input_placeholder)
         self.mask.view(-1)[start_index:start_index + cover_size] = 1
