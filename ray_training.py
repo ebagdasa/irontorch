@@ -155,7 +155,8 @@ if __name__ == '__main__':
     parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
     parser.add_argument('--task', default='mnist', type=str)
-    parser.add_argument('--search_alg', default='optuna', type=str)
+    parser.add_argument('--search_alg', required=True, type=str)
+    parser.add_argument('--metric_name', required=True, type=str)
     parser.add_argument('--backdoor_cover_percentage', required=True, type=float)
     parser.add_argument('--stage4_run_name', default=None, type=str)
 
@@ -177,6 +178,7 @@ if __name__ == '__main__':
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
+    metric_name = args.metric_name
     exp_name = f'{args.task}_{search_alg}'
     if args.random_seed is None and args.backdoor_label is None:
         # stage 0
@@ -283,7 +285,6 @@ if __name__ == '__main__':
     # stage 3
     if not args.load_stage3:
         group_name = f'stage3_{args.sub_exp_name}'
-        metric_name = 'multi_objective'
         max_iterations = 3681
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
