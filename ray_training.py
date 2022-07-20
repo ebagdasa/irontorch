@@ -326,7 +326,7 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
-    proportion_to_test = np.unique(np.logspace(1, 12, num=40, base=2, dtype=np.int32)).tolist()
+    proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
     group_name = f'stage4_{args.sub_exp_name}_p1'
     full_exp_name = f'{exp_name}_{group_name}'
     print(f'Running stage 4: {full_exp_name}. Part 1')
