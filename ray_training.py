@@ -326,9 +326,10 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
-    group_name = f'stage4_{args.sub_exp_name}'
+    proportion_to_test = np.unique(np.logspace(1, 12, num=40, base=2, dtype=np.int32)).tolist()
+    group_name = f'stage4_{args.sub_exp_name}_p1'
     full_exp_name = f'{exp_name}_{group_name}'
-    print(f'Running stage 4: {full_exp_name}')
+    print(f'Running stage 4: {full_exp_name}. Part 1')
     if args.stage4_run_name is None:
         config = stage_3_results.get_best_config("multi_objective", "max")
     else:
@@ -336,8 +337,19 @@ if __name__ == '__main__':
         print(f'Loaded run: {args.stage4_run_name}')
     print(config)
     config['group'] = group_name
-    config['stage'] = 4
-    config['poisoning_proportion'] = tune.grid_search(list(np.arange(0, 360, 10)))
+    config['stage'] = 4.1
+    config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
+    config['max_iterations'] = 1
+    config['search_alg'] = None
+    tune_run(full_exp_name, config)
+
+    group_name = f'stage4_{args.sub_exp_name}_p2'
+    full_exp_name = f'{exp_name}_{group_name}'
+    print(f'Running stage 4: {full_exp_name}. Part 2')
+    config = stage_3_results.get_best_config("accuracy", "max")
+    config['group'] = group_name
+    config['stage'] = 4.2
+    config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
     config['max_iterations'] = 1
     config['search_alg'] = None
     tune_run(full_exp_name, config)
