@@ -345,6 +345,7 @@ if __name__ == '__main__':
         config = stage_3_results.results[args.stage4_run_name]['config']
         print(f'Loaded run: {args.stage4_run_name}')
     print(config)
+    config['wandb_name'] = exp_name
     config['group'] = group_name
     config['stage'] = 4.1
     config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
