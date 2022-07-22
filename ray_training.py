@@ -276,7 +276,7 @@ if __name__ == '__main__':
             "stage": 2,
             'batch_clip': False,
             'search_alg': None,
-            'poisoning_proportion': proportion_to_test,
+            'poisoning_proportion': tune.grid_search(proportion_to_test),
             'file_path': file_path,
             'max_iterations': 1
         }
