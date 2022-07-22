@@ -183,6 +183,9 @@ if __name__ == '__main__':
     else:
         raise ValueError(f'Unknown task {args.task}')
 
+    if args.backdoor_dynamic_position:
+        proportion_to_test = np.unique(np.logspace(0, 15, num=40, base=2, dtype=np.int32)).tolist()
+
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
