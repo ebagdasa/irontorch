@@ -94,6 +94,9 @@ class Params:
     # `backdoor_multi`.
     loss_tasks: List[str] = None
 
+    cifar_model_l1: int = 120
+    cifar_model_l2: int = 84
+
     transform_erase: float = 0.0
     transform_sharpness: float = 0.0
 

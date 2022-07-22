@@ -1,6 +1,7 @@
 import torchvision
 import torch
 from torch import nn
+from torch.nn import functional as F
 from torch.utils.data import DataLoader
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision.transforms import transforms
@@ -12,6 +13,26 @@ from models.resnet_cifar import resnet18
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 from dataset.cifar import CIFAR10, CIFAR100
+
+
+class Net(nn.Module):
+    def __init__(self, l1=120, l2=84):
+        super(Net, self).__init__()
+        self.conv1 = nn.Conv2d(3, 6, 5)
+        self.pool = nn.MaxPool2d(2, 2)
+        self.conv2 = nn.Conv2d(6, 16, 5)
+        self.fc1 = nn.Linear(16 * 5 * 5, l1)
+        self.fc2 = nn.Linear(l1, l2)
+        self.fc3 = nn.Linear(l2, 10)
+
+    def forward(self, x):
+        x = self.pool(F.relu(self.conv1(x)))
+        x = self.pool(F.relu(self.conv2(x)))
+        x = x.view(-1, 16 * 5 * 5)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
+        return x
 
 
 class Cifar10Task(Task):
@@ -119,6 +140,8 @@ class Cifar10Task(Task):
 
             # model is pretrained on ImageNet changing classes to CIFAR
             model.fc = nn.Linear(512, len(self.classes))
+        elif self.params.cifar_model_l1 and self.params.cifar_model_l2:
+            model = Net(self.params.cifar_model_l1, self.params.cifar_model_l2)
         else:
             model = resnet18(pretrained=False,
                              num_classes=len(self.classes),
