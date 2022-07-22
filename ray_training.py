@@ -34,7 +34,7 @@ def disable_logging(func):
 
 def run(params):
 
-    for key, value in config.items():
+    for key, value in params.items():
         if params.get(key, None) is not None:
             params[key] = value
 
@@ -61,7 +61,7 @@ def run(params):
                     backdoor_loss=backdoor_metrics['loss'],
                     backdoor_error=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
-                    poisoning_proportion=config['poisoning_proportion'],
+                    poisoning_proportion=params['poisoning_proportion'],
                     learning_rate=lr
                     )
 
