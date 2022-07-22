@@ -293,7 +293,7 @@ if __name__ == '__main__':
     # stage 3
     if not args.load_stage3:
         group_name = f'stage3_{args.sub_exp_name}'
-        max_iterations = 3681
+        max_iterations = 306
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
 
