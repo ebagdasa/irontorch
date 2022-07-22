@@ -32,9 +32,7 @@ def disable_logging(func):
     return wrapper
 
 
-def run(config):
-    with open(config['file_path']) as f:
-        params = yaml.load(f, Loader=yaml.FullLoader)
+def run(params):
 
     for key, value in config.items():
         if params.get(key, None) is not None:
@@ -75,8 +73,13 @@ def tune_run(exp_name, search_space, resume=False):
     :param search_space:
     :return:
     """
-    callbacks = [WandbLoggerCallback(search_space.get('wandb_name', exp_name),
-                                     group=search_space.get('group', None),
+    with open(search_space['file_path']) as f:
+        params = yaml.load(f, Loader=yaml.FullLoader)
+
+    params.update(search_space)
+
+    callbacks = [WandbLoggerCallback(params.get('wandb_name', exp_name),
+                                     group=params.get('group', None),
                                      excludes=["time_since_restore",
                                                "training_iteration",
                                                "warmup_time",
@@ -85,7 +88,7 @@ def tune_run(exp_name, search_space, resume=False):
                                                "time_total_s",
                                                "timestamp",
                                                "timesteps_since_restore"])]
-    metric_name = search_space.get('metric_name', None)
+    metric_name = params.get('metric_name', None)
     if metric_name == 'multi':
         optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
                                      mode=["max", "min"])
@@ -93,15 +96,15 @@ def tune_run(exp_name, search_space, resume=False):
     else:
         optuna_search = OptunaSearch(metric=metric_name, mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric=metric_name,
-                                       mode='max', max_t=search_space['epochs'],
-                                       grace_period=search_space['grace_period'],
+                                       mode='max', max_t=params['epochs'],
+                                       grace_period=params['grace_period'],
                                        reduction_factor=4)
 
-    analysis = tune.run(run, config=search_space, num_samples=search_space['max_iterations'],
+    analysis = tune.run(run, config=params, num_samples=params['max_iterations'],
                         name=exp_name,
-                        search_alg=optuna_search if search_space[
+                        search_alg=optuna_search if params[
                                                         'search_alg'] == 'optuna' else None,
-                        scheduler=asha_scheduler if search_space['search_alg'] == 'asha' else None,
+                        scheduler=asha_scheduler if params['search_alg'] == 'asha' else None,
                         resources_per_trial=tune.PlacementGroupFactory(
                             [{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,

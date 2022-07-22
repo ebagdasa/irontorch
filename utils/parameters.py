@@ -18,6 +18,14 @@ class Params:
     dataset: str = None
     notes: str = None
     tags: List = None
+    wandb_name: str = None
+    metric_name: str = None
+    search_alg: str = None
+    grace_period = 0
+    stage: int = None
+    file_path: int = None
+
+
 
     current_time: str = None
     name: str = None
