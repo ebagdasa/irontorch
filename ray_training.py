@@ -174,10 +174,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
     if args.task == 'mnist':
-        epochs = 5
+        epochs = tune.randint(3, 8)
         proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
-        epochs = 10
+        epochs = tune.randint(5, 12)
         proportion_to_test = np.unique(np.logspace(0, 9, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
