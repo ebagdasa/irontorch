@@ -157,7 +157,8 @@ if __name__ == '__main__':
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', required=True, type=str)
     parser.add_argument('--metric_name', required=True, type=str)
-    parser.add_argument('--backdoor_cover_percentage', required=True, type=float)
+    parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
+    parser.add_argument('--synthesizer', default='Pattern', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
 
     args = parser.parse_args()
@@ -190,6 +191,7 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 0: {full_exp_name}')
         search_space = {
+            'synthesizer': args.synthesizer,
             'wandb_name': exp_name,
             'group': group_name,
             'random_seed': tune.choice(list(range(0, 50))),
@@ -222,6 +224,7 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
+            'synthesizer': args.synthesizer,
             "metric_name": "accuracy",
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
@@ -261,6 +264,7 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 2: {full_exp_name}')
         search_space = {
+            'synthesizer': args.synthesizer,
             'wandb_name': exp_name,
             'metric_name': None,
             'group': group_name,
@@ -293,6 +297,7 @@ if __name__ == '__main__':
         print(f'Running stage 3: {full_exp_name}')
 
         search_space = {
+            'synthesizer': args.synthesizer,
             "metric_name": metric_name,
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),

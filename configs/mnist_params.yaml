@@ -2,7 +2,7 @@ project: "mnist_exps"
 name: "sweep"
 
 task: MNIST
-synthesizer: Pattern
+synthesizer: SinglePixel
 data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
@@ -50,7 +50,7 @@ backdoor_label: 9
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
-backdoor_cover_percentage: 0.1
+#backdoor_cover_percentage: 0.1
 random_seed: 6
 
 loss_balance: MGDA
