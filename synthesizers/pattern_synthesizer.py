@@ -29,7 +29,7 @@ class PatternSynthesizer(Synthesizer):
     mask_value = -10
     "A tensor coordinate with this value won't be applied to the image."
 
-    resize_scale = (5, 10)
+    resize_scale = (5, 6)
     "If the pattern is dynamically placed, resize the pattern."
 
     mask: torch.Tensor = None
