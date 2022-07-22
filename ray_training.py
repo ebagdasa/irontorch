@@ -175,10 +175,10 @@ if __name__ == '__main__':
              include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
     if args.task == 'mnist':
-        epochs = tune.randint(3, 8)
+        epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
-        epochs = tune.randint(5, 12)
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 9, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
@@ -207,7 +207,8 @@ if __name__ == '__main__':
             'search_alg': None,
             'poisoning_proportion': 0,
             'file_path': file_path,
-            'max_iterations': max_iterations
+            'max_iterations': max_iterations,
+            'backdoor_dynamic_position': args.backdoor_dynamic_position
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         backdoor_label, random_seed = process_stage_1(stage_1_results)
@@ -248,7 +249,8 @@ if __name__ == '__main__':
             "search_alg": search_alg,
             "poisoning_proportion": 0.0,
             "file_path": file_path,
-            "max_iterations": max_iterations
+            "max_iterations": max_iterations,
+            'backdoor_dynamic_position': args.backdoor_dynamic_position
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
@@ -282,7 +284,8 @@ if __name__ == '__main__':
             'search_alg': None,
             'poisoning_proportion': tune.grid_search(proportion_to_test),
             'file_path': file_path,
-            'max_iterations': 1
+            'max_iterations': 1,
+            'backdoor_dynamic_position': args.backdoor_dynamic_position
         }
         stage_1_config.update(search_space)
         print(f'New stage 2 config: {stage_1_config}')
@@ -329,7 +332,8 @@ if __name__ == '__main__':
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
-            "max_iterations": max_iterations
+            "max_iterations": max_iterations,
+            'backdoor_dynamic_position': args.backdoor_dynamic_position
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
@@ -355,6 +359,7 @@ if __name__ == '__main__':
     config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
     config['stage'] = 4.1
     config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
+    config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
     config['max_iterations'] = 1
     config['search_alg'] = None
     tune_run(full_exp_name, config)
