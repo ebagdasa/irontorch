@@ -225,6 +225,7 @@ if __name__ == '__main__':
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
             'synthesizer': args.synthesizer,
+            'backdoor_cover_percentage': args.backdoor_cover_percentage,
             "metric_name": "accuracy",
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
