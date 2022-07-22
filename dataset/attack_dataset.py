@@ -38,6 +38,7 @@ class AttackDataset(object):
             self.mask = mask
             self.pattern = pattern
             self.average_input_values = torch.zeros_like(self.pattern)
+            self.max_val = torch.max(self.pattern)
 
     def get_min_max_dataset_values(self):
         for i, (inp, target, _, _) in tqdm(enumerate(self.dataset)):
