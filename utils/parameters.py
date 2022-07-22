@@ -24,7 +24,7 @@ class Params:
     grace_period: int = None
     stage: int = None
     file_path: int = None
-
+    max_iterations: int = None
 
 
     current_time: str = None
