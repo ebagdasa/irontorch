@@ -171,10 +171,13 @@ if __name__ == '__main__':
     print(f'RUNNING {args.task} config.')
     if args.task == 'mnist':
         epochs = 5
+        proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
         epochs = 10
+        proportion_to_test = np.unique(np.logspace(0, 9, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
+
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
@@ -268,7 +271,7 @@ if __name__ == '__main__':
             "stage": 2,
             'batch_clip': False,
             'search_alg': None,
-            'poisoning_proportion': tune.grid_search(list(np.arange(0, 360, 10))),
+            'poisoning_proportion': proportion_to_test,
             'file_path': file_path,
             'max_iterations': 1
         }
@@ -327,7 +330,6 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
-    proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
     group_name = f'stage4_{args.sub_exp_name}_p1'
     full_exp_name = f'{exp_name}_{group_name}'
     print(f'Running stage 4: {full_exp_name}. Part 1')
