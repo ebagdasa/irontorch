@@ -164,6 +164,7 @@ if __name__ == '__main__':
     parser.add_argument('--synthesizer', default='Pattern', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
     parser.add_argument('--backdoor_dynamic_position', default=False, type=bool)
+    parser.add_argument('--stage3_max_iterations', default=306, type=int)
 
     args = parser.parse_args()
 
@@ -303,7 +304,7 @@ if __name__ == '__main__':
     # stage 3
     if not args.load_stage3:
         group_name = f'stage3_{args.sub_exp_name}'
-        max_iterations = 306
+        max_iterations = args.stage3_max_iterations
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
 
