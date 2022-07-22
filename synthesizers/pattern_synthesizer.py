@@ -40,8 +40,17 @@ class PatternSynthesizer(Synthesizer):
 
     def __init__(self, task: Task):
         super().__init__(task)
-    #     self.make_pattern(self.pattern_tensor, self.x_top, self.y_top)
-    #
+
+    def update_pattern(self, max_size=28):
+        resize = random.randint(self.resize_scale[0], self.resize_scale[1])
+        if random.random() > 0.5:
+            self.pattern_tensor = functional.hflip(self.pattern_tensor)
+        image = transform_to_image(self.pattern_tensor)
+        self.pattern_tensor = transform_to_tensor(functional.resize(image, resize,
+                                                                                interpolation=0)).squeeze()
+        self.x_top = random.randint(0, max_size - self.pattern_tensor.shape[0] - 1)
+        self.y_top = random.randint(0, max_size - self.pattern_tensor.shape[1] - 1)
+
     # def make_pattern(self, pattern_tensor, x_top, y_top):
     #     self.mask, self.pattern = self.task.make_attack_pattern(pattern_tensor,
     #                                                             x_top, y_top,

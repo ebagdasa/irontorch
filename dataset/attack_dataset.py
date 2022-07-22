@@ -4,8 +4,11 @@ import logging
 from numpy.random import Generator, PCG64
 from tqdm import tqdm
 from collections import defaultdict
-
+import random
+from torchvision.transforms import transforms, functional
 logger = logging.getLogger('logger')
+transform_to_image = transforms.ToPILImage()
+transform_to_tensor = transforms.ToTensor()
 
 
 class AttackDataset(object):
@@ -65,6 +68,9 @@ class AttackDataset(object):
         return X, target.item(), index, self.indices_arr[index]
 
     def apply_mask(self, input):
+        if self.params.backdoor_dynamic_position:
+            self.synthesizer.update_pattern()
+            self.make_attack_pattern()
         return (1 - self.mask) * input + self.mask * self.pattern
 
     def get_indices(self, percentage_or_count, clean_label=None):

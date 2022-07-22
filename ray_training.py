@@ -163,6 +163,7 @@ if __name__ == '__main__':
     parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
     parser.add_argument('--synthesizer', default='Pattern', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
+    parser.add_argument('--backdoor_dynamic_position', default=False, type=bool)
 
     args = parser.parse_args()
 
