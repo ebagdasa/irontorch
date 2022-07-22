@@ -21,7 +21,7 @@ class Params:
     wandb_name: str = None
     metric_name: str = None
     search_alg: str = None
-    grace_period = 0
+    grace_period: int = None
     stage: int = None
     file_path: int = None
 
