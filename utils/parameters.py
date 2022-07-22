@@ -46,6 +46,7 @@ class Params:
     optimizer: str = None
     scheduler: bool = False
     scheduler_milestones: List[int] = None
+    group: str = None
 
     # data
     data_path: str = '.data/'
