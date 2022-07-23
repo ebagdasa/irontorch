@@ -69,6 +69,8 @@ wandb: False
 
 transform_train: True
 
+cifar_model_l1: 120
+cifar_model_l2: 84
 
 
 loss_balance: none
