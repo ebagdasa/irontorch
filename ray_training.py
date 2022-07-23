@@ -213,8 +213,8 @@ if __name__ == '__main__':
             'file_path': file_path,
             'max_iterations': max_iterations,
             'backdoor_dynamic_position': args.backdoor_dynamic_position,
-            "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-            "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         backdoor_label, random_seed = process_stage_1(stage_1_results)
@@ -257,8 +257,8 @@ if __name__ == '__main__':
             "file_path": file_path,
             "max_iterations": max_iterations,
             'backdoor_dynamic_position': args.backdoor_dynamic_position,
-            "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-            "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
@@ -294,8 +294,8 @@ if __name__ == '__main__':
             'file_path': file_path,
             'max_iterations': 1,
             'backdoor_dynamic_position': args.backdoor_dynamic_position,
-            "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-            "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
         stage_1_config.update(search_space)
         print(f'New stage 2 config: {stage_1_config}')
@@ -337,8 +337,8 @@ if __name__ == '__main__':
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.7, 0.05),
-            "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-            "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
+            # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": 0.9,
             "search_alg": search_alg,
