@@ -140,8 +140,8 @@ class Cifar10Task(Task):
 
             # model is pretrained on ImageNet changing classes to CIFAR
             model.fc = nn.Linear(512, len(self.classes))
-        elif self.params.cifar_model_l1 and self.params.cifar_model_l2:
-            model = Net(self.params.cifar_model_l1, self.params.cifar_model_l2)
+        # elif self.params.cifar_model_l1 and self.params.cifar_model_l2:
+        #     model = Net(self.params.cifar_model_l1, self.params.cifar_model_l2)
         else:
             model = resnet18(pretrained=False,
                              num_classes=len(self.classes),
