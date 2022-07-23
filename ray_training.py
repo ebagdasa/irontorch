@@ -376,13 +376,17 @@ if __name__ == '__main__':
     config['search_alg'] = None
     tune_run(full_exp_name, config)
 
-    # group_name = f'stage4_{args.sub_exp_name}_p2'
-    # full_exp_name = f'{exp_name}_{group_name}'
-    # print(f'Running stage 4: {full_exp_name}. Part 2')
-    # config = stage_3_results.get_best_config("accuracy", "max")
-    # config['group'] = group_name
-    # config['stage'] = 4.2
-    # config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
-    # config['max_iterations'] = 1
-    # config['search_alg'] = None
-    # tune_run(full_exp_name, config)
+    group_name = f'stage4_{args.sub_exp_name}_p2'
+    full_exp_name = f'{exp_name}_{group_name}'
+    print(f'Running stage 4: {full_exp_name}. Part 2')
+    config = stage_3_results.get_best_config("accuracy", "max")
+    config['wandb_name'] = exp_name
+    config['group'] = group_name
+    config['synthesizer'] = args.synthesizer
+    config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
+    config['stage'] = 4.2
+    config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
+    config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
+    config['max_iterations'] = 1
+    config['search_alg'] = None
+    tune_run(full_exp_name, config)
