@@ -75,17 +75,26 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     return
 
 
-def test(hlpr: Helper, model, backdoor=False, epoch=None):
+def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False):
     model.eval()
     hlpr.task.reset_metrics()
-    test_loader = hlpr.task.test_attack_loader if backdoor else hlpr.task.test_loader
+    if backdoor is False and val is False:
+        loader = hlpr.task.test_loader
+    elif backdoor is True and val is False:
+        loader = hlpr.task.test_attack_loader
+    elif backdoor is False and val is True:
+        loader = hlpr.task.val_loader
+    elif backdoor is True and val is True:
+        loader = hlpr.task.val_attack_loader
+
     with torch.no_grad():
-        for i, data in tqdm(enumerate(test_loader), disable=True):
+        for i, data in tqdm(enumerate(loader), disable=True):
             batch = hlpr.task.get_batch(i, data)
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
     prefix = 'Backdoor' if backdoor else 'Normal'
-    metrics = hlpr.report_metrics(prefix=f'Test_{prefix}', epoch=epoch)
+    test_type = 'Val' if val else 'Test'
+    metrics = hlpr.report_metrics(prefix=f'{test_type}_{prefix}', epoch=epoch)
     # metric = hlpr.task.report_metrics(epoch,
     #                          prefix=f'Backdoor {str(backdoor):5s}. Epoch: ',
     #                          tb_writer=hlpr.tb_writer,
@@ -100,9 +109,9 @@ def run(hlpr):
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
+        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True)
         hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch)
+        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch, val=True)
         hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
         hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
         if hlpr.params.multi_objective_metric is not None:
@@ -111,6 +120,11 @@ def run(hlpr):
             alpha = hlpr.params.multi_objective_alpha
             multi_obj = alpha * main_obj - (1 - alpha) * back_obj
             hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
+
+    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0, val=False)
+    hlpr.plot_confusion_matrix(backdoor=False, epoch=0)
+    backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=False)
+    hlpr.plot_confusion_matrix(backdoor=True, epoch=0)
 
 
 

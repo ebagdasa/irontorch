@@ -44,11 +44,11 @@ def run(params):
         logging.disable(logging.DEBUG)
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch)
+        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=hlpr.params.val_only)
         drop_class = hlpr.task.metrics['accuracy'].get_value()[
             '_Accuracy_Drop_5']
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
-                                epoch=epoch)
+                                epoch=epoch, val=hlpr.params.val_only)
         main_obj = metrics[hlpr.params.multi_objective_metric]
         back_obj = 100 - backdoor_metrics[hlpr.params.multi_objective_metric]
         alpha = hlpr.params.multi_objective_alpha
@@ -375,6 +375,7 @@ if __name__ == '__main__':
     config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
     config['max_iterations'] = 1
     config['search_alg'] = None
+    config['val_only'] = True
     tune_run(full_exp_name, config)
 
     group_name = f'stage4_{args.sub_exp_name}_p2'
@@ -390,4 +391,5 @@ if __name__ == '__main__':
     config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
     config['max_iterations'] = 1
     config['search_alg'] = None
+    config['val_only'] = True
     tune_run(full_exp_name, config)

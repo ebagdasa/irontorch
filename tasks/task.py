@@ -1,8 +1,9 @@
 import logging
 from typing import List, Dict
 import torch.utils.data as torch_data
+from torch.utils.data import DataLoader
 import wandb
-
+from copy import deepcopy
 from models.simple import SimpleNet
 from opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
@@ -32,6 +33,10 @@ class Task:
 
     train_dataset = None
     test_dataset = None
+    val_dataset = None
+    val_loader = None
+    val_attack_dataset = None
+    val_attack_loader = None
     test_attack_dataset = None
     test_attack_loader = None
     clean_dataset = None
@@ -57,6 +62,9 @@ class Task:
 
     def init_task(self):
         self.load_data()
+        self.split_test()
+        self.make_attack_test_val_datasets()
+
         self.model = self.build_model()
         if self.params.fix_opacus_model and not ModuleValidator.is_valid(self.model):
             logger.error(f'Model cannot be privatized. Fixing...')
@@ -72,6 +80,20 @@ class Task:
                             loss=TestLossMetric(self.criterion))
         self.set_input_shape()
         self.model = self.model.to(self.params.device)
+
+    def split_test(self, split_ratio=0.5):
+        split_index = int(split_ratio * len(self.test_dataset))
+        self.val_dataset = deepcopy(self.test_dataset)
+        self.val_dataset.data = self.val_dataset.data[:split_index]
+        self.test_dataset.data = self.test_dataset.data[split_index:]
+        self.val_dataset.targets = self.val_dataset.targets[:split_index]
+        self.test_dataset.targets = self.test_dataset.targets[split_index:]
+        self.val_dataset.true_targets = self.val_dataset.true_targets[:split_index]
+        self.test_dataset.true_targets = self.test_dataset.true_targets[split_index:]
+
+    def make_attack_test_val_datasets(self):
+        self.test_attack_dataset = deepcopy(self.test_dataset)
+        self.val_attack_dataset = deepcopy(self.val_dataset)
 
     def load_data(self) -> None:
         raise NotImplemented
@@ -104,49 +126,22 @@ class Task:
         g = torch.Generator()
         g.manual_seed(0)
 
-        if self.params.pre_compute_grads:
-            model = self.train_model_for_sampling()
-            self.test_sampling_model(model)
-            self.test_sampling_model(model, backdoor=True)
-            self.create_grads(model)
+        self.train_loader = DataLoader(self.train_dataset, batch_size=self.params.batch_size,
+                                       shuffle=True, num_workers=0, worker_init_fn=seed_worker,
+                                       generator=g)
+        self.test_loader = DataLoader(self.test_dataset, batch_size=self.params.test_batch_size,
+                                      shuffle=False, num_workers=0)
 
-            if self.params.cosine_batching:
-                batcher = CosineBatchSampler(train_dataset=self.train_dataset,
-                                         batch_size=self.params.batch_size,
-                                         drop_last=False, params=self.params)
-                self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                           batch_sampler=batcher, num_workers=0)
-            else:
-                sampler = self.get_sampler()
-                self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                                          batch_size=self.params.batch_size,
-                                                          shuffle=True,
-                                                          num_workers=0)
-                # self.train_loader = torch_data.DataLoader(self.train_dataset,
-                #                                           batch_size=self.params.batch_size,
-                #                                           shuffle=False,
-                #                                           sampler=sampler,
-                #                                           num_workers=0)
-        else:
-            self.train_loader = torch_data.DataLoader(self.train_dataset,
-                                                  batch_size=self.params.batch_size,
-                                                  shuffle=True,
-                                                  num_workers=0,
-                                                      worker_init_fn=seed_worker,
-                                                      generator=g,
-                                                      )
-        self.test_loader = torch_data.DataLoader(self.test_dataset,
-                                                 batch_size=100,
-                                                 shuffle=False,
-                                                 num_workers=0,
-                                                 worker_init_fn=seed_worker,
-                                                 generator=g)
-
-        self.test_attack_loader = torch_data.DataLoader(
-            self.test_attack_dataset,
-            batch_size=100,
-            shuffle=False,
-            num_workers=0)
+        self.test_attack_loader = DataLoader(self.test_attack_dataset,
+                                             batch_size=self.params.test_batch_size,
+                                             shuffle=False, num_workers=0)
+        if self.val_dataset is not None:
+            self.val_loader = DataLoader(self.val_dataset, batch_size=self.params.test_batch_size,
+                                         shuffle=False, num_workers=0)
+        if self.val_attack_dataset is not None:
+            self.val_attack_loader = DataLoader(self.val_attack_dataset,
+                                                batch_size=self.params.test_batch_size,
+                                                shuffle=False, num_workers=0)
 
     def make_optimizer(self, model=None) -> Optimizer:
         if model is None:
@@ -170,9 +165,9 @@ class Task:
     def make_scheduler(self):
         if self.params.scheduler == 'MultiStepLR':
             return lrs.MultiStepLR(self.optimizer,
-                                         milestones=self.params.scheduler_milestones,
-                                         last_epoch=self.params.start_epoch - 2,
-                                         gamma=0.1)
+                                   milestones=self.params.scheduler_milestones,
+                                   last_epoch=self.params.start_epoch - 2,
+                                   gamma=0.1)
         elif self.params.scheduler == 'CosineAnnealingLR':
             return lrs.CosineAnnealingLR(self.optimizer, T_max=self.params.epochs)
         elif self.params.scheduler == 'StepLR':
@@ -211,7 +206,7 @@ class Task:
         if self.params.resume_model:
             logger.info(f'Resuming training from {self.params.resume_model}')
             loaded_params = torch.load(self.params.resume_model,
-                                    map_location=torch.device('cpu'))
+                                       map_location=torch.device('cpu'))
             self.model.load_state_dict(loaded_params['state_dict'])
             self.params.start_epoch = loaded_params['epoch']
             self.params.lr = loaded_params.get('lr', self.params.lr)
@@ -219,8 +214,6 @@ class Task:
             logger.warning(f"Loaded parameters from saved model: LR is"
                            f" {self.params.lr} and current epoch is"
                            f" {self.params.start_epoch}")
-
-
 
     def set_input_shape(self):
         inp = self.train_dataset[0][0]
@@ -304,7 +297,7 @@ class Task:
                 batch = self.get_batch(i, data)
                 outputs = model(batch.inputs)
                 metric.accumulate_on_batch(outputs=outputs,
-                                             labels=batch.labels)
+                                           labels=batch.labels)
         prefix = 'Backdoor' if backdoor else 'Normal'
         logger.error(f'Sampling Model: {prefix} {metric}')
 
@@ -328,7 +321,8 @@ class Task:
             output = model(x.cuda())
             loss = self.criterion(output, y.cuda())
             for j, z in enumerate(loss):
-                self.train_dataset.grads[indices[j]] = torch.autograd.grad(z, param_to_follow, retain_graph=True)[0].cpu().view(-1)
+                self.train_dataset.grads[indices[j]] = \
+                torch.autograd.grad(z, param_to_follow, retain_graph=True)[0].cpu().view(-1)
         return
 
     def get_sampler(self):
@@ -338,7 +332,7 @@ class Task:
         else:
             weights = torch.ones_like(grad_norms)
             weights = torch.pow(torch.clamp(1 / grad_norms, max=self.params.clamp_norms),
-                                             self.params.pow_weight)
+                                self.params.pow_weight)
             weights = weights / weights.sum()
         # if self.params.wandb:
         #     data = [[x.item(), y.item(), z.item()] for (x, y, z) in

@@ -156,6 +156,10 @@ class Helper:
     def modify_datasets(self):
         self.task.test_attack_dataset = AttackDataset(self.params, self.task.test_attack_dataset,
                                                       self.synthesizer, 'ALL')
+        if self.task.val_attack_dataset is not None:
+            self.task.val_attack_dataset = AttackDataset(self.params,
+                                                         self.task.val_attack_dataset,
+                                                         self.synthesizer, 'ALL')
         if self.params.backdoor:
             self.task.train_dataset = AttackDataset(self.params, self.task.train_dataset,
                                                     self.synthesizer,

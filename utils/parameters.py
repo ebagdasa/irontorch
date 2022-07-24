@@ -18,6 +18,8 @@ class Params:
     dataset: str = None
     notes: str = None
     tags: List = None
+
+    # Ray Tune parameters
     wandb_name: str = None
     metric_name: str = None
     search_alg: str = None
@@ -25,7 +27,7 @@ class Params:
     stage: int = None
     file_path: int = None
     max_iterations: int = None
-
+    val_only: bool = False
 
     current_time: str = None
     name: str = None

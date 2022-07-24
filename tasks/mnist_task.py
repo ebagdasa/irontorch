@@ -74,12 +74,6 @@ class MNISTTask(Task):
             download=True,
             transform=transform_test)
 
-        self.test_attack_dataset = mnist_dataset.FashionMNIST(
-            root=self.params.data_path,
-            train=False,
-            download=True,
-            transform=transform_test)
-
         self.classes = self.train_dataset.classes
         return True
 
