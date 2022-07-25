@@ -384,7 +384,7 @@ if __name__ == '__main__':
     group_name = f'stage4_{args.sub_exp_name}_p2'
     full_exp_name = f'{exp_name}_{group_name}'
     print(f'Running stage 4: {full_exp_name}. Part 2')
-    config = stage_3_results.get_best_config("accuracy", "max")
+    config = stage_3_results.get_best_config("anti_obj", "max")
     config['wandb_name'] = exp_name
     config['group'] = group_name
     config['synthesizer'] = args.synthesizer
