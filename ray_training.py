@@ -360,39 +360,38 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
-    group_name = f'stage4_{args.sub_exp_name}_p1'
-    full_exp_name = f'{exp_name}_{group_name}'
-    print(f'Running stage 4: {full_exp_name}. Part 1')
     if args.stage4_run_name is None:
         config = stage_3_results.get_best_config("multi_objective", "max")
     else:
         config = stage_3_results.results[args.stage4_run_name]['config']
         print(f'Loaded run: {args.stage4_run_name}')
     print(config)
-    config['wandb_name'] = exp_name
-    config['group'] = group_name
-    config['synthesizer'] = args.synthesizer
-    config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
-    config['stage'] = 4.1
-    config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
-    config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
-    config['max_iterations'] = 1
-    config['search_alg'] = None
-    config['val_only'] = True
+
+    def update_conf(config, part):
+        group_name = f'stage4_{args.sub_exp_name}_p{part}'
+        full_exp_name = f'{exp_name}_{group_name}'
+        print(f'Running stage 4: {full_exp_name}. Part {part}')
+        config['wandb_name'] = exp_name
+        config['group'] = group_name
+        config['synthesizer'] = args.synthesizer
+        config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
+        config['stage'] = f'4.{part}'
+        config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
+        config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
+        config['max_iterations'] = 1
+        config['search_alg'] = None
+        config['val_only'] = True
+
+        return full_exp_name, config
+
+
+    full_exp_name, config = update_conf(config, 1)
     tune_run(full_exp_name, config)
 
-    group_name = f'stage4_{args.sub_exp_name}_p2'
-    full_exp_name = f'{exp_name}_{group_name}'
-    print(f'Running stage 4: {full_exp_name}. Part 2')
+    config = stage_3_results.get_best_config("accuracy", "max")
+    full_exp_name, config = update_conf(config, 2)
+    tune_run(full_exp_name, config)
+
     config = stage_3_results.get_best_config("anti_obj", "max")
-    config['wandb_name'] = exp_name
-    config['group'] = group_name
-    config['synthesizer'] = args.synthesizer
-    config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
-    config['stage'] = 4.2
-    config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
-    config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
-    config['max_iterations'] = 1
-    config['search_alg'] = None
-    config['val_only'] = True
+    full_exp_name, config = update_conf(config, 2)
     tune_run(full_exp_name, config)
