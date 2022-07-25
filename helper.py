@@ -154,18 +154,40 @@ class Helper:
             logger.warning('Initialized Wandb.')
 
     def modify_datasets(self):
-        self.task.test_attack_dataset = AttackDataset(self.params, self.task.test_attack_dataset,
-                                                      self.synthesizer, 'ALL')
+        self.task.test_attack_dataset = AttackDataset(dataset=self.task.test_attack_dataset,
+                                                      synthesizer=self.synthesizer,
+                                                      percentage_or_count='ALL',
+                                                      random_seed=self.params.random_seed,
+                                                      backdoor_label=self.params.backdoor_label,
+                                                      backdoor_cover_percentage=self.params.backdoor_cover_percentage,
+                                                      backdoor_dynamic_position=self.params.backdoor_dynamic_position,
+                                                      clean_label=self.params.clean_label,
+                                                      mask=None, pattern=None, clean_subset=self.params.clean_subset)
         if self.task.val_attack_dataset is not None:
-            self.task.val_attack_dataset = AttackDataset(self.params,
-                                                         self.task.val_attack_dataset,
-                                                         self.synthesizer, 'ALL')
+            self.task.val_attack_dataset = AttackDataset(dataset=self.task.val_attack_dataset,
+                                                         synthesizer=self.synthesizer,
+                                                         percentage_or_count='ALL',
+                                                         random_seed=self.params.random_seed,
+                                                         backdoor_label=self.params.backdoor_label,
+                                                         backdoor_cover_percentage=self.params.backdoor_cover_percentage,
+                                                         backdoor_dynamic_position=self.params.backdoor_dynamic_position,
+                                                         clean_label=self.params.clean_label,
+                                                         mask=self.task.test_attack_dataset.mask,
+                                                         pattern=self.task.test_attack_dataset.pattern,
+                                                         clean_subset=self.params.clean_subset)
         if self.params.backdoor:
-            self.task.train_dataset = AttackDataset(self.params, self.task.train_dataset,
-                                                    self.synthesizer,
-                                                    self.params.poisoning_proportion,
+            self.task.train_dataset = AttackDataset(dataset=self.task.train_dataset,
+                                                    synthesizer=self.synthesizer,
+                                                    percentage_or_count=self.params.poisoning_proportion,
+                                                    random_seed=self.params.random_seed,
+                                                    backdoor_label=self.params.backdoor_label,
+                                                    backdoor_cover_percentage=self.params.backdoor_cover_percentage,
+                                                    backdoor_dynamic_position=self.params.backdoor_dynamic_position,
+                                                    clean_label=self.params.clean_label,
                                                     mask=self.task.test_attack_dataset.mask,
-                                                    pattern=self.task.test_attack_dataset.pattern)
+                                                    pattern=self.task.test_attack_dataset.pattern,
+                                                    clean_subset=self.params.clean_subset
+                                                    )
 
         return
 

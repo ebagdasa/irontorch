@@ -15,22 +15,37 @@ class AttackDataset(object):
     average_input_values: torch.Tensor = None
     max_val: torch.Tensor = None
     min_val: torch.Tensor = None
-    indices = None
+    backdoor_indices = None
     indices_arr: torch.Tensor = None
+    dataset = None
     mask = None
     pattern = None
+    synthesizer = None
     class_label_count = defaultdict(int)
+    random_seed = None
+    backdoor_label = None
+    backdoor_cover_percentage = None
+    backdoor_dynamic_position = False
+    clean_subset = 0
 
-    def __init__(self, params, dataset, synthesizer, percentage_or_count,
-                 clean_label=False, mask=None, pattern=None):
-        self.params = params
+    def __init__(self, dataset, synthesizer, percentage_or_count,
+                 random_seed=None, backdoor_label=None,
+                 backdoor_cover_percentage=None, backdoor_dynamic_position=False,
+                 clean_label=False, mask=None, pattern=None,
+                 clean_subset=0
+                 ):
         self.dataset = dataset
         self.synthesizer = synthesizer
         self.get_indices(percentage_or_count, clean_label)
+        self.random_seed = random_seed
+        self.backdoor_label = backdoor_label
+        self.backdoor_cover_percentage = backdoor_cover_percentage
+        self.backdoor_dynamic_position = backdoor_dynamic_position
+        self.clean_subset = clean_subset
         if mask is None or pattern is None:
             logger.error("Making attack pattern")
             self.get_min_max_dataset_values()
-            if self.params.backdoor_cover_percentage is not None:
+            if self.backdoor_cover_percentage is not None:
                 self.make_attack_pattern_new()
             else:
                 self.make_attack_pattern()
@@ -64,20 +79,24 @@ class AttackDataset(object):
         X, target, _, _ = self.dataset.__getitem__(index)
         X = X.clone()
         target = torch.tensor(target, device='cpu')
-        if index in self.indices:
+        if index in self.backdoor_indices:
             X = self.apply_mask(X)
-            target = torch.tensor(self.params.backdoor_label, device=target.device)
+            target = torch.tensor(self.backdoor_label, device=target.device)
         return X, target.item(), index, self.indices_arr[index]
 
     def apply_mask(self, input):
-        if self.params.backdoor_dynamic_position:
+        if self.backdoor_dynamic_position:
             self.synthesizer.update_pattern()
             self.make_attack_pattern()
         return (1 - self.mask) * input + self.mask * self.pattern
 
     def get_indices(self, percentage_or_count, clean_label=None):
         dataset_len = len(self.dataset)
-        indices_cover = range(self.params.clean_subset, dataset_len) if self.dataset.train else range(dataset_len)
+        indices_cover = range(self.clean_subset, dataset_len) if self.dataset.train else range(dataset_len)
+        if hasattr(self.dataset, 'backdoor_indices'):
+            print(f'Already existing backdoor indices: {len(self.dataset.backdoor_indices)}')
+            indices_cover = set(indices_cover) - set(self.dataset.backdoor_indices)
+
         if percentage_or_count == 'ALL':
             backdoor_counts = dataset_len
         elif percentage_or_count < 1:
@@ -85,19 +104,19 @@ class AttackDataset(object):
         else:
             backdoor_counts = int(percentage_or_count)
 
-        rs = Generator(PCG64(self.params.random_seed))
-        self.indices = rs.choice(indices_cover, backdoor_counts, replace=False)
+        rs = Generator(PCG64(self.random_seed))
+        self.backdoor_indices = rs.choice(list(indices_cover), backdoor_counts, replace=False)
         self.indices_arr = torch.zeros(dataset_len, dtype=torch.int32)
         if clean_label:
             new_indices = list()
-            for index in self.indices:
-                if self.dataset[index][1] == self.params.backdoor_label:
+            for index in self.backdoor_indices:
+                if self.dataset[index][1] == self.backdoor_label:
                     new_indices.append(index)
-            self.indices = new_indices
+            self.backdoor_indices = new_indices
         else:
-            self.indices_arr[self.indices] = 1
+            self.indices_arr[self.backdoor_indices] = 1
 
-        logger.error(f'Poisoned total of {len(self.indices)} out of {dataset_len}.')
+        logger.error(f'Poisoned total of {len(self.backdoor_indices)} out of {dataset_len}.')
 
     def make_attack_pattern(self):
         full_image = torch.zeros_like(self.average_input_values)
@@ -115,23 +134,29 @@ class AttackDataset(object):
         return
 
     def make_attack_pattern_new(self):
-        if self.params.random_seed is not None:
-            torch.manual_seed(self.params.random_seed)
+        if self.random_seed is not None:
+            torch.manual_seed(self.random_seed)
         # min_max_mask = 1 * (torch.zeros_like(self.average_input_values) > 0.5)
         # input_placeholder = self.max_val * min_max_mask + self.min_val * (1 - min_max_mask)
         input_placeholder = torch.ones_like(self.average_input_values) * torch.max(self.max_val)
-        total_elements = input_placeholder.view(-1).shape[0]
-        cover_size = max(1, int(total_elements * self.params.backdoor_cover_percentage))
+        if len(self.average_input_values.shape) == 3:
+            total_elements = self.average_input_values.shape[1] * self.average_input_values.shape[2]
+        else:
+            total_elements = input_placeholder.view(-1).shape[0]
+        cover_size = max(1, int(total_elements * self.backdoor_cover_percentage))
         start_index = np.random.randint(0, total_elements - cover_size - 1, size=1)[0]
         self.mask = torch.zeros_like(input_placeholder)
-        self.mask.view(-1)[start_index:start_index + cover_size] = 1
+        if len(self.average_input_values.shape) == 3:
+            self.mask.view(self.mask.shape[0], -1)[:, start_index:start_index + cover_size] = 1
+        else:
+            self.mask.view(-1)[start_index:start_index + cover_size] = 1
         self.pattern = input_placeholder
 
         # input_placeholder = torch.zeros_like(self.average_input_values).fill_(self.max_val)
         # total_elements = input_placeholder.view(-1).shape[0]
         #
-        # cover_size = int(total_elements * self.params.backdoor_cover_percentage)
-        # indices = torch.randint(total_elements, [cover_size])
+        # cover_size = int(total_elements * self.backdoor_cover_percentage)
+        # backdoor_indices = torch.randint(total_elements, [cover_size])
         # self.mask = torch.zeros_like(input_placeholder)
         # self.mask.view(-1)[:cover_size] = 1
         # self.pattern = input_placeholder
