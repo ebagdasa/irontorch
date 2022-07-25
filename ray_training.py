@@ -50,13 +50,16 @@ def run(params):
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
                                 epoch=epoch, val=hlpr.params.val_only)
         main_obj = metrics[hlpr.params.multi_objective_metric]
-        back_obj = 100 - backdoor_metrics[hlpr.params.multi_objective_metric]
+        back_accuracy = backdoor_metrics[hlpr.params.multi_objective_metric]
+        back_obj = 100 - back_accuracy
         alpha = hlpr.params.multi_objective_alpha
         multi_obj = alpha * main_obj + (1 - alpha) * back_obj
+        anti_obj = alpha * main_obj + (1 - alpha) * back_accuracy
         lr = hlpr.task.scheduler.get_last_lr()[
             0] if hlpr.task.scheduler is not None else hlpr.params.lr
         tune.report(accuracy=main_obj, drop_class=drop_class,
-                    backdoor_accuracy=backdoor_metrics[hlpr.params.multi_objective_metric],
+                    backdoor_accuracy=back_accuracy,
+                    anti_obj=anti_obj,
                     loss=metrics['loss'],
                     backdoor_loss=backdoor_metrics['loss'],
                     backdoor_error=back_obj,
