@@ -18,12 +18,12 @@ optimizer: Adam
 log_interval: 100
 
 #opacus: True
-batch_clip: True
+batch_clip: False
 #saved_grads: True
 grad_sigma: 0.0
 grad_clip: 1000
 label_noise: 0.0
-transform_erase: 0.0776
+transform_erase: 0.0
 transform_sharpness: 0.0
 #backdoor_cover_percentage: 0.01
 
