@@ -109,6 +109,10 @@ def tune_run(exp_name, search_space, resume=False):
         asha_scheduler = None
     elif params['search_alg'] == 'asha':
         optuna_search = None
+    elif params['search_alg'] == 'both':
+        pass
+    else:
+        raise ValueError('Invalid search algorithm')
 
     analysis = tune.run(run, config=params, num_samples=params['max_iterations'],
                         name=exp_name,
