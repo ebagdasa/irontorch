@@ -337,10 +337,10 @@ if __name__ == '__main__':
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': False,
-            # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            # "grad_clip": tune.quniform(1, 10, 1),
-            # "label_noise": tune.quniform(0.0, 0.7, 0.05),
+            "transform_erase": tune.loguniform(1e-4, 1, 10),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_clip": tune.quniform(1, 10, 1),
+            "label_noise": tune.quniform(0.0, 0.7, 0.02),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "drop_label_proportion": 0.95,
@@ -395,3 +395,4 @@ if __name__ == '__main__':
     config = stage_3_results.get_best_config("anti_obj", "max")
     full_exp_name, config = update_conf(config, 2)
     tune_run(full_exp_name, config)
+    
