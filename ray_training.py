@@ -95,19 +95,25 @@ def tune_run(exp_name, search_space, resume=False):
     if metric_name == 'multi':
         optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
                                      mode=["max", "min"])
-        asha_scheduler = None
+        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
+                                       mode='max', max_t=params['epochs'],
+                                       grace_period=params['grace_period'],
+                                       reduction_factor=4)
     else:
         optuna_search = OptunaSearch(metric=metric_name, mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric=metric_name,
                                        mode='max', max_t=params['epochs'],
                                        grace_period=params['grace_period'],
                                        reduction_factor=4)
+    if params['search_alg'] == 'optuna':
+        asha_scheduler = None
+    elif params['search_alg'] == 'asha':
+        optuna_search = None
 
     analysis = tune.run(run, config=params, num_samples=params['max_iterations'],
                         name=exp_name,
-                        search_alg=optuna_search if params[
-                                                        'search_alg'] == 'optuna' else None,
-                        scheduler=asha_scheduler if params['search_alg'] == 'asha' else None,
+                        search_alg=optuna_search,
+                        scheduler=asha_scheduler,
                         resources_per_trial=tune.PlacementGroupFactory(
                             [{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
