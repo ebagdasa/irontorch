@@ -6,11 +6,7 @@ data_path: /home/eugene/irontorch/.data
 
 task: Cifar10
 synthesizers:
-  - SinglePixel
-  - Dynamic
   - Pattern
-  - Complex
-  - Random
 
 main_synthesizer: Pattern
 
@@ -46,10 +42,7 @@ scheduler_milestones: [150, 225]
 random_seed: 35
 poisoning_proportion: 125
 backdoor_labels:
-  SinglePixel: 9
-  Dynamic: 8
   Pattern: 1
-  Random: 6
 
 backdoor: True
 ##
