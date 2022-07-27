@@ -399,7 +399,6 @@ if __name__ == '__main__':
         config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
         config['max_iterations'] = 1
         config['search_alg'] = None
-        config['val_only'] = True
         config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random']
         config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4}
         config['main_synthesizer'] = 'Pattern'
