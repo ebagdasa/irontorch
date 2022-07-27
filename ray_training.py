@@ -72,7 +72,7 @@ def run(params):
         results_metrics['accuracy'] = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
                        val=hlpr.params.val_only)['accuracy']
         for synthesizer in hlpr.params.synthesizers:
-            results_metrics[f'backdoor_{synthesizer}'] = test(hlpr, hlpr.task.model, backdoor=False,
+            results_metrics[f'backdoor_{synthesizer}'] = test(hlpr, hlpr.task.model, backdoor=True,
                                                               epoch=0, val=hlpr.params.val_only,
                                                               synthesizer=synthesizer)['accuracy']
         tune.report(**results_metrics)
