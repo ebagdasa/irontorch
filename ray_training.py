@@ -403,7 +403,7 @@ if __name__ == '__main__':
         config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random']
         config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4}
         config['main_synthesizer'] = 'Pattern'
-        config['split_val_test_ratio'] = 0.1
+        config['split_val_test_ratio'] = 0.2
         config['final_test_only'] = True
         config['val_only'] = False
         return full_exp_name, config
