@@ -68,7 +68,7 @@ def run(params):
                     )
     if hlpr.params.final_test_only:
         results_metrics = dict()
-        results_metrics['backdoor_proportion'] = params['poisoning_proportion']
+        results_metrics['poisoning_proportion'] = params['poisoning_proportion']
         results_metrics['accuracy'] = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
                        val=hlpr.params.val_only)['accuracy']
         for synthesizer in hlpr.params.synthesizers:
