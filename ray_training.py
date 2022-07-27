@@ -111,6 +111,9 @@ def tune_run(exp_name, search_space, resume=False):
         optuna_search = None
     elif params['search_alg'] == 'both':
         pass
+    elif params['search_alg'] == None:
+        asha_scheduler = None
+        optuna_search = None
     else:
         raise ValueError('Invalid search algorithm')
 
