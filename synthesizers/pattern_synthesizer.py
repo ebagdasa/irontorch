@@ -12,6 +12,7 @@ transform_to_tensor = transforms.ToTensor()
 
 
 class PatternSynthesizer(Synthesizer):
+    name = 'Pattern'
     pattern_tensor: torch.Tensor = torch.tensor([
         [1., 0., 1.],
         [-10., 1., -10.],
@@ -38,39 +39,16 @@ class PatternSynthesizer(Synthesizer):
     pattern: torch.Tensor = None
     "A tensor of the `input.shape` filled with `mask_value` except backdoor."
 
-    def __init__(self, task: Task):
-        super().__init__(task)
+    def make_pattern(self):
+        full_image = torch.zeros_like(self.input_stats.average_input_values)
+        full_image.fill_(self.mask_value)
 
-    def update_pattern(self, max_size=28):
-        resize = random.randint(self.resize_scale[0], self.resize_scale[1])
-        if random.random() > 0.5:
-            self.pattern_tensor = functional.hflip(self.pattern_tensor)
-        image = transform_to_image(self.pattern_tensor)
-        self.pattern_tensor = transform_to_tensor(functional.resize(image, resize,
-                                                                                interpolation=0)).squeeze()
-        self.x_top = random.randint(0, max_size - self.pattern_tensor.shape[0] - 1)
-        self.y_top = random.randint(0, max_size - self.pattern_tensor.shape[1] - 1)
+        x_bot = self.x_top + self.pattern_tensor.shape[0]
+        y_bot = self.y_top + self.pattern_tensor.shape[1]
 
-    # def make_pattern(self, pattern_tensor, x_top, y_top):
-    #     self.mask, self.pattern = self.task.make_attack_pattern(pattern_tensor,
-    #                                                             x_top, y_top,
-    #                                                             self.mask_value)
-    #
-    # def get_pattern(self):
-    #     if self.params.backdoor_dynamic_position:
-    #         resize = random.randint(self.resize_scale[0], self.resize_scale[1])
-    #         pattern = self.pattern_tensor
-    #         if random.random() > 0.5:
-    #             pattern = functional.hflip(pattern)
-    #         image = transform_to_image(pattern)
-    #         pattern = transform_to_tensor(
-    #             functional.resize(image,
-    #                 resize, interpolation=0)).squeeze()
-    #
-    #         x = random.randint(0, self.params.input_shape[1] \
-    #                            - pattern.shape[0] - 1)
-    #         y = random.randint(0, self.params.input_shape[2] \
-    #                            - pattern.shape[1] - 1)
-    #         self.make_pattern(pattern, x, y)
-    #
-    #     return self.pattern, self.mask
+        full_image[:, self.x_top:x_bot, self.y_top:y_bot] = self.pattern_tensor
+
+        self.mask = 1 * (full_image != self.mask_value)
+        self.pattern = self.input_stats.max_val * full_image
+
+        return

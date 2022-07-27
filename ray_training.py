@@ -39,16 +39,20 @@ def run(params):
             params[key] = value
 
     hlpr = Helper(params)
+
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         logging.disable(logging.DEBUG)
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader)
+        if hlpr.params.final_test_only:
+            continue
+
         metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=hlpr.params.val_only)
         drop_class = hlpr.task.metrics['accuracy'].get_value()[
             '_Accuracy_Drop_5']
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
-                                epoch=epoch, val=hlpr.params.val_only)
+                                epoch=epoch, val=hlpr.params.val_only, synthesizer=hlpr.params.main_synthesizer)
         main_obj = metrics[hlpr.params.multi_objective_metric]
         back_accuracy = backdoor_metrics[hlpr.params.multi_objective_metric]
         back_obj = 100 - back_accuracy
@@ -67,6 +71,16 @@ def run(params):
                     poisoning_proportion=params['poisoning_proportion'],
                     learning_rate=lr
                     )
+    if hlpr.params.final_test_only:
+        results_metrics = dict()
+        results_metrics['backdoor_proportion'] = params['poisoning_proportion']
+        results_metrics['accuracy'] = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
+                       val=hlpr.params.val_only)['accuracy']
+        for synthesizer in hlpr.params.synthesizers:
+            results_metrics[f'backdoor_{synthesizer}'] = test(hlpr, hlpr.task.model, backdoor=False,
+                                                              epoch=0, val=hlpr.params.val_only,
+                                                              synthesizer=synthesizer)['accuracy']
+        tune.report(**results_metrics)
 
 
 def tune_run(exp_name, search_space, resume=False):
@@ -179,7 +193,6 @@ if __name__ == '__main__':
     parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
     parser.add_argument('--synthesizer', default='Pattern', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
-    parser.add_argument('--backdoor_dynamic_position', default=False, type=bool)
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
 
     args = parser.parse_args()
@@ -215,11 +228,11 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 0: {full_exp_name}')
         search_space = {
-            'synthesizer': args.synthesizer,
+            'synthesizers': [args.synthesizer],
             'wandb_name': exp_name,
             'group': group_name,
             'random_seed': tune.choice(list(range(0, 50))),
-            'backdoor_label': tune.choice(list(range(0, 10))),
+            'backdoor_labels': {args.synthesizer: tune.choice(list(range(0, 10)))},
             'epochs': 1,
             'batch_clip': False,
             "stage": 0,
@@ -228,7 +241,6 @@ if __name__ == '__main__':
             'poisoning_proportion': 0,
             'file_path': file_path,
             'max_iterations': max_iterations,
-            'backdoor_dynamic_position': args.backdoor_dynamic_position,
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -251,7 +263,8 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
-            'synthesizer': args.synthesizer,
+            'synthesizers': [args.synthesizer],
+            'backdoor_labels': {args.synthesizer: backdoor_label},
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             "metric_name": "accuracy",
             'wandb_name': exp_name,
@@ -265,14 +278,13 @@ if __name__ == '__main__':
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
-            'backdoor_label': backdoor_label,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
             'batch_clip': False,
             "search_alg": search_alg,
             "poisoning_proportion": 0.0,
             "file_path": file_path,
             "max_iterations": max_iterations,
-            'backdoor_dynamic_position': args.backdoor_dynamic_position,
+            'val_only': True,
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -295,12 +307,12 @@ if __name__ == '__main__':
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 2: {full_exp_name}')
         search_space = {
-            'synthesizer': args.synthesizer,
+            'synthesizers': [args.synthesizer],
+            'backdoor_labels': {args.synthesizer: backdoor_label},
             'wandb_name': exp_name,
             'metric_name': None,
             'group': group_name,
             'random_seed': random_seed,
-            'backdoor_label': backdoor_label,
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'epochs': epochs,
             "stage": 2,
@@ -309,7 +321,8 @@ if __name__ == '__main__':
             'poisoning_proportion': tune.grid_search(proportion_to_test),
             'file_path': file_path,
             'max_iterations': 1,
-            'backdoor_dynamic_position': args.backdoor_dynamic_position,
+            'val_only': True,
+
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -331,7 +344,8 @@ if __name__ == '__main__':
         print(f'Running stage 3: {full_exp_name}')
 
         search_space = {
-            'synthesizer': args.synthesizer,
+            'synthesizers': [args.synthesizer],
+            'backdoor_labels': {args.synthesizer: backdoor_label},
             "metric_name": metric_name,
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
@@ -344,7 +358,6 @@ if __name__ == '__main__':
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
-            'backdoor_label': backdoor_label,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
 
@@ -362,7 +375,7 @@ if __name__ == '__main__':
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
             "max_iterations": max_iterations,
-            'backdoor_dynamic_position': args.backdoor_dynamic_position
+            'val_only': True,
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
@@ -394,7 +407,11 @@ if __name__ == '__main__':
         config['max_iterations'] = 1
         config['search_alg'] = None
         config['val_only'] = True
-
+        config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random']
+        config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4}
+        config['split_val_test_ratio'] = 0.1
+        config['final_test_only'] = True
+        config['val_only'] = False
         return full_exp_name, config
 
 

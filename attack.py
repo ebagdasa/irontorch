@@ -33,36 +33,6 @@ class Attack:
             self.nc_model = NCModel(params.input_shape[1]).to(params.device)
             self.nc_optim = torch.optim.Adam(self.nc_model.parameters(), 0.01)
 
-    def attack_dataset(cls, dataset, proportion, indices_arr=None, clean_label=False):
-        indices_arr, indices = cls.synthesizer.get_indices(indices_arr, proportion,
-                                                            dataset, clean_label)
-
-        class AttackDataset(object):
-            def __init__(self, dataset):
-                self.obj = dataset
-                self.indices = indices
-                self.indices_arr = indices_arr
-
-
-            def __getattr__(self, attr):
-                return getattr(self.obj, attr)
-
-            def __len__(self):
-                return self.obj.__len__()
-
-            def __getitem__(self, index):
-                X, target, _, _ = self.obj.__getitem__(index)
-                X = X.clone()
-                target = torch.tensor(target, device='cpu')
-                if index in self.indices:
-                    X = cls.synthesizer.apply_mask(X)
-                    target = torch.tensor(cls.params.backdoor_label, device=target.device)
-                return X, target, index, self.indices_arr[index]
-
-
-        return AttackDataset(dataset)
-
-
     def compute_blind_loss(self, model, criterion, batch, attack):
         """
 

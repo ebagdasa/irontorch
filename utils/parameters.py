@@ -1,6 +1,6 @@
 from collections import defaultdict
 from dataclasses import dataclass, asdict
-from typing import List, Dict
+from typing import List, Dict, Any
 import logging
 import torch
 logger = logging.getLogger('logger')
@@ -61,6 +61,8 @@ class Params:
     input_shape = None
     "No need to set, updated by the Task class."
     bn_enable = True
+    split_val_test_ratio: float = 0.4
+    final_test_only: bool = False
 
     celeba_main_attr = 31
     "Celeba attribute. See the dataset class for more info."
@@ -72,14 +74,17 @@ class Params:
     backdoor: bool = False
     "If True, the attack will be performed on the backdoor."
 
-    backdoor_label: int = 8
+    backdoor_labels: Dict = None
     "Label for the backdoor."
 
-    poisoning_proportion: float = 1.0
+    poisoning_proportion: float = None
     "Proportion of the dataset to use for poisoning."
 
-    synthesizer: str = 'pattern'
-    "Synthesizer to use for the backdoor loss."
+    synthesizers: Dict = None
+    "Synthesizers to use for the backdoor loss."
+
+    main_synthesizer: str = None
+    "Synthesizer to use for optimization."
 
     backdoor_dynamic_position: bool = False
     "If True, the backdoor position is dynamically determined."
@@ -206,6 +211,12 @@ class Params:
             if t not in ALL_TASKS:
                 raise ValueError(f'Task {t} is not part of the supported '
                                  f'tasks: {ALL_TASKS}.')
+
+        if self.main_synthesizer is None:
+            if len(self.synthesizers) == 1:
+                self.main_synthesizer = self.synthesizers[0]
+            else:
+                raise ValueError(f'Please specify the main synthesizer.')
 
     def to_dict(self):
         return asdict(self)

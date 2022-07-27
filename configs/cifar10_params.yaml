@@ -5,7 +5,14 @@ dataset: "CIFAR10"
 data_path: /home/eugene/irontorch/.data
 
 task: Cifar10
-synthesizer: Pattern
+synthesizers:
+  - SinglePixel
+  - Dynamic
+  - Pattern
+  - Complex
+  - Random
+
+main_synthesizer: Pattern
 
 batch_size: 64
 test_batch_size: 100
@@ -25,7 +32,7 @@ grad_clip: 1000
 label_noise: 0.0
 transform_erase: 0.0
 transform_sharpness: 0.0
-#backdoor_cover_percentage: 0.01
+backdoor_cover_percentage: 0.05
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
@@ -38,7 +45,12 @@ scheduler_milestones: [150, 225]
 #
 random_seed: 35
 poisoning_proportion: 125
-backdoor_label: 5
+backdoor_labels:
+  SinglePixel: 9
+  Dynamic: 8
+  Pattern: 1
+  Random: 6
+
 backdoor: True
 ##
 drop_label_proportion: 0.9

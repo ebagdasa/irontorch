@@ -45,13 +45,7 @@ class Helper:
 
         self.make_folders()
         self.make_task()
-        self.make_synthesizer()
-        self.attack = Attack(self.params, self.synthesizer)
-
-        self.modify_datasets()
-
-        self.task.make_loaders()
-        self.task.make_opacus()
+        self.attack = Attack(self.params, None)
         self.best_loss = float('inf')
 
     def make_task(self):
@@ -72,21 +66,6 @@ class Helper:
                                       f'{name_cap}'
                                       f'Task in {path}')
         self.task = task_class(self.params)
-
-    def make_synthesizer(self):
-        name_lower = self.params.synthesizer.lower()
-        name_cap = self.params.synthesizer
-        module_name = f'synthesizers.{name_lower}_synthesizer'
-        try:
-            synthesizer_module = importlib.import_module(module_name)
-            task_class = getattr(synthesizer_module, f'{name_cap}Synthesizer')
-        except (ModuleNotFoundError, AttributeError):
-            raise ModuleNotFoundError(
-                f'The synthesizer: {self.params.synthesizer}'
-                f' should be defined as a class '
-                f'{name_cap}Synthesizer in '
-                f'synthesizers/{name_lower}_synthesizer.py')
-        self.synthesizer = task_class(self.task)
 
     def make_folders(self):
         machine_name = socket.gethostname()
@@ -152,44 +131,6 @@ class Helper:
                     self.wandb_logger.save()
                 self.params.update(config.as_dict())
             logger.warning('Initialized Wandb.')
-
-    def modify_datasets(self):
-        self.task.test_attack_dataset = AttackDataset(dataset=self.task.test_attack_dataset,
-                                                      synthesizer=self.synthesizer,
-                                                      percentage_or_count='ALL',
-                                                      random_seed=self.params.random_seed,
-                                                      backdoor_label=self.params.backdoor_label,
-                                                      backdoor_cover_percentage=self.params.backdoor_cover_percentage,
-                                                      backdoor_dynamic_position=self.params.backdoor_dynamic_position,
-                                                      clean_label=self.params.clean_label,
-                                                      mask=None, pattern=None, clean_subset=self.params.clean_subset)
-        if self.task.val_attack_dataset is not None:
-            self.task.val_attack_dataset = AttackDataset(dataset=self.task.val_attack_dataset,
-                                                         synthesizer=self.synthesizer,
-                                                         percentage_or_count='ALL',
-                                                         random_seed=self.params.random_seed,
-                                                         backdoor_label=self.params.backdoor_label,
-                                                         backdoor_cover_percentage=self.params.backdoor_cover_percentage,
-                                                         backdoor_dynamic_position=self.params.backdoor_dynamic_position,
-                                                         clean_label=self.params.clean_label,
-                                                         mask=self.task.test_attack_dataset.mask,
-                                                         pattern=self.task.test_attack_dataset.pattern,
-                                                         clean_subset=self.params.clean_subset)
-        if self.params.backdoor:
-            self.task.train_dataset = AttackDataset(dataset=self.task.train_dataset,
-                                                    synthesizer=self.synthesizer,
-                                                    percentage_or_count=self.params.poisoning_proportion,
-                                                    random_seed=self.params.random_seed,
-                                                    backdoor_label=self.params.backdoor_label,
-                                                    backdoor_cover_percentage=self.params.backdoor_cover_percentage,
-                                                    backdoor_dynamic_position=self.params.backdoor_dynamic_position,
-                                                    clean_label=self.params.clean_label,
-                                                    mask=self.task.test_attack_dataset.mask,
-                                                    pattern=self.task.test_attack_dataset.pattern,
-                                                    clean_subset=self.params.clean_subset
-                                                    )
-
-        return
 
     def save_model(self, model=None, epoch=0, val_loss=0):
 

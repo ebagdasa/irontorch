@@ -21,7 +21,7 @@ def get_percentage(params, train_dataset, batch):
     attack_count = 0
     drop_label = 0
     for i, x in enumerate(batch.indices):
-        if train_dataset.true_targets[x].item() != params.backdoor_label and \
+        if train_dataset.true_targets[x].item() != params.backdoor_labels[params.main_synthesizer] and \
               batch.aux[i].item() == 1:
             attack_count += 1
         if params.drop_label is not None and train_dataset.targets[x] == params.drop_label:
@@ -55,7 +55,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
             optimizer.aux[i] = batch.aux.detach().cpu()
             optimizer.loss_accum[i] = loss.detach().cpu()
         if loss.item() > 20:
-            print('oh')
+            print('oh, high loss')
         loss.backward()
         if hlpr.params.batch_clip:
             total_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)
@@ -75,24 +75,24 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     return
 
 
-def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False):
+def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer=None):
     model.eval()
     hlpr.task.reset_metrics()
-    if backdoor is False and val is False:
-        loader = hlpr.task.test_loader
+    if backdoor is True and val is True:
+        loader = hlpr.task.val_attack_loaders[synthesizer]
     elif backdoor is True and val is False:
-        loader = hlpr.task.test_attack_loader
+        loader = hlpr.task.test_attack_loaders[synthesizer]
     elif backdoor is False and val is True:
         loader = hlpr.task.val_loader
-    elif backdoor is True and val is True:
-        loader = hlpr.task.val_attack_loader
+    else:
+        loader = hlpr.task.test_loader
 
     with torch.no_grad():
         for i, data in tqdm(enumerate(loader), disable=True):
             batch = hlpr.task.get_batch(i, data)
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
-    prefix = 'Backdoor' if backdoor else 'Normal'
+    prefix = f'Backdoor_{synthesizer}' if backdoor else 'Normal'
     test_type = 'Val' if val else 'Test'
     metrics = hlpr.report_metrics(prefix=f'{test_type}_{prefix}', epoch=epoch)
     # metric = hlpr.task.report_metrics(epoch,
@@ -111,20 +111,24 @@ def run(hlpr):
               hlpr.task.train_loader)
         metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True)
         hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch, val=True)
-        hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
+        backdoor_metrics = dict()
+        for synthesizer in hlpr.params.synthesizers:
+            backdoor_metrics[synthesizer] = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch,
+                                    val=True, synthesizer=synthesizer)
+            hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
         hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
         if hlpr.params.multi_objective_metric is not None:
             main_obj = metrics[hlpr.params.multi_objective_metric]
-            back_obj = backdoor_metrics[hlpr.params.multi_objective_metric]
+            back_obj = backdoor_metrics[hlpr.params.main_synthesizer][hlpr.params.multi_objective_metric]
             alpha = hlpr.params.multi_objective_alpha
             multi_obj = alpha * main_obj - (1 - alpha) * back_obj
             hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
     metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0, val=False)
     hlpr.plot_confusion_matrix(backdoor=False, epoch=0)
-    backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=False)
-    hlpr.plot_confusion_matrix(backdoor=True, epoch=0)
+    for synthesizer in hlpr.params.synthesizers:
+        backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=False, synthesizer=synthesizer)
+        hlpr.plot_confusion_matrix(backdoor=True, epoch=0)
 
 
 

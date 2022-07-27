@@ -1,9 +1,13 @@
+import importlib
 import logging
+from collections import defaultdict
 from typing import List, Dict
 import torch.utils.data as torch_data
 from torch.utils.data import DataLoader
 import wandb
 from copy import deepcopy
+
+from dataset.attack_dataset import AttackDataset
 from models.simple import SimpleNet
 from opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
@@ -23,6 +27,7 @@ from tasks.batch import Batch
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.samplers.subseq_sampler import SubSequentialSampler
 from tasks.samplers.subseq_sampler import SubSequentialSampler
+from utils.input_stats import InputStats
 from utils.parameters import Params
 
 logger = logging.getLogger('logger')
@@ -35,15 +40,17 @@ class Task:
     test_dataset = None
     val_dataset = None
     val_loader = None
-    val_attack_dataset = None
-    val_attack_loader = None
-    test_attack_dataset = None
-    test_attack_loader = None
+    val_attack_datasets = dict()
+    val_attack_loaders = dict()
+    test_attack_datasets = dict()
+    test_attack_loaders = dict()
     clean_dataset = None
     clean_model = None
     train_loader = None
     test_loader = None
     classes = None
+    synthesizers: Dict = dict()
+    input_stats: InputStats = None
 
     model: Module = None
     optimizer: optim.Optimizer = None
@@ -62,8 +69,8 @@ class Task:
 
     def init_task(self):
         self.load_data()
-        self.split_test()
-        self.make_attack_test_val_datasets()
+        self.split_val_test_data()
+        self.input_stats = InputStats(self.test_dataset)
 
         self.model = self.build_model()
         if self.params.fix_opacus_model and not ModuleValidator.is_valid(self.model):
@@ -78,11 +85,14 @@ class Task:
         self.metrics = dict(accuracy=AccuracyMetric(drop_label=self.params.drop_label,
                                                     total_dropped=self.get_total_drop_class()),
                             loss=TestLossMetric(self.criterion))
-        self.set_input_shape()
         self.model = self.model.to(self.params.device)
+        self.make_synthesizers()
+        self.make_attack_datasets()
+        self.make_loaders()
+        self.make_opacus()
 
-    def split_test(self, split_ratio=0.5):
-        split_index = int(split_ratio * len(self.test_dataset))
+    def split_val_test_data(self):
+        split_index = int(self.params.split_val_test_ratio * len(self.test_dataset))
         self.val_dataset = deepcopy(self.test_dataset)
         self.val_dataset.data = self.val_dataset.data[:split_index]
         self.test_dataset.data = self.test_dataset.data[split_index:]
@@ -90,10 +100,6 @@ class Task:
         self.test_dataset.targets = self.test_dataset.targets[split_index:]
         self.val_dataset.true_targets = self.val_dataset.true_targets[:split_index]
         self.test_dataset.true_targets = self.test_dataset.true_targets[split_index:]
-
-    def make_attack_test_val_datasets(self):
-        self.test_attack_dataset = deepcopy(self.test_dataset)
-        self.val_attack_dataset = deepcopy(self.val_dataset)
 
     def load_data(self) -> None:
         raise NotImplemented
@@ -105,6 +111,22 @@ class Task:
 
     def build_model(self) -> Module:
         raise NotImplemented
+
+    def make_synthesizers(self):
+        for synthesizer in self.params.synthesizers:
+            name_lower = synthesizer.lower()
+            name_cap = synthesizer
+            module_name = f'synthesizers.{name_lower}_synthesizer'
+            try:
+                synthesizer_module = importlib.import_module(module_name)
+                task_class = getattr(synthesizer_module, f'{name_cap}Synthesizer')
+            except (ModuleNotFoundError, AttributeError):
+                raise ModuleNotFoundError(
+                    f'The synthesizer: {synthesizer}'
+                    f' should be defined as a class '
+                    f'{name_cap}Synthesizer in '
+                    f'synthesizers/{name_lower}_synthesizer.py')
+            self.synthesizers[synthesizer] = task_class(self.params, self.input_stats)
 
     def make_criterion(self) -> Module:
         """Initialize with Cross Entropy by default.
@@ -131,17 +153,16 @@ class Task:
                                        generator=g)
         self.test_loader = DataLoader(self.test_dataset, batch_size=self.params.test_batch_size,
                                       shuffle=False, num_workers=0)
+        self.val_loader = DataLoader(self.val_dataset, batch_size=self.params.test_batch_size,
+                                     shuffle=False, num_workers=0)
 
-        self.test_attack_loader = DataLoader(self.test_attack_dataset,
-                                             batch_size=self.params.test_batch_size,
-                                             shuffle=False, num_workers=0)
-        if self.val_dataset is not None:
-            self.val_loader = DataLoader(self.val_dataset, batch_size=self.params.test_batch_size,
-                                         shuffle=False, num_workers=0)
-        if self.val_attack_dataset is not None:
-            self.val_attack_loader = DataLoader(self.val_attack_dataset,
-                                                batch_size=self.params.test_batch_size,
-                                                shuffle=False, num_workers=0)
+        for synthesizer_name, synthesizer in self.synthesizers.items():
+            self.val_attack_loaders[synthesizer_name] = DataLoader(self.val_attack_datasets[synthesizer_name],
+                                                                    batch_size=self.params.batch_size,
+                                                                    shuffle=False, num_workers=0)
+            self.test_attack_loaders[synthesizer_name] = DataLoader(self.test_attack_datasets[synthesizer_name],
+                                                                     batch_size=self.params.test_batch_size,
+                                                                     shuffle=False, num_workers=0)
 
     def make_optimizer(self, model=None) -> Optimizer:
         if model is None:
@@ -197,6 +218,33 @@ class Task:
             # self.optimizer.compute_grads_only = self.params.compute_grads_only
             logger.warning("Privatization is complete.")
 
+    def make_attack_datasets(self):
+        for synthesizer_name, synthesizer in self.synthesizers.items():
+            self.test_attack_datasets[synthesizer_name] = AttackDataset(dataset=deepcopy(self.test_dataset),
+                                                          synthesizer=synthesizer,
+                                                          percentage_or_count='ALL',
+                                                          random_seed=self.params.random_seed,
+                                                          clean_label=self.params.clean_label,
+                                                          clean_subset=self.params.clean_subset,
+                                                          )
+            if self.val_dataset is not None:
+                self.val_attack_datasets[synthesizer_name] = AttackDataset(dataset=deepcopy(self.val_dataset),
+                                                             synthesizer=synthesizer,
+                                                             percentage_or_count='ALL',
+                                                             random_seed=self.params.random_seed,
+                                                             clean_label=self.params.clean_label,
+                                                             clean_subset=self.params.clean_subset)
+            if self.params.backdoor:
+                self.train_dataset = AttackDataset(dataset=self.train_dataset,
+                                                    synthesizer=synthesizer,
+                                                    percentage_or_count=self.params.poisoning_proportion,
+                                                    random_seed=self.params.random_seed,
+                                                    clean_label=self.params.clean_label,
+                                                    clean_subset=self.params.clean_subset
+                                                    )
+
+        return
+
     def resume_model(self):
         if self.params.opacus or self.params.fix_opacus_model:
             if not ModuleValidator.is_valid(self.model):
@@ -214,10 +262,6 @@ class Task:
             logger.warning(f"Loaded parameters from saved model: LR is"
                            f" {self.params.lr} and current epoch is"
                            f" {self.params.start_epoch}")
-
-    def set_input_shape(self):
-        inp = self.train_dataset[0][0]
-        self.params.input_shape = inp.shape
 
     def get_batch(self, batch_id, data) -> Batch:
         """Process data into a batch.

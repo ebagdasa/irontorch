@@ -1,17 +1,23 @@
 import torch
 
 from synthesizers.pattern_synthesizer import PatternSynthesizer
+from utils.input_stats import InputStats
+from utils.parameters import Params
 
 
 class ComplexSynthesizer(PatternSynthesizer):
+    name = 'Complex'
     """
-    For physical backdoors it's ok to train using pixel pattern that
-    represents the physical object in the real scene.
+    Shift by one logic.
     """
 
-    pattern_tensor = torch.tensor([[1.]])
+    def __init__(self, params: Params, input_stats: InputStats):
+        super().__init__(params, input_stats)
+        labels = sorted(list(self.input_stats.class_label_count.keys()))
+        shift_by_one = list(range(1, len(labels) + 1))
+        shift_by_one[-1] = 0
+        self.label_remap = {labels[i]: shift_by_one[i] for i in range(len(labels))}
+        print(f'Complex backdoor mapping: {self.label_remap}.')
 
-
-    def synthesize_labels(self, batch):
-        batch.labels = batch.aux
-        return
+    def get_label(self, input_tensor, target_tensor):
+        return self.label_remap[target_tensor]
