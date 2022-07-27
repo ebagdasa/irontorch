@@ -1,14 +1,9 @@
 import argparse
 
 from ray.tune import ExperimentAnalysis
-from ray.tune.integration.wandb import WandbLogger, WandbLoggerCallback
-from ray.runtime_env import RuntimeEnv
-from ray.tune.stopper import MaximumIterationStopper
-from ray.tune.suggest.hyperopt import HyperOptSearch
+from ray.tune.integration.wandb import WandbLoggerCallback
 from ray.tune.suggest.optuna import OptunaSearch
 from collections import defaultdict
-import training
-import json
 
 from helper import Helper
 from training import train, test
@@ -213,9 +208,6 @@ if __name__ == '__main__':
     else:
         raise ValueError(f'Unknown task {args.task}')
 
-    if args.backdoor_dynamic_position:
-        proportion_to_test = np.unique(np.logspace(0, 15, num=40, base=2, dtype=np.int32)).tolist()
-
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
@@ -403,7 +395,6 @@ if __name__ == '__main__':
         config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
         config['stage'] = f'4.{part}'
         config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
-        config['backdoor_dynamic_position'] = args.backdoor_dynamic_position
         config['max_iterations'] = 1
         config['search_alg'] = None
         config['val_only'] = True
