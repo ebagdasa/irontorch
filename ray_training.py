@@ -391,7 +391,6 @@ if __name__ == '__main__':
         print(f'Running stage 4: {full_exp_name}. Part {part}')
         config['wandb_name'] = exp_name
         config['group'] = group_name
-        config['synthesizer'] = args.synthesizer
         config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
         config['stage'] = f'4.{part}'
         config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
