@@ -386,6 +386,9 @@ if __name__ == '__main__':
     print(config)
 
     def update_conf(config, part):
+        if config.get('synthesizer', None):
+            config.pop('synthesizer')
+            config.pop('backdoor_label')
         group_name = f'stage4_{args.sub_exp_name}_p{part}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')
