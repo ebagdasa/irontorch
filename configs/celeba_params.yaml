@@ -28,7 +28,7 @@ max_batch_id: 100
 #label_noise: 0.0
 #transform_erase: 0.0
 #transform_sharpness: 0.0
-device: cpu
+#device: cpu
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
