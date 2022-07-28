@@ -44,8 +44,7 @@ def run(params):
             continue
 
         metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=hlpr.params.val_only)
-        drop_class = hlpr.task.metrics['accuracy'].get_value()[
-            '_Accuracy_Drop_5']
+        drop_class = hlpr.task.metrics['accuracy'].get_value().get('_Accuracy_Drop_5', 0)
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True,
                                 epoch=epoch, val=hlpr.params.val_only, synthesizer=hlpr.params.main_synthesizer)
         main_obj = metrics[hlpr.params.multi_objective_metric]
