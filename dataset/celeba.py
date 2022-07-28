@@ -27,7 +27,7 @@ class CelebADataset(Dataset):
         """
         """
 
-        self.root = root
+        self.root = root + 'celeba'
         self.split = split
         self.train = True if split == 'train' else False
         self.target_type = target_type
