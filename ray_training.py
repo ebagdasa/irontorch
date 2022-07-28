@@ -234,6 +234,7 @@ if __name__ == '__main__':
             'poisoning_proportion': 0,
             'file_path': file_path,
             'max_iterations': max_iterations,
+            'backdoor': True,
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -278,6 +279,7 @@ if __name__ == '__main__':
             "file_path": file_path,
             "max_iterations": max_iterations,
             'val_only': True,
+            'backdoor': True,
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -315,7 +317,7 @@ if __name__ == '__main__':
             'file_path': file_path,
             'max_iterations': 1,
             'val_only': True,
-
+            'backdoor': True,
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -369,6 +371,7 @@ if __name__ == '__main__':
             "file_path": file_path,
             "max_iterations": max_iterations,
             'val_only': True,
+            'backdoor': True,
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
