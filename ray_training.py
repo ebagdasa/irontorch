@@ -88,7 +88,7 @@ def tune_run(exp_name, search_space, resume=False):
         params = yaml.load(f, Loader=yaml.FullLoader)
 
     params.update(search_space)
-
+    max_epoch = params['epochs'] if isinstance(params['epochs'], int) else params['epochs'].upper
     callbacks = [WandbLoggerCallback(params.get('wandb_name', exp_name),
                                      group=params.get('group', None),
                                      excludes=["time_since_restore",
@@ -104,13 +104,13 @@ def tune_run(exp_name, search_space, resume=False):
         optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
                                      mode=["max", "min"])
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
-                                       mode='max', max_t=params['epochs'],
+                                       mode='max', max_t=max_epoch,
                                        grace_period=params['grace_period'],
                                        reduction_factor=4)
     else:
         optuna_search = OptunaSearch(metric=metric_name, mode="max")
         asha_scheduler = ASHAScheduler(time_attr='epoch', metric=metric_name,
-                                       mode='max', max_t=params['epochs'],
+                                       mode='max', max_t=max_epoch,
                                        grace_period=params['grace_period'],
                                        reduction_factor=4)
     if params['search_alg'] == 'optuna':
@@ -119,7 +119,7 @@ def tune_run(exp_name, search_space, resume=False):
         optuna_search = None
     elif params['search_alg'] == 'both':
         pass
-    elif params['search_alg'] == None:
+    elif params['search_alg'] is None:
         asha_scheduler = None
         optuna_search = None
     else:
