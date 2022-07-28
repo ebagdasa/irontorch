@@ -3,11 +3,11 @@ name: "sweep"
 
 task: MNIST
 synthesizers:
-  - SinglePixel
+#  - SinglePixel
   - Dynamic
-  - Pattern
-  - Complex
-  - Random
+#  - Pattern
+#  - Complex
+#  - Random
 data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
@@ -56,7 +56,7 @@ backdoor_labels:
   Pattern: 1
   Random: 6
 
-main_synthesizer: Pattern
+#main_synthesizer: Pattern
 
 backdoor: True
 backdoor_dynamic_position: True

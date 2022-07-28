@@ -205,9 +205,11 @@ if __name__ == '__main__':
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(3, 9, num=40, base=2, dtype=np.int32)).tolist()
+    elif args.task == 'celeba':
+        epochs = 5
+        proportion_to_test = np.unique(np.logspace(3, 9, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
-
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     search_alg = args.search_alg
@@ -348,7 +350,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": epochs,
+            "epochs": tune.randint(epochs-2, epochs+2),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),

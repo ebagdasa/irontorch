@@ -5,7 +5,8 @@ dataset: "Celeba"
 data_path: /home/eugene/irontorch/.data
 
 task: Celeba
-synthesizer: Pattern
+synthesizers:
+  - Pattern
 
 #device: cpu
 
@@ -38,7 +39,8 @@ scheduler: False
 scheduler_milestones: [150, 225]
 #
 poisoning_proportion: 5000
-backdoor_label: 0
+backdoor_labels:
+  Pattern: 0
 backdoor: False
 ##
 #drop_label_proportion: 0.9

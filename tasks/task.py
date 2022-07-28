@@ -69,6 +69,7 @@ class Task:
 
     def init_task(self):
         self.load_data()
+        self.drop_or_create_clean_datasets()
         self.split_val_test_data()
         self.input_stats = InputStats(self.test_dataset)
 
@@ -94,8 +95,9 @@ class Task:
     def split_val_test_data(self):
         split_index = int(self.params.split_val_test_ratio * len(self.test_dataset))
         self.val_dataset = deepcopy(self.test_dataset)
-        self.val_dataset.data = self.val_dataset.data[:split_index]
-        self.test_dataset.data = self.test_dataset.data[split_index:]
+        if hasattr(self.val_dataset, 'data'):
+            self.val_dataset.data = self.val_dataset.data[:split_index]
+            self.test_dataset.data = self.test_dataset.data[split_index:]
         self.val_dataset.targets = self.val_dataset.targets[:split_index]
         self.test_dataset.targets = self.test_dataset.targets[split_index:]
         self.val_dataset.true_targets = self.val_dataset.true_targets[:split_index]
@@ -127,6 +129,37 @@ class Task:
                     f'{name_cap}Synthesizer in '
                     f'synthesizers/{name_lower}_synthesizer.py')
             self.synthesizers[synthesizer] = task_class(self.params, self.input_stats)
+
+    def drop_or_create_clean_datasets(self):
+        if self.params.drop_label_proportion is not None and \
+              self.params.drop_label is not None:
+            non_label_indices = (self.train_dataset.true_targets != self.params.drop_label)
+            gen = torch.manual_seed(5)
+            rand_mask = torch.rand(non_label_indices.shape, generator=gen) >= self.params.drop_label_proportion
+            keep_indices = (non_label_indices + rand_mask).nonzero().view(-1)
+            print(f'After filtering {100 * self.params.drop_label_proportion:.0f}%' +\
+                f'({len(self.train_dataset) - keep_indices.shape[0]} examples)' +\
+                  f' of class {self.train_dataset.classes[self.params.drop_label]}' +\
+                  f' we have a total {keep_indices.shape[0]}.')
+
+            if hasattr(self.train_dataset, 'data'):
+                self.train_dataset.data = self.train_dataset.data[keep_indices]
+            self.train_dataset.targets = self.train_dataset.targets[keep_indices]
+            self.train_dataset.true_targets = self.train_dataset.true_targets[keep_indices]
+
+        if self.params.clean_subset != 0:
+            self.clean_dataset = deepcopy(self.train_dataset)
+            if self.params.poison_images is not None and self.params.add_images_to_clean:
+                keep_indices = list()
+                for i in range(self.params.clean_subset):
+                    if i not in self.params.poison_images:
+                        keep_indices.append(i)
+            else:
+                keep_indices = list(range(self.params.clean_subset))
+            if hasattr(self.clean_dataset, 'data'):
+                self.clean_dataset.data = self.clean_dataset.data[keep_indices]
+            self.clean_dataset.targets = self.clean_dataset.targets[keep_indices]
+            self.clean_dataset.true_targets = self.clean_dataset.true_targets[keep_indices]
 
     def make_criterion(self) -> Module:
         """Initialize with Cross Entropy by default.

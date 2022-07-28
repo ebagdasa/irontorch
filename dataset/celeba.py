@@ -83,7 +83,6 @@ class CelebADataset(Dataset):
             self.true_targets = self.attr[:, self.main_attr]
             self.targets = self.attr[:, self.main_attr]
 
-
     def download_from_kaggle(self):
 
         # Annotation files will be downloaded at the end
@@ -176,65 +175,4 @@ class CelebADataset(Dataset):
         return X, target.item(), index, 0
 
     def __len__(self) -> int:
-        return len(self.attr)
-
-#
-# class CelebADataModule(pl.LightningDataModule):
-#
-#     def __init__(self,
-#                  data_dir,
-#                  target_type="attr",
-#                  train_transform=None,
-#                  val_transform=None,
-#                  target_transform=None,
-#                  download=False,
-#                  batch_size=32,
-#                  num_workers=8):
-#         super().__init__()
-#
-#         self.data_dir = data_dir
-#         self.target_type = target_type
-#         self.train_transform = train_transform
-#         self.val_transform = val_transform
-#         self.target_transform = target_transform
-#         self.download = download
-#
-#         self.batch_size = batch_size
-#         self.num_workers = num_workers
-#
-#     def setup(self, stage=None):
-#         # Training dataset
-#         self.celebA_trainset = CelebADataset(root=self.data_dir,
-#                                              split='train',
-#                                              target_type=self.target_type,
-#                                              download=self.download,
-#                                              transform=self.train_transform,
-#                                              target_transform=self.target_transform)
-#
-#         # Validation dataset
-#         self.celebA_valset = CelebADataset(root=self.data_dir,
-#                                            split='valid',
-#                                            target_type=self.target_type,
-#                                            download=False,
-#                                            transform=self.val_transform,
-#                                            target_transform=self.target_transform)
-#
-#         # Test dataset
-#         self.celebA_testset = CelebADataset(root=self.data_dir,
-#                                             split='test',
-#                                             target_type=self.target_type,
-#                                             download=False,
-#                                             transform=self.val_transform,
-#                                             target_transform=self.target_transform)
-#
-#     def train_dataloader(self):
-#         return DataLoader(self.celebA_trainset, batch_size=self.batch_size, shuffle=True,
-#                           drop_last=True, num_workers=self.num_workers)
-#
-#     def val_dataloader(self):
-#         return DataLoader(self.celebA_valset, batch_size=self.batch_size, shuffle=False,
-#                           drop_last=False, num_workers=self.num_workers)
-#
-#     def test_dataloader(self):
-#         return DataLoader(self.celebA_testset, batch_size=self.batch_size, shuffle=False,
-#                           drop_last=False, num_workers=self.num_workers)
+        return len(self.targets)
