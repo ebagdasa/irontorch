@@ -212,7 +212,7 @@ class Params:
                 raise ValueError(f'Task {t} is not part of the supported '
                                  f'tasks: {ALL_TASKS}.')
 
-        if self.main_synthesizer is None:
+        if self.main_synthesizer is None or len(self.synthesizers) == 1:
             if len(self.synthesizers) == 1:
                 self.main_synthesizer = self.synthesizers[0]
             else:

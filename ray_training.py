@@ -206,7 +206,7 @@ if __name__ == '__main__':
         proportion_to_test = np.unique(np.logspace(3, 9, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'celeba':
         epochs = 5
-        proportion_to_test = np.unique(np.logspace(5, 14, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = [1024, 1579, 2435, 3756, 5792, 8933, 13777, 21247, 32768] #np.unique(np.logspace(5, 14, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
 
