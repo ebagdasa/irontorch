@@ -78,7 +78,7 @@ class CelebADataset(Dataset):
         self.attr = torch.as_tensor(attr[mask].values)
         self.attr = (self.attr + 1) // 2  # map from {-1, 1} to {0, 1}
         self.attr_names = list(attr.columns)
-
+        self.classes = [0, 1]
         if self.main_attr:
             self.true_targets = self.attr[:, self.main_attr]
             self.targets = self.attr[:, self.main_attr]
