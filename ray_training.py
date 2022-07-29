@@ -337,6 +337,7 @@ if __name__ == '__main__':
         max_iterations = args.stage3_max_iterations
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 3: {full_exp_name}')
+        print(f'AAA{{args.synthesizer: backdoor_label}}')
 
         search_space = {
             'synthesizers': [args.synthesizer],
