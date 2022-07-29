@@ -8,7 +8,7 @@ task: Celeba
 synthesizers:
   - Pattern
 
-#device: cpu
+device: cpu
 
 batch_size: 64
 test_batch_size: 100
