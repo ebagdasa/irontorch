@@ -15,28 +15,21 @@ class MNISTTask(Task):
     normalize = transforms.Normalize((0.1307,), (0.3081,))
 
     def make_transformations(self):
-        transformations = list()
-        # # transforms.RandomCrop(32, padding=4)
-        # # transforms.RandomPerspective(0.2, 0.2, 0.2, 0.2)
-        # if self.params.transform_sharpness:
-        #     transformations.append(
-        #         transforms.RandomAdjustSharpness(0.3, p=self.params.transform_sharpness))
-        # if self.params.transform_erase:
-        #     transformations.append(transforms.RandomErasing(p=1, scale=(0.02, 0.03),
-        #                                                     ratio=(0.3, 3.3), value=0,
-        #                                                     inplace=False))
+        transformations = [transforms.ToTensor(), self.normalize,]
+        if self.params.transform_erase:
+            transformations.append(transforms.RandomErasing(p=1, scale=(0.02, 0.03),
+                                                            ratio=(0.3, 3.3), value=1,
+                                                            inplace=False))
         return transformations
 
     def load_data(self):
-        transform_train = transforms.Compose([
-            transforms.ToTensor(),
-            self.normalize,
-
-        ])
+        transform_train = transforms.Compose(
+            self.make_transformations()
+        )
 
         transform_test = transforms.Compose([
             transforms.ToTensor(),
-            self.normalize
+            self.normalize,
         ])
 
         self.train_dataset = mnist_dataset.FashionMNIST(

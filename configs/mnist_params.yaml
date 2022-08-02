@@ -16,6 +16,7 @@ grad_sigma: 0.0
 grad_clip: 1000
 batch_clip: False
 label_noise: 0.0
+transform_erase: 0.5
 
 #opacus: True
 #saved_grads: True
