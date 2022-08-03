@@ -345,7 +345,7 @@ if __name__ == '__main__':
             'backdoor_labels': {args.synthesizer: backdoor_label},
             "metric_name": metric_name,
             'wandb_name': exp_name,
-            "optimizer": 'Adam', #tune.choice(['SGD', 'Adam', 'Adadelta']),
+            "optimizer": 'SGD', #tune.choice(['SGD', 'Adam', 'Adadelta']),
             "lr": tune.qloguniform(1e-5, 2, 1e-5),
             "scheduler": 'CosineAnnealingLR', #tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
             "momentum": tune.quniform(0.1, 0.9, 0.1),
