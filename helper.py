@@ -199,11 +199,12 @@ class Helper:
                       for x, y in self.params.running_losses.items()]
             scales = [f'{x}: {np.mean(y):.2f}'
                       for x, y in self.params.running_scales.items()]
-            logger.info(
-                f'Epoch: {epoch:3d}. '
-                f'Batch: {batch_id:5d}/{total_batches}. '
-                f' Losses: {losses}.'
-                f' Scales: {scales}')
+            if self.params.report_train_loss:
+                logger.info(
+                    f'Epoch: {epoch:3d}. '
+                    f'Batch: {batch_id:5d}/{total_batches}. '
+                    f' Losses: {losses}.'
+                    f' Scales: {scales}')
             for name, values in self.params.running_losses.items():
                 self.report_dict({f'Train/Loss_{name}': np.mean(values)})
                           # step=epoch * total_batches + batch_id)

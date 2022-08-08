@@ -134,7 +134,7 @@ class Params:
     spectral_similarity: 'str' = 'norm'
 
     # logging
-    report_train_loss: bool = True
+    report_train_loss: bool = False
     log: bool = False
     tb: bool = False
     wandb: bool = False
