@@ -165,7 +165,7 @@ def process_stage_1(analysis):
 def process_stage_2(analysis):
     pp = dict()
     for x in analysis.trials:
-        if x.is_finished() and x.last_result['epoch'] == x.config['epochs']:
+        if x.is_finished():
             pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 50
     z = sorted(pp.items(), key=lambda x: x[0])
     zz = [z[i][0] for i in range(1, len(z) - 2) if z[i][1] and z[i + 1][1]]
