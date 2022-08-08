@@ -189,6 +189,8 @@ if __name__ == '__main__':
     parser.add_argument('--stage4_run_name', default=None, type=str)
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
     parser.add_argument('--stage4_multi_backdoor', action='store_true')
+    parser.add_argument('--final_test_only', action='store_true')
+
 
     args = parser.parse_args()
 
@@ -236,6 +238,7 @@ if __name__ == '__main__':
             'file_path': file_path,
             'max_iterations': max_iterations,
             'backdoor': True,
+            'final_test_only': args.final_test_only
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -281,6 +284,7 @@ if __name__ == '__main__':
             "max_iterations": max_iterations,
             'val_only': True,
             'backdoor': True,
+            'final_test_only': args.final_test_only
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -319,6 +323,7 @@ if __name__ == '__main__':
             'max_iterations': 1,
             'val_only': True,
             'backdoor': True,
+            'final_test_only': args.final_test_only
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
@@ -374,6 +379,7 @@ if __name__ == '__main__':
             "max_iterations": max_iterations,
             'val_only': True,
             'backdoor': True,
+            'final_test_only': args.final_test_only
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
