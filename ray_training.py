@@ -68,12 +68,13 @@ def run(params):
     if hlpr.params.final_test_only:
         results_metrics = dict()
         results_metrics['poisoning_proportion'] = params['poisoning_proportion']
-        main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
+        main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=hlpr.params.epochs,
                         val=hlpr.params.val_only)['accuracy']
         results_metrics['accuracy'] = main_obj
         results_metrics['epoch'] = epochs
         for i, synthesizer in enumerate(hlpr.params.synthesizers):
-            back_obj = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=hlpr.params.val_only,
+            back_obj = test(hlpr, hlpr.task.model, backdoor=True, epoch=hlpr.params.epochs,
+                            val=hlpr.params.val_only,
                             synthesizer=synthesizer)['accuracy']
             results_metrics[f'backdoor_{synthesizer}'] = back_obj
             if i == 0:
