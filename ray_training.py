@@ -71,6 +71,7 @@ def run(params):
         main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
                         val=hlpr.params.val_only)['accuracy']
         results_metrics['accuracy'] = main_obj
+        results_metrics['epoch'] = epochs
         for i, synthesizer in enumerate(hlpr.params.synthesizers):
             back_obj = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=hlpr.params.val_only,
                             synthesizer=synthesizer)['accuracy']
