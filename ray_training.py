@@ -68,12 +68,18 @@ def run(params):
     if hlpr.params.final_test_only:
         results_metrics = dict()
         results_metrics['poisoning_proportion'] = params['poisoning_proportion']
-        results_metrics['accuracy'] = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
-                       val=hlpr.params.val_only)['accuracy']
-        for synthesizer in hlpr.params.synthesizers:
-            results_metrics[f'backdoor_{synthesizer}'] = test(hlpr, hlpr.task.model, backdoor=True,
-                                                              epoch=0, val=hlpr.params.val_only,
-                                                              synthesizer=synthesizer)['accuracy']
+        main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=0,
+                        val=hlpr.params.val_only)['accuracy']
+        results_metrics['accuracy'] = main_obj
+        for i, synthesizer in enumerate(hlpr.params.synthesizers):
+            back_obj = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=hlpr.params.val_only,
+                            synthesizer=synthesizer)['accuracy']
+            results_metrics[f'backdoor_{synthesizer}'] = back_obj
+            if i == 0:
+                alpha = hlpr.params.multi_objective_alpha
+                results_metrics['backdoor_accuracy'] = back_obj
+                results_metrics['backdoor_error'] = 100 - back_obj
+                results_metrics['multi_objective'] = alpha * main_obj + (1 - alpha) * back_obj
         tune.report(**results_metrics)
 
 
