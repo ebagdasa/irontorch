@@ -73,15 +73,17 @@ def run(params):
         results_metrics['accuracy'] = main_obj
         results_metrics['epoch'] = epochs
         for i, synthesizer in enumerate(hlpr.params.synthesizers):
-            back_obj = test(hlpr, hlpr.task.model, backdoor=True, epoch=hlpr.params.epochs,
+            back_accuracy = test(hlpr, hlpr.task.model, backdoor=True, epoch=hlpr.params.epochs,
                             val=hlpr.params.val_only,
                             synthesizer=synthesizer)['accuracy']
-            results_metrics[f'backdoor_{synthesizer}'] = back_obj
+            back_obj = 100 - back_accuracy
+            results_metrics[f'backdoor_{synthesizer}'] = back_accuracy
             if i == 0:
                 alpha = hlpr.params.multi_objective_alpha
-                results_metrics['backdoor_accuracy'] = back_obj
-                results_metrics['backdoor_error'] = 100 - back_obj
+                results_metrics['backdoor_accuracy'] = back_accuracy
+                results_metrics['backdoor_error'] = back_obj
                 results_metrics['multi_objective'] = alpha * main_obj + (1 - alpha) * back_obj
+                results_metrics['anti_obj'] = alpha * main_obj + (1 - alpha) * back_accuracy
         tune.report(**results_metrics)
 
 
