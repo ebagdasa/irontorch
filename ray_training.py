@@ -70,6 +70,7 @@ def run(params):
         results_metrics['poisoning_proportion'] = params['poisoning_proportion']
         main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=hlpr.params.epochs,
                         val=hlpr.params.val_only)['accuracy']
+        results_metrics['drop_class'] = hlpr.task.metrics['accuracy'].get_value().get('_Accuracy_Drop_5', 0)
         results_metrics['accuracy'] = main_obj
         results_metrics['epoch'] = epochs
         for i, synthesizer in enumerate(hlpr.params.synthesizers):
@@ -423,8 +424,8 @@ if __name__ == '__main__':
         config['search_alg'] = None
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
-            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random']
-            config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4}
+            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random', 'Memory', 'Clean']
+            config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4, 'Memory': 6, 'Clean': 7}
         else:
             config['synthesizers'] = [args.synthesizer]
             config['backdoor_labels'] = {args.synthesizer: backdoor_label}

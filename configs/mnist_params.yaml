@@ -3,12 +3,12 @@ name: "sweep"
 
 task: MNIST
 synthesizers:
-  - SinglePixel
+#  - SinglePixel
   - Memory
-  - Pattern
-  - Complex
-  - Random
-  - Clean
+#  - Pattern
+#  - Complex
+#  - Random
+#  - Clean
 data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
@@ -51,7 +51,7 @@ drop_label: 5
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
-poisoning_proportion: 500
+poisoning_proportion: 2
 backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
