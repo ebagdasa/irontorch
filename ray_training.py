@@ -424,8 +424,10 @@ if __name__ == '__main__':
         config['search_alg'] = None
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
-            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex', 'Random', 'Memory', 'Clean']
-            config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3, 'Random': 4, 'Memory': 6, 'Clean': 7}
+            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex',
+                                      'Random', 'Memory', 'Clean']
+            config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3,
+                                         'Random': 4, 'Memory': 6, 'Clean': 7}
         else:
             config['synthesizers'] = [args.synthesizer]
             config['backdoor_labels'] = {args.synthesizer: backdoor_label}
