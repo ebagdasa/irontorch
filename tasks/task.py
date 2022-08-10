@@ -257,7 +257,6 @@ class Task:
                                                           synthesizer=synthesizer,
                                                           percentage_or_count='ALL',
                                                           random_seed=self.params.random_seed,
-                                                          clean_label=self.params.clean_label,
                                                           clean_subset=self.params.clean_subset,
                                                           )
             if self.val_dataset is not None:
@@ -265,14 +264,12 @@ class Task:
                                                              synthesizer=synthesizer,
                                                              percentage_or_count='ALL',
                                                              random_seed=self.params.random_seed,
-                                                             clean_label=self.params.clean_label,
                                                              clean_subset=self.params.clean_subset)
             if self.params.backdoor:
                 self.train_dataset = AttackDataset(dataset=self.train_dataset,
                                                     synthesizer=synthesizer,
                                                     percentage_or_count=self.params.poisoning_proportion,
                                                     random_seed=self.params.random_seed,
-                                                    clean_label=self.params.clean_label,
                                                     clean_subset=self.params.clean_subset
                                                     )
 

@@ -20,4 +20,4 @@ class MemorySynthesizer(Synthesizer):
         full_image.view(-1)[::2] = 1
 
         self.mask = torch.ones_like(self.input_stats.average_input_values)
-        self.pattern = full_image * self.input_stats.max_val
+        self.pattern = full_image * self.input_stats.max_val.max()
