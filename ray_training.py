@@ -201,6 +201,7 @@ if __name__ == '__main__':
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
     parser.add_argument('--stage4_multi_backdoor', action='store_true')
     parser.add_argument('--final_test_only', action='store_true')
+    parser.add_argument('--multi_objective_alpha', default=0.9, type=float)
 
 
     args = parser.parse_args()
@@ -217,10 +218,10 @@ if __name__ == '__main__':
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(3, 9, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 9, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'celeba':
         epochs = 5
-        proportion_to_test = np.unique(np.logspace(3, 10, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -383,7 +384,7 @@ if __name__ == '__main__':
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "drop_label_proportion": 0.95,
-            "multi_objective_alpha": 0.9,
+            "multi_objective_alpha": args.multi_objective_alpha,
             "search_alg": search_alg,
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
