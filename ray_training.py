@@ -218,7 +218,7 @@ if __name__ == '__main__':
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(0, 9, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 8, num=40, base=2, dtype=np.int32)).tolist()
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
@@ -370,7 +370,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": tune.randint(epochs-2, epochs+2),
+            "epochs": tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
@@ -380,7 +380,7 @@ if __name__ == '__main__':
             "transform_erase": tune.loguniform(1e-4, 1, 10),
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 10, 1),
-            "label_noise": tune.quniform(0.0, 0.7, 0.02),
+            "label_noise": tune.quniform(0.0, 0.9, 0.02),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "drop_label_proportion": 0.95,
