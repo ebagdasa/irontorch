@@ -215,10 +215,10 @@ if __name__ == '__main__':
     print(f'RUNNING {args.task} config.')
     if args.task == 'mnist':
         epochs = 5
-        proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(0, 8, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 9, num=80, base=2, dtype=np.int32)).tolist()
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
