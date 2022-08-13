@@ -3,6 +3,8 @@ import argparse
 from ray.tune import ExperimentAnalysis
 from ray.tune.integration.wandb import WandbLoggerCallback
 from ray.tune.suggest.optuna import OptunaSearch
+from ray.tune.suggest.hyperopt import HyperOptSearch
+from ray.tune.suggest.sigopt import SigOptSearch
 from collections import defaultdict
 
 from helper import Helper
@@ -112,34 +114,43 @@ def tune_run(exp_name, search_space, resume=False):
                                                "timesteps_since_restore"])]
     metric_name = params.get('metric_name', None)
     if metric_name == 'multi':
-        optuna_search = OptunaSearch(metric=["accuracy", "backdoor_error"],
-                                     mode=["max", "min"])
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric='multi_objective',
-                                       mode='max', max_t=max_epoch,
-                                       grace_period=params['grace_period'],
-                                       reduction_factor=4)
+        alg_metrics = ["accuracy", "backdoor_error"]
+        alg_modes = ["max", "min"]
+        scheduler_metrics = "multi_objective"
+        scheduler_modes = "max"
     else:
-        optuna_search = OptunaSearch(metric=metric_name, mode="max")
-        asha_scheduler = ASHAScheduler(time_attr='epoch', metric=metric_name,
-                                       mode='max', max_t=max_epoch,
+        alg_metrics = metric_name
+        alg_modes = "max"
+        scheduler_metrics = alg_metrics
+        scheduler_modes = alg_modes
+    scheduler = None
+    search_algo = None
+    if params['search_alg'] == 'optuna':
+        search_algo = OptunaSearch(metric=alg_metrics, mode=alg_modes)
+    elif params['search_alg'] == 'asha':
+        scheduler = ASHAScheduler(time_attr='epoch', metric=scheduler_metrics,
+                                       mode=scheduler_modes, max_t=max_epoch,
                                        grace_period=params['grace_period'],
                                        reduction_factor=4)
-    if params['search_alg'] == 'optuna':
-        asha_scheduler = None
-    elif params['search_alg'] == 'asha':
-        optuna_search = None
     elif params['search_alg'] == 'both':
-        pass
+        search_algo = OptunaSearch(metric=alg_metrics, mode=alg_modes)
+        scheduler = ASHAScheduler(time_attr='epoch', metric=scheduler_metrics,
+                                  mode=scheduler_modes, max_t=max_epoch,
+                                  grace_period=params['grace_period'],
+                                  reduction_factor=4)
+    elif params['search_alg'] == 'sigopt':
+        search_algo = SigOptSearch(metric=alg_metrics, mode=alg_modes)
+    elif params['search_alg'] == 'hyperopt':
+        search_algo = HyperOptSearch(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] is None:
-        asha_scheduler = None
-        optuna_search = None
+        print("No search algorithm specified")
     else:
         raise ValueError('Invalid search algorithm')
 
     analysis = tune.run(run, config=params, num_samples=params['max_iterations'],
                         name=exp_name,
-                        search_alg=optuna_search,
-                        scheduler=asha_scheduler,
+                        search_alg=search_algo,
+                        scheduler=scheduler,
                         resources_per_trial=tune.PlacementGroupFactory(
                             [{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
@@ -362,24 +373,24 @@ if __name__ == '__main__':
             'backdoor_labels': {args.synthesizer: backdoor_label},
             "metric_name": metric_name,
             'wandb_name': exp_name,
-            # "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
-            # "lr": tune.qloguniform(1e-5, 2, 1e-5),
-            # "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
-            # "momentum": tune.quniform(0.1, 0.9, 0.1),
+            "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
+            "lr": tune.qloguniform(1e-5, 2, 1e-5),
+            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
+            "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
             "stage": 3,
             "group": group_name,
-            # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            # "epochs": tune.randint(epochs-4, epochs+4),
+            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            "epochs": tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
-            # "backdoor_cover_percentage": args.backdoor_cover_percentage,
-            # "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "backdoor_cover_percentage": args.backdoor_cover_percentage,
+            "batch_size": tune.choice([32, 64, 128, 256, 512]),
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': True,
-            # "transform_erase": tune.loguniform(1e-4, 1, 10),
-            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
-            # "grad_clip": tune.quniform(1, 10, 1),
+            "transform_erase": tune.loguniform(1e-4, 1, 10),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_clip": tune.quniform(1, 10, 1),
             "label_noise": tune.quniform(0.0, 0.9, 0.02),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
@@ -391,42 +402,7 @@ if __name__ == '__main__':
             "max_iterations": max_iterations,
             'val_only': True,
             'backdoor': True,
-            'final_test_only': args.final_test_only,
-            'project': 'all_mix',
-            'name': 'CLEAN_ALL',
-            'dataset': 'CIFAR10',
-            'data_path': '/home/eugene/irontorch/.data',
-            'task': 'Cifar10',
-            'main_synthesizer': 'Pattern',
-            'batch_size': 64,
-            'test_batch_size': 100,
-            'lr': 0.0005894994235066538,
-            'momentum': 0.8,
-            'decay': 0.0001564106389897807,
-            'epochs': 13,
-            'save_on_epochs': [],
-            'optimizer': 'Adam',
-            'log_interval': 100,
-            'grad_sigma': 2.999814520677323e-05,
-            'grad_clip': 9.0,
-            'transform_erase': 0.529935492947438,
-            'transform_sharpness': 0.0,
-            'backdoor_cover_percentage': 0.05,
-            'pretrained': False,
-            'multi_objective_metric': 'accuracy',
-            'scheduler': 'MultiStepLR',
-            'scheduler_milestones': [150, 225],
-
-            'drop_label_proportion': 0.9,
-            'drop_label': 5,
-            'save_model': False,
-            'tb': False,
-            'log': False,
-            'wandb': False,
-            'transform_train': True,
-            'loss_balance': 'none',
-            'mgda_normalize': 'loss+',
-            'loss_tasks': ['normal'],
+            'final_test_only': args.final_test_only
         }
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
