@@ -23,6 +23,7 @@ class Params:
     wandb_name: str = None
     metric_name: str = None
     search_alg: str = None
+    search_scheduler: str = None
     grace_period: int = None
     stage: int = None
     file_path: int = None
