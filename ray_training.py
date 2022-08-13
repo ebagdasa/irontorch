@@ -214,6 +214,7 @@ if __name__ == '__main__':
     parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
     parser.add_argument('--synthesizer', default='Pattern', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
+    parser.add_argument('--skip_stage4', action='store_true')
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
     parser.add_argument('--stage4_multi_backdoor', action='store_true')
     parser.add_argument('--final_test_only', action='store_true')
@@ -421,6 +422,10 @@ if __name__ == '__main__':
         stage_3_results = ExperimentAnalysis(path)
 
     # stage 4
+    if args.skip_stage4:
+        raise ValueError('Skipping stage 4')
+
+
     if args.stage4_run_name is None:
         config = stage_3_results.get_best_config("multi_objective", "max")
     else:
