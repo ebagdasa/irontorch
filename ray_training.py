@@ -5,6 +5,7 @@ from ray.tune.integration.wandb import WandbLoggerCallback
 from ray.tune.suggest.optuna import OptunaSearch
 from ray.tune.suggest.hyperopt import HyperOptSearch
 from ray.tune.suggest.sigopt import SigOptSearch
+from ray.tune.schedulers.pbt import PopulationBasedTraining
 from collections import defaultdict
 
 from helper import Helper
@@ -123,26 +124,29 @@ def tune_run(exp_name, search_space, resume=False):
         alg_modes = "max"
         scheduler_metrics = alg_metrics
         scheduler_modes = alg_modes
+
     scheduler = None
     search_algo = None
     if params['search_alg'] == 'optuna':
         search_algo = OptunaSearch(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'asha':
-        scheduler = ASHAScheduler(time_attr='epoch', metric=scheduler_metrics,
-                                       mode=scheduler_modes, max_t=max_epoch,
-                                       grace_period=params['grace_period'],
-                                       reduction_factor=4)
-    elif params['search_alg'] == 'both':
-        search_algo = OptunaSearch(metric=alg_metrics, mode=alg_modes)
-        scheduler = ASHAScheduler(time_attr='epoch', metric=scheduler_metrics,
-                                  mode=scheduler_modes, max_t=max_epoch,
-                                  grace_period=params['grace_period'],
-                                  reduction_factor=4)
     elif params['search_alg'] == 'sigopt':
         search_algo = SigOptSearch(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] == 'hyperopt':
         search_algo = HyperOptSearch(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] is None:
+        print("No search algorithm specified")
+    else:
+        raise ValueError('Invalid search algorithm')
+
+    if params['search_scheduler'] == 'asha':
+        scheduler = ASHAScheduler(time_attr='epoch', metric=scheduler_metrics,
+                                       mode=scheduler_modes, max_t=max_epoch,
+                                       grace_period=params['grace_period'],
+                                       reduction_factor=4)
+    elif params['search_scheduler'] == 'PopulationBasedTraining':
+        scheduler = PopulationBasedTraining(time_attr='epoch', metric=scheduler_metrics,
+                                       mode=scheduler_modes)
+    elif params['search_scheduler'] is None:
         print("No search algorithm specified")
     else:
         raise ValueError('Invalid search algorithm')
@@ -204,7 +208,8 @@ if __name__ == '__main__':
     parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
     parser.add_argument('--task', default='mnist', type=str)
-    parser.add_argument('--search_alg', required=True, type=str)
+    parser.add_argument('--search_alg', default=None, type=str)
+    parser.add_argument('--search_scheduler', default=None, type=str)
     parser.add_argument('--metric_name', required=True, type=str)
     parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
     parser.add_argument('--synthesizer', default='Pattern', type=str)
@@ -237,7 +242,6 @@ if __name__ == '__main__':
         raise ValueError(f'Unknown task {args.task}')
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
-    search_alg = args.search_alg
     metric_name = args.metric_name
     exp_name = f'{args.task}_hypersearch'
     if args.random_seed is None and args.backdoor_label is None:
@@ -257,6 +261,7 @@ if __name__ == '__main__':
             "stage": 0,
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'search_alg': None,
+            'search_scheduler': None,
             'poisoning_proportion': 0,
             'file_path': file_path,
             'max_iterations': max_iterations,
@@ -301,7 +306,8 @@ if __name__ == '__main__':
             'random_seed': random_seed,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
             'batch_clip': False,
-            "search_alg": search_alg,
+            "search_alg": args.search_alg,
+            "search_scheduler": args.search_scheduler,
             "poisoning_proportion": 0.0,
             "file_path": file_path,
             "max_iterations": max_iterations,
@@ -341,6 +347,7 @@ if __name__ == '__main__':
             "stage": 2,
             'batch_clip': False,
             'search_alg': None,
+            'search_scheduler': None,
             'poisoning_proportion': tune.grid_search(proportion_to_test),
             'file_path': file_path,
             'max_iterations': 1,
@@ -396,7 +403,8 @@ if __name__ == '__main__':
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "drop_label_proportion": 0.95,
             "multi_objective_alpha": args.multi_objective_alpha,
-            "search_alg": search_alg,
+            "search_alg": args.search_alg,
+            "search_scheduler": args.search_scheduler,
             "poisoning_proportion": poisoning_proportion,
             "file_path": file_path,
             "max_iterations": max_iterations,
@@ -434,6 +442,7 @@ if __name__ == '__main__':
         config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
         config['max_iterations'] = 1
         config['search_alg'] = None
+        config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
             config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex',
