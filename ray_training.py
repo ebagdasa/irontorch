@@ -75,7 +75,7 @@ def run(params):
                         val=hlpr.params.val_only)['accuracy']
         results_metrics['drop_class'] = hlpr.task.metrics['accuracy'].get_value().get('_Accuracy_Drop_5', 0)
         results_metrics['accuracy'] = main_obj
-        results_metrics['epoch'] = epochs
+        results_metrics['epoch'] = hlpr.params.epochs
         for i, synthesizer in enumerate(hlpr.params.synthesizers):
             back_accuracy = test(hlpr, hlpr.task.model, backdoor=True, epoch=hlpr.params.epochs,
                             val=hlpr.params.val_only,
@@ -474,4 +474,3 @@ if __name__ == '__main__':
     config = stage_3_results.get_best_config("anti_obj", "max")
     full_exp_name, config = update_conf(config, 3)
     tune_run(full_exp_name, config)
-    
