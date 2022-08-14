@@ -147,7 +147,7 @@ def tune_run(exp_name, search_space, resume=False):
         scheduler = PopulationBasedTraining(time_attr='epoch', metric=scheduler_metrics,
                                        mode=scheduler_modes)
     elif params['search_scheduler'] is None:
-        print("No search algorithm specified")
+        print("No scheduler algorithm specified")
     else:
         raise ValueError('Invalid search algorithm')
 
