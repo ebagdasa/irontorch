@@ -389,7 +389,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": tune.randint(epochs-4, epochs+4),
+            "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
