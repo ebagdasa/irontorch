@@ -49,6 +49,8 @@ class PatternSynthesizer(Synthesizer):
         full_image[:, self.x_top:x_bot, self.y_top:y_bot] = self.pattern_tensor
 
         self.mask = 1 * (full_image != self.mask_value)
-        self.pattern = self.input_stats.max_val * full_image
+        min_val_pattern = self.input_stats.min_val * (1 * (full_image == 0))
+        max_val_pattern = self.input_stats.max_val * (1 * (full_image == 1))
+        self.pattern = min_val_pattern + max_val_pattern
 
         return

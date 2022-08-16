@@ -12,6 +12,7 @@ synthesizers:
   - Complex
   - Primitive
   - Clean
+  - Dynamic
 
 main_synthesizer: Pattern
 
