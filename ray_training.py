@@ -457,8 +457,7 @@ if __name__ == '__main__':
         config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
-            config['synthesizers'] = ['Dynamic',  'Complex',
-                                      'Clean']
+            config['synthesizers'] = ['Complex']
             config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3,
                                          'Primitive': 4, 'Memory': 6, 'Clean': 7}
         else:
@@ -474,9 +473,9 @@ if __name__ == '__main__':
     full_exp_name, config = update_conf(config, 1)
     tune_run(full_exp_name, config)
 
-    config = stage_3_results.get_best_config("accuracy", "max")
-    full_exp_name, config = update_conf(config, 2)
-    tune_run(full_exp_name, config)
+    # config = stage_3_results.get_best_config("accuracy", "max")
+    # full_exp_name, config = update_conf(config, 2)
+    # tune_run(full_exp_name, config)
 
     # config = stage_3_results.get_best_config("anti_obj", "max")
     # full_exp_name, config = update_conf(config, 3)
