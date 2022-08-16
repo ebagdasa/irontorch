@@ -13,7 +13,7 @@ class ComplexSynthesizer(PatternSynthesizer):
 
     def __init__(self, params: Params, input_stats: InputStats):
         super().__init__(params, input_stats)
-        labels = sorted(list(self.input_stats.class_label_count.keys()))
+        labels = self.input_stats.classes
         shift_by_one = list(range(1, len(labels) + 1))
         shift_by_one[-1] = 0
         self.label_remap = {labels[i]: shift_by_one[i] for i in range(len(labels))}

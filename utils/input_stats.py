@@ -9,9 +9,10 @@ class InputStats:
     min_val: torch.Tensor = None
     class_label_count = defaultdict(int)
     input_shape = None
+    classes = None
 
     def __init__(self, dataset):
-
+        self.classes = list(range(len(dataset.classes)))
         for i, (inp, target, _, _) in enumerate(dataset):
             target = target.item() if torch.is_tensor(target) else target
             if i == 1000:

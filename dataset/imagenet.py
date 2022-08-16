@@ -37,6 +37,11 @@ class ImageNet(ImageFolder):
         imgs (list): List of (image path, class_index) tuples
         targets (list): The class_index value for each image in the dataset
     """
+    attacked_indices = None
+    true_targets = None
+    targets = None
+    grads = None
+    train = False
 
     def __init__(self, root: str, split: str = "train", **kwargs: Any) -> None:
         root = self.root = os.path.expanduser(root)
@@ -52,8 +57,28 @@ class ImageNet(ImageFolder):
         self.wnid_to_idx = self.class_to_idx
         self.classes = [wnid_to_classes[wnid] for wnid in self.wnids]
         self.class_to_idx = {cls: idx for idx, clss in enumerate(self.classes) for cls in clss}
-        self.targets = self.wnids
+        self.targets = torch.LongTensor([class_id for path, class_id in self.samples])
         self.true_targets = self.targets
+        self.attacked_indices = torch.zeros_like(self.targets)
+        self.train = True if split == 'train' else False
+
+
+    def __getitem__(self, index: int) -> Tuple[Any, Any, Any, Any]:
+        """
+        Args:
+            index (int): Index
+
+        Returns:
+            tuple: (sample, target) where target is class_index of the target class.
+        """
+        path, target = self.samples[index]
+        sample = self.loader(path)
+        if self.transform is not None:
+            sample = self.transform(sample)
+        if self.target_transform is not None:
+            target = self.target_transform(target)
+
+        return sample, target, index, 0
 
     def parse_archives(self) -> None:
         if not check_integrity(os.path.join(self.root, META_FILE)):
