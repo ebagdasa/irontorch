@@ -480,3 +480,7 @@ if __name__ == '__main__':
     config = stage_3_results.get_best_config("anti_obj", "max")
     full_exp_name, config = update_conf(config, 3)
     tune_run(full_exp_name, config)
+
+    if len(stage_1_config) != 0:
+        full_exp_name, config = update_conf(stage_1_config, 4)
+        tune_run(full_exp_name, config)
