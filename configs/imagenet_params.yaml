@@ -11,7 +11,7 @@ synthesizers:
   - Memory
   - Pattern
   - Complex
-  - Random
+  - Primitive
   - Clean
 
 main_synthesizer: Pattern
@@ -45,7 +45,7 @@ backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
   Pattern: 1
-  Random: 6
+  Primitive: 6
   Memory: 7
   Clean: 3
   Complex: None

@@ -4,10 +4,10 @@ name: "sweep"
 task: MNIST
 synthesizers:
 #  - SinglePixel
-  - Memory
+#  - Memory
 #  - Pattern
 #  - Complex
-#  - Random
+  - Primitive
 #  - Clean
 data_path: /home/eugene/irontorch/.data
 
@@ -56,7 +56,7 @@ backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
   Pattern: 1
-  Random: 6
+  Primitive: 6
   Memory: 7
   Clean: 3
   Complex: None
@@ -65,7 +65,7 @@ main_synthesizer: Pattern
 backdoor: True
 backdoor_dynamic_position: True
 clean_label: False
-backdoor_cover_percentage: 0.05
+backdoor_cover_percentage: 0.1
 random_seed: 6
 
 loss_balance: MGDA
