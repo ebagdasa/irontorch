@@ -211,8 +211,8 @@ if __name__ == '__main__':
     parser.add_argument('--search_alg', default=None, type=str)
     parser.add_argument('--search_scheduler', default=None, type=str)
     parser.add_argument('--metric_name', required=True, type=str)
-    parser.add_argument('--backdoor_cover_percentage', default=None, type=float)
-    parser.add_argument('--synthesizer', default='Pattern', type=str)
+    parser.add_argument('--backdoor_cover_percentage', default=0.1, type=float)
+    parser.add_argument('--synthesizer', default='Primitive', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
     parser.add_argument('--skip_stage4', action='store_true')
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
@@ -457,9 +457,9 @@ if __name__ == '__main__':
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
             config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Complex',
-                                      'Random', 'Memory', 'Clean']
+                                      'Primitive', 'Memory', 'Clean']
             config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3,
-                                         'Random': 4, 'Memory': 6, 'Clean': 7}
+                                         'Primitive': 4, 'Memory': 6, 'Clean': 7}
         else:
             config['synthesizers'] = [args.synthesizer]
             config['backdoor_labels'] = {args.synthesizer: backdoor_label}
