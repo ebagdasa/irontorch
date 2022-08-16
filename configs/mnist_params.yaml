@@ -34,8 +34,8 @@ save_on_epochs: []
 optimizer: SGD
 log_interval: 100
 #scheduler: StepLR
-drop_label_proportion: 0.9
-drop_label: 5
+#drop_label_proportion: 0.9
+#drop_label: 5
 
 
 #pre_compute_grads: True
