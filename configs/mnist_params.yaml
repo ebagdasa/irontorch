@@ -3,12 +3,13 @@ name: "sweep"
 
 task: MNIST
 synthesizers:
-#  - SinglePixel
-#  - Memory
-#  - Pattern
-#  - Complex
+  - SinglePixel
+  - Memory
+  - Pattern
+  - Complex
   - Primitive
-#  - Clean
+  - Clean
+  - Dynamic
 data_path: /home/eugene/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
