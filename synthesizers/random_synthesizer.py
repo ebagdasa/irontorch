@@ -25,7 +25,8 @@ class RandomSynthesizer(Synthesizer):
             raise ValueError("Input shape must be 3D.")
 
         total_elements = input_shape[1] * input_shape[2]
-        input_placeholder = torch.ones_like(self.input_stats.average_input_values) * torch.max(self.input_stats.max_val)
+        rand_tensor = torch.rand_like(self.input_stats.average_input_values)
+        input_placeholder = (rand_tensor > 0.5) * self.input_stats.max_val + (rand_tensor <= 0.5) * self.input_stats.min_val
         cover_size = max(1, int(total_elements * self.params.backdoor_cover_percentage))
         start_index = np.random.randint(0, total_elements - cover_size - 1, size=1)[0]
         self.mask = torch.zeros_like(input_placeholder)
