@@ -113,6 +113,7 @@ def tune_run(exp_name, search_space, resume=False):
                                                "time_total_s",
                                                "timestamp",
                                                "timesteps_since_restore"])]
+    callbacks = None
     metric_name = params.get('metric_name', None)
     if metric_name == 'multi':
         alg_metrics = ["accuracy", "backdoor_error"]
