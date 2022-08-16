@@ -182,7 +182,7 @@ if __name__ == '__main__':
     params['commit'] = get_current_git_hash()
     if args.debug:
         params['log'] = params['save_model'] = params['wandb'] = False
-        # params['device'] = torch.device('cpu')
+        params['device'] = torch.device('cpu')
 
     helper = Helper(params)
     # clean_model = helper.task.train_model_for_sampling()

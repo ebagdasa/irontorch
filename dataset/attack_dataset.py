@@ -65,8 +65,6 @@ class AttackDataset(Dataset):
             backdoor_counts = int(percentage_or_count)
 
         rs = Generator(PCG64(self.random_seed))
-
-
         self.backdoor_indices = rs.choice(indices_cover, backdoor_counts, replace=False)
         self.indices_arr = torch.zeros(dataset_len, dtype=torch.int32)
         self.indices_arr[self.backdoor_indices] = 1

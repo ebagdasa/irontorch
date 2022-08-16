@@ -14,7 +14,7 @@ synthesizers:
   - Clean
   - Dynamic
 
-main_synthesizer: Pattern
+main_synthesizer: Primitive
 
 batch_size: 64
 test_batch_size: 100

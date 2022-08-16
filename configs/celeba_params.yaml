@@ -6,8 +6,15 @@ data_path: /home/eugene/irontorch/.data
 
 task: Celeba
 synthesizers:
-  - Pattern
+#  - SinglePixel
+#  - Memory
+#  - Pattern
+#  - Complex
+  - Primitive
+#  - Clean
+#  - Dynamic
 
+main_synthesizer: Primitive
 #device: cpu
 
 batch_size: 64
@@ -31,6 +38,8 @@ max_batch_id: 100
 #device: cpu
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
+backdoor_cover_percentage: 0.1
+
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: True
@@ -40,9 +49,16 @@ pretrained: True
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 5000
+poisoning_proportion: 50
 backdoor_labels:
+  SinglePixel: 0
+  Dynamic: 0
   Pattern: 0
+  Primitive: 0
+  Memory: 0
+  Clean: 0
+  Complex: None
+
 backdoor: True
 ##
 #drop_label_proportion: 0.9
