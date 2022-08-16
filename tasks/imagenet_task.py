@@ -5,6 +5,7 @@ from torchvision.transforms import transforms
 
 from models.resnet import resnet18
 from tasks.task import Task
+from dataset.imagenet import ImageNet
 
 
 class ImagenetTask(Task):
@@ -24,11 +25,11 @@ class ImagenetTask(Task):
             self.normalize,
         ])
 
-        self.train_dataset = torchvision.datasets.ImageNet(
+        self.train_dataset = ImageNet(
             root=self.params.data_path,
             split='train', transform=train_transform)
 
-        self.test_dataset = torchvision.datasets.ImageNet(
+        self.test_dataset = ImageNet(
             root=self.params.data_path,
             split='val', transform=test_transform)
 
