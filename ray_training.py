@@ -239,6 +239,9 @@ if __name__ == '__main__':
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
+    elif args.task == 'imagenet':
+        epochs = 10
+        proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
     else:
         raise ValueError(f'Unknown task {args.task}')
 
