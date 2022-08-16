@@ -19,7 +19,7 @@ class DynamicSynthesizer(PatternSynthesizer):
     ])
     "Just some random 2D pattern."
 
-    resize_scale = (5, 6)
+    resize_scale = (4, 8)
     "If the pattern is dynamically placed, resize the pattern."
 
     def update_pattern(self):
