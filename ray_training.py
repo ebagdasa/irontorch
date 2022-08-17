@@ -236,7 +236,7 @@ if __name__ == '__main__':
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
     elif args.task == 'cifar10':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(3, 12, num=50, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(3, 14, num=18, base=2, dtype=np.int32)).tolist()
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
