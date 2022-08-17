@@ -399,7 +399,7 @@ if __name__ == '__main__':
             "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "batch_size": tune.choice([32, 64, 128]),
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': True,
