@@ -309,7 +309,7 @@ if __name__ == '__main__':
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "batch_size": tune.choice([32, 64, 128, 256]),
             'batch_clip': False,
             "label_noise": 0,
             "transform_erase": 0,
