@@ -440,29 +440,30 @@ if __name__ == '__main__':
         print(f'Loaded run: {args.stage4_run_name}')
     print(config)
 
-    def update_conf(config, part):
+    proportions = {'SinglePixel': 9, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6, 'Complex': 14, 'Clean': 14}
+
+
+    def update_conf(config, part, synthesizer):
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        group_name = f'stage4_{args.sub_exp_name}_p{part}'
+        proportion = np.unique(np.logspace(0, proportions[synthesizer], num=36, base=2, dtype=np.int32)).tolist()
+        group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')
         config['wandb_name'] = exp_name
         config['group'] = group_name
         config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
         config['stage'] = f'4.{part}'
-        config['poisoning_proportion'] = tune.grid_search(proportion_to_test)
+        config['poisoning_proportion'] = tune.grid_search(proportion)
         config['max_iterations'] = 1
         config['search_alg'] = None
         config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
-        if args.stage4_multi_backdoor:
-            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Primitive', 'Complex', 'Clean']
-            config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3,
-                                         'Primitive': 4, 'Memory': 6, 'Clean': 7}
-        else:
-            config['synthesizers'] = [args.synthesizer]
-            config['backdoor_labels'] = {args.synthesizer: backdoor_label}
+
+        config['synthesizers'] = [synthesizer]
+        config['backdoor_labels'] = {synthesizer: backdoor_label}
+
         config['main_synthesizer'] = 'Pattern'
         config['split_val_test_ratio'] = 0.4
         config['final_test_only'] = True
@@ -470,17 +471,23 @@ if __name__ == '__main__':
         return full_exp_name, config
 
 
-    full_exp_name, config = update_conf(config, 1)
-    tune_run(full_exp_name, config)
+    if args.stage4_multi_backdoor:
+        synthesizers = ['SinglePixel', 'Dynamic', 'Pattern', 'Primitive', 'Complex', 'Clean']
+    else:
+        synthesizers = [args.synthesizer]
 
-    # config = stage_3_results.get_best_config("accuracy", "max")
-    # full_exp_name, config = update_conf(config, 2)
-    # tune_run(full_exp_name, config)
-
-    # config = stage_3_results.get_best_config("anti_obj", "max")
-    # full_exp_name, config = update_conf(config, 3)
-    # tune_run(full_exp_name, config)
-
-    if len(stage_1_config) != 0:
-        full_exp_name, config = update_conf(stage_1_config, 4)
+    for synthesizer in synthesizers:
+        full_exp_name, config = update_conf(config, 1, synthesizer)
         tune_run(full_exp_name, config)
+
+        # config = stage_3_results.get_best_config("accuracy", "max")
+        # full_exp_name, config = update_conf(config, 2)
+        # tune_run(full_exp_name, config)
+
+        # config = stage_3_results.get_best_config("anti_obj", "max")
+        # full_exp_name, config = update_conf(config, 3)
+        # tune_run(full_exp_name, config)
+
+        if len(stage_1_config) != 0:
+            full_exp_name, config = update_conf(stage_1_config, 4)
+            tune_run(full_exp_name, config)
