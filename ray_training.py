@@ -444,6 +444,7 @@ if __name__ == '__main__':
 
 
     def update_conf(config, part, synthesizer):
+        print(f'Running stage 4, part {part} synthesize: {synthesizer}')
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
