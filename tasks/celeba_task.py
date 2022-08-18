@@ -22,7 +22,7 @@ class CelebaTask(Task):
         image_size = 32
         if self.params.transform_train:
             transform_train = transforms.Compose([
-                transforms.CenterCrop((170,170)),
+                transforms.CenterCrop((32, 32)),
                 transforms.Resize((image_size, image_size)),
                 transforms.RandomHorizontalFlip(),
                 transforms.ToTensor(),
