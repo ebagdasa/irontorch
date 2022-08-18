@@ -457,7 +457,7 @@ if __name__ == '__main__':
         config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
         if args.stage4_multi_backdoor:
-            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Primitive']
+            config['synthesizers'] = ['SinglePixel', 'Dynamic', 'Pattern', 'Primitive', 'Complex', 'Clean']
             config['backdoor_labels'] = {'SinglePixel': 0, 'Dynamic': 1, 'Pattern': 2, 'Complex': 3,
                                          'Primitive': 4, 'Memory': 6, 'Clean': 7}
         else:
