@@ -27,16 +27,16 @@ optimizer: Adam
 log_interval: 100
 
 #opacus: True
-#val_only: False
-#final_test_only: True
-
-batch_clip: False
+#batch_clip: True
 #saved_grads: True
-grad_sigma: 0.0
-grad_clip: 1000
-label_noise: 0.0
-transform_erase: 0.0
-transform_sharpness: 0.0
+#grad_sigma: 0.000
+#grad_clip: 1000
+#label_noise: 0.0
+#transform_erase: 0.0
+#transform_sharpness: 0.0
+#device: cpu
+multi_objective_metric: accuracy
+multi_objective_alpha: 0.9
 backdoor_cover_percentage: 0.1
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar

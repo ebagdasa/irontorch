@@ -83,8 +83,8 @@ backdoor: True
 
 save_model: False
 tb: False
-#log: True
-#wandb: True
+log: False
+wandb: False
 #plot_conf_matrix: True
 
 transform_train: True
@@ -95,35 +95,3 @@ loss_balance: none
 mgda_normalize: loss+
 loss_tasks:
   - normal
-
-poison_images:
-  - 389
-  - 561
-  - 874
-  - 1605
-  - 3378
-  - 3678
-  - 4528
-  - 9744
-  - 19165
-  - 19500
-  - 21422
-  - 22984
-  - 32941
-  - 34287
-  - 34385
-  - 36005
-  - 37365
-  - 37533
-  - 38658
-  - 38735
-  - 39824
-  - 40138
-  - 41336
-  - 41861
-  - 47001
-  - 47026
-  - 48003
-  - 48030
-  - 49163
-  - 49588
