@@ -403,7 +403,7 @@ if __name__ == '__main__':
             "batch_size": tune.choice([32, 64, 128, 256, 512]),
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
-            'batch_clip': False,
+            'batch_clip': True,
             "transform_erase": tune.loguniform(1e-4, 1, 10),
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 10, 1),
