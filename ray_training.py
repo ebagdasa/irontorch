@@ -250,8 +250,8 @@ if __name__ == '__main__':
     elif args.task == 'imagenet':
         epochs = 3
         proportion_to_test = np.unique(np.logspace(16, 18, num=9, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
-                       'Complex': 12, 'Clean': 12}
+        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
+                       'Complex': 17, 'Clean': 17}
     else:
         raise ValueError(f'Unknown task {args.task}')
 
