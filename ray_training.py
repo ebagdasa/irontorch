@@ -442,7 +442,7 @@ if __name__ == '__main__':
         print(f'Loaded run: {args.stage4_run_name}')
     print(stage_3_config)
 
-    proportions = {'SinglePixel': 9, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6, 'Complex': 14, 'Clean': 14}
+    proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6, 'Complex': 12, 'Clean': 12}
 
 
     def update_conf(config, part, synthesizer):
@@ -451,7 +451,7 @@ if __name__ == '__main__':
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(0, proportions[synthesizer], num=36, base=2, dtype=np.int32)).tolist()
+        proportion = np.unique(np.logspace(0, proportions[synthesizer], num=18, base=2, dtype=np.int32)).tolist()
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')
