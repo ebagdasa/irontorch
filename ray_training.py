@@ -235,15 +235,23 @@ if __name__ == '__main__':
     if args.task == 'mnist':
         epochs = 5
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
+                       'Complex': 12, 'Clean': 12}
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=36, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
+                       'Complex': 12, 'Clean': 12}
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
+                       'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
         epochs = 3
         proportion_to_test = np.unique(np.logspace(16, 18, num=9, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
+                       'Complex': 12, 'Clean': 12}
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -443,7 +451,7 @@ if __name__ == '__main__':
         print(f'Loaded run: {args.stage4_run_name}')
     print(stage_3_config)
 
-    proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6, 'Complex': 12, 'Clean': 12}
+
 
 
     def update_conf(config, part, synthesizer):
@@ -453,6 +461,7 @@ if __name__ == '__main__':
             config.pop('synthesizer')
             config.pop('backdoor_label')
         proportion = np.unique(np.logspace(0, proportions[synthesizer], num=18, base=2, dtype=np.int32)).tolist()
+        proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')

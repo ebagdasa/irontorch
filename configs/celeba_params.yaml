@@ -6,13 +6,13 @@ data_path: /home/eugene/irontorch/.data
 
 task: Celeba
 synthesizers:
-#  - SinglePixel
-#  - Memory
-#  - Pattern
-#  - Complex
+  - SinglePixel
+  - Memory
+  - Pattern
+  - Complex
   - Primitive
-#  - Clean
-#  - Dynamic
+  - Clean
+  - Dynamic
 
 main_synthesizer: Primitive
 #device: cpu
