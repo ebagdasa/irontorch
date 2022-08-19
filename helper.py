@@ -18,7 +18,6 @@ from torch.utils.tensorboard import SummaryWriter
 
 from attack import Attack
 from dataset.attack_dataset import AttackDataset
-from synthesizers.synthesizer import Synthesizer
 from tasks.fl.fl_task import FederatedLearningTask
 from tasks.task import Task
 from utils.parameters import Params
@@ -30,7 +29,6 @@ logger = logging.getLogger('logger')
 class Helper:
     params: Params = None
     task: Union[Task, FederatedLearningTask] = None
-    synthesizer: Synthesizer = None
     attack: Attack = None
     tb_writer: SummaryWriter = None
     wandb_logger = None

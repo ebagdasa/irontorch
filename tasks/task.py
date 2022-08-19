@@ -115,7 +115,9 @@ class Task:
         raise NotImplemented
 
     def make_synthesizers(self):
+        self.synthesizers = dict()
         for synthesizer in self.params.synthesizers:
+            print(f'Using {synthesizer}')
             name_lower = synthesizer.lower()
             name_cap = synthesizer
             module_name = f'synthesizers.{name_lower}_synthesizer'
@@ -253,6 +255,7 @@ class Task:
 
     def make_attack_datasets(self):
         for synthesizer_name, synthesizer in self.synthesizers.items():
+            print(synthesizer_name)
             self.test_attack_datasets[synthesizer_name] = AttackDataset(dataset=deepcopy(self.test_dataset),
                                                           synthesizer=synthesizer,
                                                           percentage_or_count='ALL',

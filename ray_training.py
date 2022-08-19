@@ -479,6 +479,7 @@ if __name__ == '__main__':
         synthesizers = [args.synthesizer]
 
     for synthesizer in synthesizers:
+        config = stage_3_results.get_best_config("multi_objective", "max")
         full_exp_name, config = update_conf(config, 1, synthesizer)
         tune_run(full_exp_name, config)
 
