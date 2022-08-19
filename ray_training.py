@@ -1,4 +1,5 @@
 import argparse
+from copy import deepcopy
 
 from ray.tune import ExperimentAnalysis
 from ray.tune.integration.wandb import WandbLoggerCallback
@@ -435,16 +436,17 @@ if __name__ == '__main__':
 
 
     if args.stage4_run_name is None:
-        config = stage_3_results.get_best_config("multi_objective", "max")
+        stage_3_config = stage_3_results.get_best_config("multi_objective", "max")
     else:
-        config = stage_3_results.results[args.stage4_run_name]['config']
+        stage_3_config = stage_3_results.results[args.stage4_run_name]['config']
         print(f'Loaded run: {args.stage4_run_name}')
-    print(config)
+    print(stage_3_config)
 
     proportions = {'SinglePixel': 9, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6, 'Complex': 14, 'Clean': 14}
 
 
     def update_conf(config, part, synthesizer):
+        config = deepcopy(config)
         print(f'Running stage 4, part {part} synthesize: {synthesizer}')
         if config.get('synthesizer', None):
             config.pop('synthesizer')
@@ -479,8 +481,7 @@ if __name__ == '__main__':
         synthesizers = [args.synthesizer]
 
     for synthesizer in synthesizers:
-        config = stage_3_results.get_best_config("multi_objective", "max")
-        full_exp_name, config = update_conf(config, 1, synthesizer)
+        full_exp_name, config = update_conf(stage_3_config, 1, synthesizer)
         tune_run(full_exp_name, config)
 
         # config = stage_3_results.get_best_config("accuracy", "max")
