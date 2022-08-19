@@ -422,6 +422,7 @@ if __name__ == '__main__':
             'backdoor': True,
             'final_test_only': args.final_test_only
         }
+        print(search_space)
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
         print('Finished stage 3 tuning.')
