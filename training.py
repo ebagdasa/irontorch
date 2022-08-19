@@ -69,7 +69,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
         optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
-        if i == hlpr.params.max_batch_id:
+        if hlpr.params.max_batch_id is not None and i * hlpr.params.batch_size >= hlpr.params.max_batch_id:
             break
     hlpr.task.scheduler_step()
     return
