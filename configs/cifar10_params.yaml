@@ -35,8 +35,6 @@ log_interval: 100
 #transform_erase: 0.0
 #transform_sharpness: 0.0
 #device: cpu
-multi_objective_metric: accuracy
-multi_objective_alpha: 0.9
 backdoor_cover_percentage: 0.1
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
