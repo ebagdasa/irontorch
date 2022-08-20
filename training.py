@@ -32,7 +32,7 @@ def get_percentage(params, train_dataset, batch):
 def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     criterion = hlpr.task.criterion
     model.train()
-    total_train = len(train_loader) if not hlpr.params.max_batch_id else int(hlpr.params.max_batch_id//hlpr.params.batch_size)
+    total_train = len(train_loader) if not hlpr.params.max_batch_id else hlpr.params.max_batch_id
     for i, data in tqdm(enumerate(train_loader), disable=True, total=total_train):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad()
@@ -69,7 +69,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
         optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
-        if hlpr.params.max_batch_id is not None and i * hlpr.params.batch_size >= hlpr.params.max_batch_id:
+        if i == hlpr.params.max_batch_id:
             break
     hlpr.task.scheduler_step()
     return
