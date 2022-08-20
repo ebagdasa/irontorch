@@ -232,6 +232,8 @@ if __name__ == '__main__':
                           },
              include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
+    proportions_min = {'SinglePixel': 0, 'Dynamic': 0, 'Pattern': 0, 'Primitive': 0,
+                       'Complex': 4, 'Clean': 4}
     if args.task == 'mnist':
         epochs = 5
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
@@ -252,6 +254,8 @@ if __name__ == '__main__':
         proportion_to_test = np.unique(np.logspace(16, 18, num=9, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
                        'Complex': 17, 'Clean': 17}
+        proportions_min = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 10, 'Primitive': 10,
+                           'Complex': 10, 'Clean': 10}
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -460,8 +464,8 @@ if __name__ == '__main__':
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(0, proportions[synthesizer], num=18, base=2, dtype=np.int32)).tolist()
-        proportion = [0] + proportion
+        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=9, base=2, dtype=np.int32)).tolist()
+        # proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')
