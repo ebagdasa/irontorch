@@ -7,11 +7,12 @@ task: Imagenet
 data_path: /home/eugene/data/imagenet/
 
 synthesizers:
-#  - SinglePixel
-#  - Memory
-#  - Pattern
-#  - Complex
+  - SinglePixel
+  - Memory
+  - Pattern
+  - Complex
   - Primitive
+  - Dynamic
 #  - Clean
 
 main_synthesizer: Pattern
