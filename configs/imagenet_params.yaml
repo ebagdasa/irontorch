@@ -28,7 +28,7 @@ log_interval: 100
 
 scheduler: False
 pretrained: True
-max_batch_id: 100000
+max_batch_id: 1000
 
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
