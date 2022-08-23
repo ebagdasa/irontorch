@@ -59,6 +59,13 @@ class CelebaTask(Task):
             download=True,
             transform=transform_test)
 
+        self.val_dataset = CelebADataset(
+            root=self.params.data_path,
+            split='valid',
+            main_attr=31,
+            download=True,
+            transform=transform_test)
+
         self.classes = ['No', 'Yes']
         return True
 

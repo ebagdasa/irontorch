@@ -39,7 +39,7 @@ class AttackDataset(Dataset):
         input_tensor, target, _, is_attacked = self.dataset.__getitem__(index)
         input_tensor = input_tensor.clone()
         target = target.item() if torch.is_tensor(target) else target
-        if index in self.backdoor_indices:
+        if self.indices_arr[index] == 1:
             input_tensor = self.synthesizer.apply_mask(input_tensor)
             if not (self.synthesizer.name == 'Clean' and self.dataset.train):
                 target = self.synthesizer.get_label(input_tensor, target)

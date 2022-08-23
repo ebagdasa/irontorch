@@ -52,7 +52,7 @@ backdoor_labels:
   Primitive: 6
   Memory: 7
   Clean: 3
-  Complex: None
+  Complex: -1
 
 backdoor: True
 

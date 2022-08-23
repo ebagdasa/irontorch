@@ -49,7 +49,7 @@ pretrained: True
 scheduler: False
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 50
+poisoning_proportion: 0
 backdoor_labels:
   SinglePixel: 0
   Dynamic: 0
@@ -57,7 +57,7 @@ backdoor_labels:
   Primitive: 0
   Memory: 0
   Clean: 0
-  Complex: None
+  Complex: -1
 
 backdoor: True
 ##

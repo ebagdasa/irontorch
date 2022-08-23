@@ -3,7 +3,7 @@ import logging
 from collections import defaultdict
 from typing import List, Dict
 import torch.utils.data as torch_data
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, SubsetRandomSampler
 import wandb
 from copy import deepcopy
 
@@ -93,15 +93,16 @@ class Task:
         self.make_opacus()
 
     def split_val_test_data(self):
-        split_index = int(self.params.split_val_test_ratio * len(self.test_dataset))
-        self.val_dataset = deepcopy(self.test_dataset)
-        if hasattr(self.val_dataset, 'data'):
-            self.val_dataset.data = self.val_dataset.data[:split_index]
-            self.test_dataset.data = self.test_dataset.data[split_index:]
-        self.val_dataset.targets = self.val_dataset.targets[:split_index]
-        self.test_dataset.targets = self.test_dataset.targets[split_index:]
-        self.val_dataset.true_targets = self.val_dataset.true_targets[:split_index]
-        self.test_dataset.true_targets = self.test_dataset.true_targets[split_index:]
+        if self.val_dataset is None:
+            split_index = int(self.params.split_val_test_ratio * len(self.test_dataset))
+            self.val_dataset = deepcopy(self.test_dataset)
+            if hasattr(self.val_dataset, 'data'):
+                self.val_dataset.data = self.val_dataset.data[:split_index]
+                self.test_dataset.data = self.test_dataset.data[split_index:]
+            self.val_dataset.targets = self.val_dataset.targets[:split_index]
+            self.test_dataset.targets = self.test_dataset.targets[split_index:]
+            self.val_dataset.true_targets = self.val_dataset.true_targets[:split_index]
+            self.test_dataset.true_targets = self.test_dataset.true_targets[split_index:]
 
     def load_data(self) -> None:
         raise NotImplemented
@@ -192,10 +193,15 @@ class Task:
                                      shuffle=False, num_workers=0)
 
         for synthesizer_name, synthesizer in self.synthesizers.items():
+            subset_random_list_val = (self.val_dataset.targets != self.params.backdoor_labels[synthesizer_name]).nonzero().view(-1)
+            subset_random_list_test = (self.test_dataset.targets != self.params.backdoor_labels[synthesizer_name]).nonzero().view(-1)
+
             self.val_attack_loaders[synthesizer_name] = DataLoader(self.val_attack_datasets[synthesizer_name],
+                                                                   sampler=SubsetRandomSampler(indices=subset_random_list_val),
                                                                     batch_size=self.params.batch_size,
                                                                     shuffle=False, num_workers=0)
             self.test_attack_loaders[synthesizer_name] = DataLoader(self.test_attack_datasets[synthesizer_name],
+                                                                    sampler=SubsetRandomSampler(indices=subset_random_list_test),
                                                                      batch_size=self.params.test_batch_size,
                                                                      shuffle=False, num_workers=0)
 
