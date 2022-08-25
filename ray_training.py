@@ -227,7 +227,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ray.init(address='ray://128.84.84.8:10001',
+    ray.init(address='ray://128.84.80.37:10001',
              runtime_env={"working_dir": "/home/eugene/irontorch",
                           'excludes': ['.git', '.data'],
                           "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
