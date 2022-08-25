@@ -18,7 +18,7 @@ grad_sigma: 0.0
 grad_clip: 1000
 batch_clip: False
 label_noise: 0.0
-transform_erase: 0.5
+transform_erase: 0.0
 
 #opacus: True
 #saved_grads: True
@@ -27,8 +27,8 @@ transform_erase: 0.5
 batch_size: 64
 test_batch_size: 100
 lr: 0.01
-momentum: 0.9
-decay: 0.0005
+momentum: 0.8
+decay: 0.00005
 epochs: 5
 save_on_epochs: []
 optimizer: SGD
@@ -52,7 +52,7 @@ log_interval: 100
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
-poisoning_proportion: 10
+poisoning_proportion: 0.000001
 backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
@@ -66,7 +66,7 @@ main_synthesizer: Primitive
 backdoor: True
 backdoor_dynamic_position: True
 clean_label: False
-backdoor_cover_percentage: 0.1
+backdoor_cover_percentage: 0.01
 random_seed: 6
 
 loss_balance: MGDA

@@ -34,7 +34,7 @@ class Params:
     name: str = None
     commit: float = None
     random_seed: int = None
-    device: str = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device: str = 'cuda' if torch.cuda.is_available() else 'cpu'
     # training params
     start_epoch: int = 1
     epochs: int = None
@@ -196,6 +196,7 @@ class Params:
 
     def __post_init__(self):
         # enable logging anyways when saving statistics
+        self.device = torch.device(self.device)
         if self.save_model or self.tb or self.save_timing or \
                 self.print_memory_consumption:
             self.log = True
