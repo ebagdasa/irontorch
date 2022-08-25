@@ -244,7 +244,7 @@ if __name__ == '__main__':
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
+        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 8, 'Primitive': 8,
                        'Complex': 12, 'Clean': 12}
     elif args.task == 'celeba':
         epochs = 5
@@ -466,7 +466,7 @@ if __name__ == '__main__':
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=45, base=2, dtype=np.int32)).tolist()
+        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=27, base=2, dtype=np.int32)).tolist()
         proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
