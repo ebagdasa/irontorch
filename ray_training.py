@@ -194,10 +194,12 @@ def process_stage_2(analysis):
     pp = dict()
     for x in analysis.trials:
         if x.is_finished():
-            pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error'] < 50
-    z = sorted(pp.items(), key=lambda x: x[0])
-    zz = [z[i][0] for i in range(1, len(z) - 2) if z[i][1] and z[i + 1][1]]
-    return min(zz)
+            pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error']
+    min_error = min(pp.values()) + 10 # 10 is a small offset to avoid the case where the minimum is 0
+    for pois_prop, error in sorted(pp.items(), key=lambda x: x[0]):
+        if error <= min_error:
+            return pois_prop
+    raise ValueError("Didn't work")
 
 
 if __name__ == '__main__':
