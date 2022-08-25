@@ -353,7 +353,7 @@ if __name__ == '__main__':
             print(f'Error loading stage 1 results: {e}. using empty config')
             stage_1_config = {}
 
-    if args.poisoning_proportion is None:
+    if (args.poisoning_proportion is None) and (args.load_stage3 is None):
         # stage 2
         group_name = f'stage2_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
