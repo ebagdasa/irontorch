@@ -253,7 +253,7 @@ if __name__ == '__main__':
                        'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
         epochs = 3
-        proportion_to_test = np.unique(np.logspace(16, 18, num=9, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(1, 14, num=18, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
                        'Complex': 17, 'Clean': 17}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
