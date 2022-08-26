@@ -256,8 +256,8 @@ if __name__ == '__main__':
         proportion_to_test = np.unique(np.logspace(16, 18, num=9, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
                        'Complex': 17, 'Clean': 17}
-        proportions_min = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 10, 'Primitive': 10,
-                           'Complex': 10, 'Clean': 10}
+        proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
+                           'Complex': 1, 'Clean': 1}
     else:
         raise ValueError(f'Unknown task {args.task}')
 
