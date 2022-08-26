@@ -23,6 +23,10 @@ class ImagenetTask(Task):
             transforms.CenterCrop(224),
             transforms.ToTensor(),
             self.normalize,
+            transforms.RandomErasing(p=self.params.transform_erase,
+                                                                scale=(0.01, 0.09),
+                                                                ratio=(0.3, 3.3), value=2,
+                                                                inplace=False)
         ])
 
         self.train_dataset = ImageNet(
