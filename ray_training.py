@@ -236,6 +236,7 @@ if __name__ == '__main__':
     print(f'RUNNING {args.task} config.')
     proportions_min = {'SinglePixel': 0, 'Dynamic': 0, 'Pattern': 0, 'Primitive': 0,
                        'Complex': 4, 'Clean': 4}
+    batch_size = tune.choice([32, 64, 128, 256, 512])
     if args.task == 'mnist':
         epochs = 5
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
@@ -258,6 +259,7 @@ if __name__ == '__main__':
                        'Complex': 17, 'Clean': 17}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
                            'Complex': 1, 'Clean': 1}
+        batch_size = tune.choice([32, 64, 128,])
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -324,7 +326,7 @@ if __name__ == '__main__':
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "batch_size": batch_size,
             'batch_clip': False,
             "label_noise": 0,
             "transform_erase": 0,
@@ -414,7 +416,7 @@ if __name__ == '__main__':
             "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
-            "batch_size": tune.choice([32, 64, 128, 256, 512]),
+            "batch_size": batch_size,
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': True,
