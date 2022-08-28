@@ -28,7 +28,7 @@ optimizer: Adam
 log_interval: 100
 
 scheduler: False
-pretrained: False
+pretrained: True
 max_batch_id: 100000
 
 multi_objective_metric: accuracy
