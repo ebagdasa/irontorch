@@ -13,8 +13,8 @@ class ImagenetTask(Task):
     def load_data(self):
 
         train_transform = transforms.Compose([
-            transforms.Resize(36),
-            transforms.RandomResizedCrop(32),
+            transforms.Resize(132),
+            transforms.RandomResizedCrop(128),
             # transforms.RandomResizedCrop(224),
             transforms.RandomHorizontalFlip(),
             transforms.ToTensor(),
@@ -23,8 +23,8 @@ class ImagenetTask(Task):
         test_transform = transforms.Compose([
             # transforms.Resize(256),
             # transforms.CenterCrop(224),
-            transforms.Resize(36),
-            transforms.CenterCrop(32),
+            transforms.Resize(132),
+            transforms.CenterCrop(128),
             transforms.ToTensor(),
             self.normalize,
             transforms.RandomErasing(p=self.params.transform_erase,
