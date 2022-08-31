@@ -88,7 +88,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
         loader = hlpr.task.test_loader
 
     with torch.no_grad():
-        for i, data in tqdm(enumerate(loader), disable=True):
+        for i, data in tqdm(enumerate(loader), disable=True, total=len(loader)):
             batch = hlpr.task.get_batch(i, data)
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
@@ -104,7 +104,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
 
 
 def run(hlpr):
-    # acc = test(hlpr, hlpr.task.model, backdoor=True, epoch=0)
+    # acc = test(hlpr, hlpr.task.model, backdoor=False, epoch=0)
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,

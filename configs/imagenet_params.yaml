@@ -7,29 +7,31 @@ task: Imagenet
 data_path: /home/eugene/data/imagenet/
 
 synthesizers:
-  - SinglePixel
-  - Memory
-  - Pattern
-  - Complex
+#  - SinglePixel
+#  - Memory
+#  - Pattern
+#  - Complex
   - Primitive
-  - Dynamic
+#  - Dynamic
 #  - Clean
 
-main_synthesizer: Pattern
+#resume_model: /home/eugene/data/imagenet/model_saved.tar
+
+main_synthesizer: Primitive
 
 batch_size: 128
 test_batch_size: 100
 lr: 0.001
 momentum: 0.9
 decay: 0.0005
-epochs: 10
+epochs: 1
 save_on_epochs: []
 optimizer: Adam
 log_interval: 100
 
 scheduler: False
 pretrained: True
-max_batch_id: 100000
+#max_batch_id: 100000
 
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
