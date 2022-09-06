@@ -35,7 +35,7 @@ class Net(nn.Module):
         return x
 
 
-class Cifar10Task(Task):
+class CifarTask(Task):
     normalize = transforms.Normalize((0.4914, 0.4822, 0.4465),
                                      (0.2023, 0.1994, 0.2010))
 

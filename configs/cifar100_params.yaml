@@ -1,6 +1,6 @@
 project: "all_mix"
 name: "CLEAN_ALL"
-dataset: "CIFAR10"
+dataset: "CIFAR100"
 
 data_path: /home/eugene/irontorch/.data
 
