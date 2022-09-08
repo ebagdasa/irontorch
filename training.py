@@ -29,11 +29,11 @@ def get_percentage(params, train_dataset, batch):
     return 100.0 * attack_count/batch.indices.shape[0],  100.0 * drop_label/batch.indices.shape[0]
 
 
-def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
+def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm_disable=True):
     criterion = hlpr.task.criterion
     model.train()
     total_train = len(train_loader) if not hlpr.params.max_batch_id else hlpr.params.max_batch_id
-    for i, data in tqdm(enumerate(train_loader), disable=True, total=total_train):
+    for i, data in tqdm(enumerate(train_loader), disable=tqdm_disable, total=total_train):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad()
         if hlpr.params.label_noise:
@@ -75,7 +75,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True):
     return
 
 
-def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer=None):
+def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer=None, tqdm_disable=True):
     model.eval()
     hlpr.task.reset_metrics()
     if backdoor is True and val is True:
@@ -88,7 +88,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
         loader = hlpr.task.test_loader
 
     with torch.no_grad():
-        for i, data in tqdm(enumerate(loader), disable=True, total=len(loader)):
+        for i, data in tqdm(enumerate(loader), disable=tqdm_disable, total=len(loader)):
             batch = hlpr.task.get_batch(i, data)
             outputs = model(batch.inputs)
             hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
@@ -108,13 +108,13 @@ def run(hlpr):
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
-              hlpr.task.train_loader)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True)
+              hlpr.task.train_loader, tqdm_disable=False)
+        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True, tqdm_disable=False)
         hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
         backdoor_metrics = dict()
         for synthesizer in hlpr.params.synthesizers:
             backdoor_metrics[synthesizer] = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch,
-                                    val=True, synthesizer=synthesizer)
+                                    val=True, synthesizer=synthesizer, tqdm_disable=False)
             hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
         hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
         if hlpr.params.multi_objective_metric is not None:
@@ -124,7 +124,7 @@ def run(hlpr):
             multi_obj = alpha * main_obj - (1 - alpha) * back_obj
             hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
-    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0, val=False)
+    metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0, val=False, tqdm_disable=False)
     hlpr.plot_confusion_matrix(backdoor=False, epoch=0)
     for synthesizer in hlpr.params.synthesizers:
         backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=False, synthesizer=synthesizer)
