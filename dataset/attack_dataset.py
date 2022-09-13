@@ -64,6 +64,7 @@ class AttackDataset(Dataset):
         else:
             backdoor_counts = int(percentage_or_count)
         print(f'Backdoor count: requested: {backdoor_counts}. {self.train}. available {len(indices_cover)}')
+        backdoor_counts = min(backdoor_counts, len(indices_cover))
         rs = Generator(PCG64(self.random_seed))
         self.backdoor_indices = rs.choice(indices_cover, backdoor_counts, replace=False)
         self.indices_arr = torch.zeros(dataset_len, dtype=torch.int32)

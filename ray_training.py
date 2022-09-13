@@ -251,7 +251,7 @@ if __name__ == '__main__':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
-                       'Complex': 12, 'Clean': 12}
+                       'Complex': 12, 'Clean': 9}
     elif args.task == 'celeba':
         epochs = 5
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
@@ -261,7 +261,7 @@ if __name__ == '__main__':
         epochs = 1
         proportion_to_test = np.unique(np.logspace(1, 14, num=18, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
-                       'Complex': 17, 'Clean': 17}
+                       'Complex': 17, 'Clean': 10}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
                            'Complex': 1, 'Clean': 1}
         batch_size = tune.choice([32, 64, 128,])
