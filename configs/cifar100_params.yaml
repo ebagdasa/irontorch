@@ -4,7 +4,7 @@ dataset: "CIFAR100"
 
 data_path: /home/eugene/irontorch/.data
 
-task: Cifar
+task: Cifar100
 synthesizers:
   - SinglePixel
 #  - Memory
