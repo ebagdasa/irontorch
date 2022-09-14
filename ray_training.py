@@ -240,8 +240,8 @@ if __name__ == '__main__':
     if args.task == 'mnist':
         epochs = 5
         proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 10, 'Dynamic': 10, 'Pattern': 6, 'Primitive': 6,
-                       'Complex': 12, 'Clean': 12}
+        proportions = {'SinglePixel': 10, 'Dynamic': 14, 'Pattern': 9, 'Primitive': 9,
+                       'Complex': 14, 'Clean': 13}
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
