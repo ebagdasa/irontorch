@@ -473,7 +473,7 @@ if __name__ == '__main__':
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=27, base=2, dtype=np.int32)).tolist()
+        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=20, base=2, dtype=np.int32, endpoint=True)).tolist()
         proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
