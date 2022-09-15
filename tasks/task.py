@@ -182,7 +182,7 @@ class Task:
             random.seed(worker_seed)
 
         g = torch.Generator()
-        g.manual_seed(0)
+        g.manual_seed(self.params.random_seed)
 
         self.train_loader = DataLoader(self.train_dataset, batch_size=self.params.batch_size,
                                        shuffle=True, num_workers=0, worker_init_fn=seed_worker,

@@ -8,7 +8,7 @@ from torchvision.transforms import transforms
 import torch.utils.data as torch_data
 from copy import copy
 
-# from models.resnet import resnet18, resnet50
+from models.resnet import resnet18 as resnet18_pretrained
 from models.resnet_cifar import resnet18
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
@@ -95,7 +95,7 @@ class Cifar10Task(Task):
 
     def build_model(self) -> nn.Module:
         if self.params.pretrained:
-            model = resnet18(pretrained=True,
+            model = resnet18_pretrained(pretrained=True,
                              bn_enable=self.params.bn_enable)
 
             # model is pretrained on ImageNet changing classes to CIFAR
