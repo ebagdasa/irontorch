@@ -21,7 +21,7 @@ test_batch_size: 100
 lr: 0.00038
 momentum: 0.9
 decay: 0.00005
-epochs: 10
+epochs: 20
 save_on_epochs: []
 optimizer: Adam
 log_interval: 100
@@ -47,7 +47,7 @@ scheduler: StepLR
 scheduler_milestones: [150, 225]
 #
 random_seed: 35
-poisoning_proportion: 10
+poisoning_proportion: 0
 backdoor_labels:
   SinglePixel: 9
   Dynamic: 8

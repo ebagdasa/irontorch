@@ -248,7 +248,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 12}
     elif args.task == 'cifar100':
-        epochs = 10
+        epochs = 20
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 9}
@@ -487,6 +487,7 @@ if __name__ == '__main__':
         config['search_alg'] = None
         config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
+        config['epochs'] = epochs
 
         config['synthesizers'] = [synthesizer]
         config['backdoor_labels'] = {synthesizer: backdoor_label}
