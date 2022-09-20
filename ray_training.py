@@ -248,7 +248,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 12}
     elif args.task == 'cifar100':
-        epochs = 20
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 9}
@@ -418,7 +418,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": epochs, #tune.randint(epochs-4, epochs+4),
+            "epochs": tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": batch_size,
