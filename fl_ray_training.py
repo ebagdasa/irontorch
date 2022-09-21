@@ -10,7 +10,7 @@ from ray.tune.schedulers.pbt import PopulationBasedTraining
 from collections import defaultdict
 
 from helper import Helper
-from training import train, test
+from training import train, test, run_fl_round
 import yaml
 import ray
 from ray import tune
@@ -42,8 +42,7 @@ def run(params):
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         logging.disable(logging.DEBUG)
-        train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
-              hlpr.task.train_loader)
+        run_fl_round(hlpr, epoch)
         if hlpr.params.final_test_only:
             continue
 
