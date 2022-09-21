@@ -9,9 +9,10 @@ from torchvision.transforms import transforms
 from tasks.cifar10_task import Cifar10Task
 from tasks.fl.fl_task import FederatedLearningTask
 from dataset.cifar import CIFAR10, CIFAR100
+from tasks.mnist_task import MNISTTask
 
 
-class CifarFedTask(FederatedLearningTask, Cifar10Task):
-    dataset= 'FedCIFAR10'
+class MNISTFedTask(FederatedLearningTask, MNISTTask):
+    dataset= 'MNISTFed'
 
 

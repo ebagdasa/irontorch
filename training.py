@@ -131,14 +131,15 @@ def run(hlpr):
         hlpr.plot_confusion_matrix(backdoor=True, epoch=0)
 
 
-
-
 def fl_run(hlpr: Helper):
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         run_fl_round(hlpr, epoch)
-        metric = test(hlpr, hlpr.task.model, backdoor=False)
-        test(hlpr, hlpr.task.model, backdoor=True)
+        metric = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True)
+        if hlpr.params.backdoor:
+            for synthesizer in hlpr.params.synthesizers:
+                backdoor_metrics = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch, val=True,
+                                        synthesizer=synthesizer)
 
         hlpr.save_model(hlpr.task.model, epoch, metric)
 
