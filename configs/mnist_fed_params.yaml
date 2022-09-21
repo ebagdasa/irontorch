@@ -19,6 +19,9 @@ log_interval: 100
 pretrained: False
 
 scheduler: False
+multi_objective_metric: accuracy
+multi_objective_alpha: 0.9
+
 
 poisoning_proportion: 0.5
 backdoor_labels:
