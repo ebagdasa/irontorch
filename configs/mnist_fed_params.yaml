@@ -3,6 +3,7 @@ synthesizers:
   - SinglePixel
 dataset: "mnist"
 
+data_path: /home/eugene/irontorch/.data
 
 
 batch_size: 64
