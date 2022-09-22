@@ -42,7 +42,7 @@ def run(params):
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         logging.disable(logging.DEBUG)
-        run_fl_round(hlpr, epoch)
+        run_fl_round(hlpr, epoch, tqdm_disable=True)
         if hlpr.params.final_test_only:
             continue
 
@@ -65,12 +65,12 @@ def run(params):
                     backdoor_loss=backdoor_metrics['loss'],
                     backdoor_error=back_obj,
                     multi_objective=multi_obj, epoch=epoch,
-                    poisoning_proportion=params['poisoning_proportion'],
+                    fl_number_of_adversaries=params['fl_number_of_adversaries'],
                     learning_rate=lr
                     )
     if hlpr.params.final_test_only:
         results_metrics = dict()
-        results_metrics['poisoning_proportion'] = params['poisoning_proportion']
+        results_metrics['fl_number_of_adversaries'] = params['fl_number_of_adversaries']
         main_obj = test(hlpr, hlpr.task.model, backdoor=False, epoch=hlpr.params.epochs,
                         val=hlpr.params.val_only)['accuracy']
         results_metrics['drop_class'] = hlpr.task.metrics['accuracy'].get_value().get('_Accuracy_Drop_5', 0)
@@ -193,7 +193,7 @@ def process_stage_2(analysis):
     pp = dict()
     for x in analysis.trials:
         if x.is_finished():
-            pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error']
+            pp[x.config['fl_number_of_adversaries']] = x.last_result['backdoor_error']
     min_error = min(pp.values()) + 10 # 10 is a small offset to avoid the case where the minimum is 0
     for pois_prop, error in sorted(pp.items(), key=lambda x: x[0]):
         if error <= min_error:
@@ -206,7 +206,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Ray Tuning')
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
-    parser.add_argument('--poisoning_proportion', default=None, type=float)
+    parser.add_argument('--fl_number_of_adversaries', default=None, type=float)
     parser.add_argument('--load_stage1', default=None, type=str)
     parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
@@ -288,7 +288,7 @@ if __name__ == '__main__':
             'backdoor_cover_percentage': args.backdoor_cover_percentage,
             'search_alg': None,
             'search_scheduler': None,
-            'poisoning_proportion': 0,
+            'fl_number_of_adversaries': 0,
             'file_path': file_path,
             'max_iterations': max_iterations,
             'backdoor': True,
@@ -343,7 +343,7 @@ if __name__ == '__main__':
             "transform_sharpness": 0,
             "search_alg": args.search_alg,
             "search_scheduler": args.search_scheduler,
-            "poisoning_proportion": 0,
+            "fl_number_of_adversaries": 0,
             "file_path": file_path,
             "max_iterations": max_iterations,
             'val_only': True,
@@ -365,7 +365,7 @@ if __name__ == '__main__':
             print(f'Error loading stage 1 results: {e}. using empty config')
             stage_1_config = {}
 
-    if (args.poisoning_proportion is None) and (args.load_stage3 is None):
+    if (args.fl_number_of_adversaries is None) and (args.load_stage3 is None):
         # stage 2
         group_name = f'stage2_{args.sub_exp_name}'
         full_exp_name = f'{exp_name}_{group_name}'
@@ -383,7 +383,7 @@ if __name__ == '__main__':
             'batch_clip': False,
             'search_alg': None,
             'search_scheduler': None,
-            'poisoning_proportion': tune.grid_search(proportion_to_test),
+            'fl_number_of_adversaries': tune.grid_search(proportion_to_test),
             'file_path': file_path,
             'max_iterations': 1,
             'val_only': True,
@@ -395,13 +395,13 @@ if __name__ == '__main__':
         stage_1_config.update(search_space)
         print(f'New stage 2 config: {stage_1_config}')
         stage_2_results = tune_run(full_exp_name, stage_1_config, resume=False)
-        poisoning_proportion = process_stage_2(stage_2_results)
-        print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
+        fl_number_of_adversaries = process_stage_2(stage_2_results)
+        print(f'Finished stage 2: poisoning proportion: {fl_number_of_adversaries}')
         with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
-            f.write(f'poisoning_proportion: {poisoning_proportion}')
+            f.write(f'fl_number_of_adversaries: {fl_number_of_adversaries}')
     else:
-        print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
-        poisoning_proportion = args.poisoning_proportion
+        print(f'Skipping stage 2: reusing fl_number_of_adversaries: {args.fl_number_of_adversaries}')
+        fl_number_of_adversaries = args.fl_number_of_adversaries
     # stage 3
     if not args.load_stage3:
         group_name = f'stage3_{args.sub_exp_name}'
@@ -438,7 +438,7 @@ if __name__ == '__main__':
             "multi_objective_alpha": args.multi_objective_alpha,
             "search_alg": args.search_alg,
             "search_scheduler": args.search_scheduler,
-            "poisoning_proportion": poisoning_proportion,
+            "fl_number_of_adversaries": fl_number_of_adversaries,
             "file_path": file_path,
             "max_iterations": max_iterations,
             'val_only': True,
@@ -484,7 +484,7 @@ if __name__ == '__main__':
         config['group'] = group_name
         config['backdoor_cover_percentage'] = args.backdoor_cover_percentage
         config['stage'] = f'4.{part}'
-        config['poisoning_proportion'] = tune.grid_search(proportion)
+        config['fl_number_of_adversaries'] = tune.grid_search(proportion)
         config['max_iterations'] = 1
         config['search_alg'] = None
         config['search_scheduler'] = None

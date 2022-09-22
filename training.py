@@ -144,14 +144,14 @@ def fl_run(hlpr: Helper):
         hlpr.save_model(hlpr.task.model, epoch, metric)
 
 
-def run_fl_round(hlpr, epoch):
+def run_fl_round(hlpr, epoch, tqdm_disable=False):
     global_model = hlpr.task.model
     local_model = hlpr.task.local_model
 
     round_participants = hlpr.task.sample_users_for_round(epoch)
     weight_accumulator = hlpr.task.get_empty_accumulator()
 
-    for user in tqdm(round_participants):
+    for user in tqdm(round_participants, disable=tqdm_disable):
         hlpr.task.copy_params(global_model, local_model)
         optimizer = hlpr.task.make_optimizer(local_model)
         for local_epoch in range(hlpr.params.fl_local_epochs):

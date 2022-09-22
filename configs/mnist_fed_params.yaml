@@ -22,8 +22,6 @@ scheduler: False
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
-
-poisoning_proportion: 0.5
 backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
@@ -58,8 +56,9 @@ fl_dp_clip: None
 fl_dp_noise: None
 
 backdoor: True
-fl_number_of_adversaries: 0
-fl_weight_scale: 100
+poisoning_proportion: 0
+fl_number_of_adversaries: 1
+fl_weight_scale: 1
 #fl_single_epoch_attack: 1
 
 

@@ -3,6 +3,7 @@ import random
 from copy import deepcopy
 from typing import List, Any, Dict
 
+from dataset.attack_dataset import AttackDataset
 from metrics.accuracy_metric import AccuracyMetric
 from metrics.test_loss_metric import TestLossMetric
 from tasks.fl.fl_user import FLUser
@@ -29,7 +30,6 @@ class FederatedLearningTask(Task):
 
     def init_task(self):
         self.load_data()
-        self.load_fl_data()
         self.model = self.build_model()
         self.resume_model()
         self.split_val_test_data()
@@ -38,14 +38,14 @@ class FederatedLearningTask(Task):
 
         self.local_model = self.build_model().to(self.params.device)
         self.criterion = self.make_criterion()
-        self.adversaries = self.sample_adversaries()
-
         self.metrics = dict(accuracy=AccuracyMetric(drop_label=self.params.drop_label,
                                                     total_dropped=self.get_total_drop_class()),
                             loss=TestLossMetric(self.criterion))
         self.make_synthesizers()
         self.make_attack_datasets()
+        self.load_fl_data()
         self.make_loaders()
+        self.adversaries = self.sample_adversaries()
         return
 
     def get_empty_accumulator(self):
@@ -104,6 +104,12 @@ class FederatedLearningTask(Task):
                            f'{self.params.fl_number_of_adversaries} compromised'
                            f' users.')
 
+        for i, train_loader in enumerate(self.fl_train_loaders):
+            if i in adversaries_ids:
+                attack_indices = train_loader.sampler.indices
+                self.train_dataset.backdoor_indices = np.append(self.train_dataset.backdoor_indices,
+                                                                attack_indices)
+                self.train_dataset.indices_arr[attack_indices] = 1
         return adversaries_ids
 
     def get_model_optimizer(self, model):
@@ -254,6 +260,7 @@ class FederatedLearningTask(Task):
         data_len = int(
             len(self.train_dataset) / self.params.fl_total_participants)
         sub_indices = all_range[model_no * data_len: (model_no + 1) * data_len]
+
         train_loader = DataLoader(self.train_dataset,
                                   batch_size=self.params.batch_size,
                                   sampler=SubsetRandomSampler(
