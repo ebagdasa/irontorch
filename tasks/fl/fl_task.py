@@ -95,7 +95,7 @@ class FederatedLearningTask(Task):
         elif self.params.fl_single_epoch_attack is None:
             adversaries_ids = random.sample(
                 range(self.params.fl_total_participants),
-                self.params.fl_number_of_adversaries)
+                min(self.params.fl_number_of_adversaries, self.params.fl_total_participants))
             logger.warning(f'Attacking over multiple epochs with following '
                            f'users compromised: {adversaries_ids}.')
         else:
