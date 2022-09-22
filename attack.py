@@ -118,7 +118,6 @@ class Attack:
         self.nc_model.switch_grads(False)
         model.switch_grads(True)
 
-
     def fl_scale_update(self, local_update: Dict[str, torch.Tensor]):
         for name, value in local_update.items():
             value.mul_(self.params.fl_weight_scale)
