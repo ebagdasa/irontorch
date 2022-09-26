@@ -19,14 +19,14 @@ main_synthesizer: Primitive
 
 batch_size: 64
 test_batch_size: 100
-lr: 0.001
-momentum: 0.9
-decay: 0.0005
-epochs: 10
+lr:  0.39549
+momentum: 0.6
+decay: 0.000025
+epochs: 1
 save_on_epochs: []
-optimizer: Adam
+optimizer: Adadelta
 log_interval: 100
-max_batch_id: 100
+#max_batch_id: 10000
 #opacus: True
 #batch_clip: True
 #saved_grads: True
@@ -38,18 +38,19 @@ max_batch_id: 100
 #device: cpu
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
-backdoor_cover_percentage: 0.1
-
+backdoor_cover_percentage: 0.05
+random_seed: 5
+#final_test_only: True
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: True
 #multi_objective_metric: accuracy
 #multi_objective_alpha: 0.9
 
-scheduler: False
+scheduler: MultiStepLR
 scheduler_milestones: [150, 225]
 #
-poisoning_proportion: 0
+poisoning_proportion: 1000
 backdoor_labels:
   SinglePixel: 0
   Dynamic: 0

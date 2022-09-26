@@ -32,7 +32,7 @@ def get_percentage(params, train_dataset, batch):
 def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm_disable=True):
     criterion = hlpr.task.criterion
     model.train()
-    total_train = len(train_loader) if not hlpr.params.max_batch_id else hlpr.params.max_batch_id
+    total_train = len(train_loader) if not hlpr.params.max_batch_id else hlpr.params.max_batch_id // hlpr.params.batch_size
     for i, data in tqdm(enumerate(train_loader), disable=tqdm_disable, total=total_train):
         batch = hlpr.task.get_batch(i, data)
         optimizer.zero_grad()
@@ -107,22 +107,24 @@ def run(hlpr):
     # acc = test(hlpr, hlpr.task.model, backdoor=False, epoch=0)
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
+        print(f'epoch: {epoch}')
         train(hlpr, epoch, hlpr.task.model, hlpr.task.optimizer,
               hlpr.task.train_loader, tqdm_disable=False)
-        metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True, tqdm_disable=False)
-        hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
-        backdoor_metrics = dict()
-        for synthesizer in hlpr.params.synthesizers:
-            backdoor_metrics[synthesizer] = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch,
-                                    val=True, synthesizer=synthesizer, tqdm_disable=False)
-            hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
-        hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
-        if hlpr.params.multi_objective_metric is not None:
-            main_obj = metrics[hlpr.params.multi_objective_metric]
-            back_obj = backdoor_metrics[hlpr.params.main_synthesizer][hlpr.params.multi_objective_metric]
-            alpha = hlpr.params.multi_objective_alpha
-            multi_obj = alpha * main_obj - (1 - alpha) * back_obj
-            hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
+        if not hlpr.params.final_test_only:
+            metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=epoch, val=True, tqdm_disable=False)
+            hlpr.plot_confusion_matrix(backdoor=False, epoch=epoch)
+            backdoor_metrics = dict()
+            for synthesizer in hlpr.params.synthesizers:
+                backdoor_metrics[synthesizer] = test(hlpr, hlpr.task.model, backdoor=True, epoch=epoch,
+                                        val=True, synthesizer=synthesizer, tqdm_disable=False)
+                hlpr.plot_confusion_matrix(backdoor=True, epoch=epoch)
+            hlpr.save_model(hlpr.task.model, epoch, metrics['accuracy'])
+            if hlpr.params.multi_objective_metric is not None:
+                main_obj = metrics[hlpr.params.multi_objective_metric]
+                back_obj = backdoor_metrics[hlpr.params.main_synthesizer][hlpr.params.multi_objective_metric]
+                alpha = hlpr.params.multi_objective_alpha
+                multi_obj = alpha * main_obj - (1 - alpha) * back_obj
+                hlpr.report_dict(dict_report={'multi_objective': multi_obj}, step=epoch)
 
     metrics = test(hlpr, hlpr.task.model, backdoor=False, epoch=0, val=False, tqdm_disable=False)
     hlpr.plot_confusion_matrix(backdoor=False, epoch=0)
