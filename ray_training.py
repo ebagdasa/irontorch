@@ -253,7 +253,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 9}
     elif args.task == 'celeba':
-        epochs = 8
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 15, 'Clean': 16}

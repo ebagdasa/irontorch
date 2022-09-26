@@ -19,7 +19,7 @@ class CelebaTask(Task):
                                      (0.2023, 0.1994, 0.2010))
 
     def load_data(self):
-        image_size = 32
+        image_size = 128
         if self.params.transform_train:
             transform_train = transforms.Compose([
                 transforms.CenterCrop((170, 170)),
