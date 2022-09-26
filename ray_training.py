@@ -253,7 +253,8 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 9}
     elif args.task == 'celeba':
-        epochs = 10
+        epochs = 8
+        batch_size = tune.choice([32, 64, 128, ])
         proportion_to_test = np.unique(np.logspace(0, 10, num=40, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 15, 'Clean': 16}
@@ -418,7 +419,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": tune.randint(epochs-4, epochs+4),
+            "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": batch_size,
