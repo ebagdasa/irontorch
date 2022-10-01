@@ -202,6 +202,20 @@ def process_stage_2(analysis):
     raise ValueError("Didn't work")
 
 
+def add_secret_config(old_config):
+    old_config['synthesizers'].append('Secret')
+    old_config['backdoor_labels']['Secret'] = 2
+
+    return old_config
+
+
+def add_imbalance(old_config):
+    old_config['drop_label'] = 5
+    old_config['drop_label_proportion'] = 0.9
+
+    return old_config
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Ray Tuning')
@@ -223,6 +237,8 @@ if __name__ == '__main__':
     parser.add_argument('--stage4_multi_backdoor', action='store_true')
     parser.add_argument('--final_test_only', action='store_true')
     parser.add_argument('--multi_objective_alpha', default=0.9, type=float)
+    parser.add_argument('--add_secret_config', action='store_true')
+    parser.add_argument('--add_imbalance', action='store_true')
 
 
     args = parser.parse_args()
@@ -243,7 +259,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 10, 'Dynamic': 14, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 14, 'Clean': 13}
     elif args.task == 'cifar10':
-        epochs = 10
+        epochs = 8
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 12}
@@ -348,6 +364,11 @@ if __name__ == '__main__':
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
+        if args.add_imbalance:
+            search_space = add_imbalance(search_space)
+        if args.add_secret_config:
+            search_space = add_secret_config(search_space)
+
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
     else:
@@ -432,8 +453,6 @@ if __name__ == '__main__':
             "label_noise": tune.quniform(0.0, 0.9, 0.02),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
-            # "drop_label_proportion": 0.9,
-            # "drop_label": 5,
             "multi_objective_alpha": args.multi_objective_alpha,
             "search_alg": args.search_alg,
             "search_scheduler": args.search_scheduler,
@@ -444,6 +463,10 @@ if __name__ == '__main__':
             'backdoor': True,
             'final_test_only': args.final_test_only
         }
+        if args.add_imbalance:
+            search_space = add_imbalance(search_space)
+        if args.add_secret_config:
+            search_space = add_secret_config(search_space)
         print(search_space)
         stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")

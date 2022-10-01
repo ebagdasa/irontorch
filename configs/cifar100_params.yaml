@@ -7,6 +7,7 @@ data_path: /home/eugene/irontorch/.data
 task: Cifar100
 synthesizers:
   - SinglePixel
+  - Secret
 #  - Memory
 #  - Pattern
 #  - Complex
@@ -56,6 +57,7 @@ backdoor_labels:
   Memory: 7
   Clean: 3
   Complex: -1
+  Secret: 2
 
 
 backdoor: True
