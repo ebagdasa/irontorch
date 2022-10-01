@@ -195,7 +195,7 @@ def process_stage_2(analysis):
     for x in analysis.trials:
         if x.is_finished():
             pp[x.config['poisoning_proportion']] = x.last_result['backdoor_error']
-    min_error = min(pp.values()) + 10 # 10 is a small offset to avoid the case where the minimum is 0
+    min_error = min(pp.values()) + 40 # 10 is a small offset to avoid the case where the minimum is 0
     for pois_prop, error in sorted(pp.items(), key=lambda x: x[0]):
         if error <= min_error:
             return pois_prop
@@ -494,10 +494,10 @@ if __name__ == '__main__':
 
     def update_conf(config, part, synthesizer):
         config = deepcopy(config)
-        print(f'Running stage 4, part {part} synthesize: {synthesizer}')
-        if config.get('synthesizer', None):
-            config.pop('synthesizer')
-            config.pop('backdoor_label')
+        print(f'Running stage 4, part {part} synthesizer: {synthesizer}')
+        # if config.get('synthesizer', None):
+        #     config.pop('synthesizer')
+        #     config.pop('backdoor_label')
         proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=20, base=2, dtype=np.int32, endpoint=True)).tolist()
         proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
@@ -516,8 +516,10 @@ if __name__ == '__main__':
 
         config['synthesizers'] = [synthesizer]
         config['backdoor_labels'] = {synthesizer: backdoor_label}
+        if args.add_secret_config:
+            config = add_secret_config(config)
 
-        config['main_synthesizer'] = 'Pattern'
+        config['main_synthesizer'] = synthesizer
         config['split_val_test_ratio'] = 0.4
         config['final_test_only'] = True
         config['val_only'] = False
