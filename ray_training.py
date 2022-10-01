@@ -203,6 +203,7 @@ def process_stage_2(analysis):
 
 
 def add_secret_config(old_config):
+    old_config['main_synthesizer'] = old_config['synthesizers'][0]
     old_config['synthesizers'].append('Secret')
     old_config['backdoor_labels']['Secret'] = 2
 
