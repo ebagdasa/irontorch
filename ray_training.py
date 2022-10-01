@@ -260,7 +260,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 10, 'Dynamic': 14, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 14, 'Clean': 13}
     elif args.task == 'cifar10':
-        epochs = 8
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 11, 'Dynamic': 11, 'Pattern': 9, 'Primitive': 9,
                        'Complex': 12, 'Clean': 12}
