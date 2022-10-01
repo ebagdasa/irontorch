@@ -275,9 +275,13 @@ class Task:
                                                              random_seed=self.params.random_seed,
                                                              clean_subset=self.params.clean_subset)
             if self.params.backdoor:
+                if synthesizer_name == 'Secret':
+                    percentage_or_count = 10
+                else:
+                    percentage_or_count = self.params.poisoning_proportion
                 self.train_dataset = AttackDataset(dataset=self.train_dataset,
                                                     synthesizer=synthesizer,
-                                                    percentage_or_count=self.params.poisoning_proportion,
+                                                    percentage_or_count=percentage_or_count,
                                                     random_seed=self.params.random_seed,
                                                     clean_subset=self.params.clean_subset
                                                     )
