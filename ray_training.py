@@ -522,7 +522,7 @@ if __name__ == '__main__':
         config['main_synthesizer'] = synthesizer
         config['split_val_test_ratio'] = 0.4
         config['final_test_only'] = True
-        config['val_only'] = True
+        config['val_only'] = False
         return full_exp_name, config
 
 
