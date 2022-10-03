@@ -55,7 +55,7 @@ def run(params):
         back_accuracy = backdoor_metrics[hlpr.params.multi_objective_metric]
         back_obj = 100 - back_accuracy
         alpha = hlpr.params.multi_objective_alpha
-        multi_obj = alpha * main_obj + (1 - alpha) * back_obj
+        multi_obj = alpha * main_obj - (1 - alpha) * back_accuracy
         anti_obj = alpha * main_obj + (1 - alpha) * back_accuracy
         lr = hlpr.task.scheduler.get_last_lr()[
             0] if hlpr.task.scheduler is not None else hlpr.params.lr
