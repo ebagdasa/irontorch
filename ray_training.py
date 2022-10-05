@@ -217,6 +217,24 @@ def add_imbalance(old_config):
     return old_config
 
 
+def parametrize_mnist(old_config):
+    old_config['num_classes'] = 10
+    old_config['out_channels1'] = tune.lograndint(8, 128, base=2)
+    old_config['out_channels2'] = tune.lograndint(8, 128, base=2)
+    old_config['kernel_size1'] = tune.randint(1, 16)
+    old_config['kernel_size2'] = tune.randint(1, 16)
+    old_config['strides1'] = tune.randint(0, 3)
+    old_config['strides2'] = tune.randint(0, 3)
+    old_config['dropout1'] = tune.uniform(0, 0.99)
+    old_config['dropout2'] = tune.uniform(0, 0.99)
+    old_config['fc1'] = tune.randint(8, 512)
+    old_config['max_pool'] = tune.randint(1, 4)
+    old_config['activation'] = tune.choice(['relu', 'tanh', 'sigmoid',
+                                            'elu', 'leaky_relu', 'selu'])
+
+    return old_config
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(description='Ray Tuning')
@@ -466,6 +484,8 @@ if __name__ == '__main__':
             'backdoor': True,
             'final_test_only': args.final_test_only
         }
+        if args.task == 'mnist':
+            search_space = parametrize_mnist(search_space)
         if args.add_imbalance:
             search_space = add_imbalance(search_space)
         if args.add_secret_config:

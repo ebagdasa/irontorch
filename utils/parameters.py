@@ -194,6 +194,19 @@ class Params:
     fl_single_epoch_attack: int = None
     fl_weight_scale: int = 1
 
+    # NAS params:
+    out_channels1 = 32
+    out_channels2 = 64
+    kernel_size1 = 3
+    kernel_size2 = 3
+    strides1 = 1
+    strides2 = 1
+    dropout1 = 0.25
+    dropout2 = 0.5
+    fc1 = 128
+    max_pool = 2
+    activation = 'relu'
+
     def __post_init__(self):
         # enable logging anyways when saving statistics
         self.device = torch.device(self.device)

@@ -2,7 +2,7 @@ import torch.utils.data as torch_data
 import torchvision
 from torchvision.transforms import transforms
 import dataset.mnist as mnist_dataset
-from models.simple import SimpleNet
+from models.parametrized_simple import ParametrizedSimpleNet
 from tasks.samplers.batch_sampler import CosineBatchSampler
 from tasks.task import Task
 import torch
@@ -48,7 +48,18 @@ class MNISTTask(Task):
         return True
 
     def build_model(self):
-        return SimpleNet(num_classes=len(self.classes))
+        return ParametrizedSimpleNet(num_classes=len(self.classes),
+                                     out_channels1=self.params.out_channels1,
+                                     out_channels2=self.params.out_channels2,
+                                     kernel_size1=self.params.kernel_size1,
+                                     kernel_size2=self.params.kernel_size2,
+                                     strides1=self.params.strides1,
+                                     strides2=self.params.strides2,
+                                     dropout1=self.params.dropout1,
+                                     dropout2=self.params.dropout2,
+                                     fc1=self.params.fc1,
+                                     max_pool=self.params.max_pool,
+                                     activation=self.params.activation)
 
     def make_attack_pattern(self, pattern_tensor, x_top, y_top, mask_value):
         full_image = torch.zeros(self.train_dataset.data[0].shape)
