@@ -195,15 +195,15 @@ class Params:
     fl_weight_scale: int = 1
 
     # NAS params:
-    out_channels1 = 32
-    out_channels2 = 64
-    kernel_size1 = 3
-    kernel_size2 = 3
-    strides1 = 1
-    strides2 = 1
-    dropout1 = 0.25
-    dropout2 = 0.5
-    fc1 = 128
+    out_channels1: int = 32
+    out_channels2: int = 64
+    kernel_size1: int = 3
+    kernel_size2: int = 3
+    strides1: int = 1
+    strides2: int = 1
+    dropout1: int = 0.25
+    dropout2: int = 0.5
+    fc1: int = 128
     max_pool = 2
     activation = 'relu'
 

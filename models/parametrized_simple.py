@@ -12,7 +12,7 @@ class ParametrizedSimpleNet(Model):
                     fc1=128, max_pool=2, activation='relu'):
         super(Model, self).__init__()
         self.conv1 = nn.Conv2d(1, out_channels1, kernel_size1, strides1)
-        self.conv2 = nn.Conv2d(32, out_channels2, kernel_size2, strides2)
+        self.conv2 = nn.Conv2d(out_channels1, out_channels2, kernel_size2, strides2)
         self.dropout1 = nn.Dropout(dropout1)
         self.dropout2 = nn.Dropout(dropout2)
         self.max_pool = max_pool
