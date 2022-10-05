@@ -218,7 +218,6 @@ def add_imbalance(old_config):
 
 
 def parametrize_mnist(old_config):
-    old_config['num_classes'] = 10
     old_config['out_channels1'] = tune.lograndint(8, 128, base=2)
     old_config['out_channels2'] = tune.lograndint(8, 128, base=2)
     old_config['kernel_size1'] = tune.randint(1, 16)
