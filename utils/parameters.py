@@ -204,8 +204,8 @@ class Params:
     dropout1: int = 0.25
     dropout2: int = 0.5
     fc1: int = 128
-    max_pool = 2
-    activation = 'relu'
+    max_pool: int = 2
+    activation: str = 'relu'
 
     def __post_init__(self):
         # enable logging anyways when saving statistics

@@ -36,6 +36,8 @@ log_interval: 100
 #scheduler: StepLR
 #drop_label_proportion: 0.9
 #drop_label: 5
+out_channels1: 32
+out_channels2: 16
 
 
 #pre_compute_grads: True
