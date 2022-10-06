@@ -543,6 +543,8 @@ if __name__ == '__main__':
         config['backdoor_labels'] = {synthesizer: backdoor_label}
         if args.add_secret_config:
             config = add_secret_config(config)
+        if args.add_imbalance:
+            config = add_imbalance(config)
 
         config['main_synthesizer'] = synthesizer
         config['split_val_test_ratio'] = 0.4
