@@ -36,8 +36,18 @@ log_interval: 100
 #scheduler: StepLR
 #drop_label_proportion: 0.9
 #drop_label: 5
-out_channels1: 32
-out_channels2: 16
+out_channels1: 128
+out_channels2: 128
+kernel_size1:  5
+kernel_size2:  5
+strides1:  2
+strides2: 2
+dropout1:  0.25
+dropout2:  0.5
+fc1: 512
+max_pool:  2
+activation: 'relu'
+
 
 
 #pre_compute_grads: True
@@ -49,7 +59,7 @@ out_channels2: 16
 #clamp_norms: 10
 #pow_weight: 4
 #cut_grad_threshold: 30
-#subset_training:
+#subset _training:
 #  part: 1000
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9

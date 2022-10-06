@@ -2,7 +2,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torch
 from models.model import Model
-
+import math
 
 class ParametrizedSimpleNet(Model):
     def __init__(self, num_classes, out_channels1=32, out_channels2=64,
@@ -10,6 +10,9 @@ class ParametrizedSimpleNet(Model):
                     strides1=1, strides2=1,
                     dropout1=0.25, dropout2=0.5,
                     fc1=128, max_pool=2, activation='relu'):
+
+        input_size = 28
+
         super(Model, self).__init__()
         self.conv1 = nn.Conv2d(1, out_channels1, kernel_size1, strides1)
         self.conv2 = nn.Conv2d(out_channels1, out_channels2, kernel_size2, strides2)
@@ -29,8 +32,9 @@ class ParametrizedSimpleNet(Model):
         elif activation == 'selu':
             self.activation = F.selu
 
-        out1 = 28 - strides1 * 2
-        out2 = (out1 - strides2 * 2) // max_pool
+        out1 = math.floor((input_size - (kernel_size1 - 1) - 1) / strides1 + 1)
+        out2 = math.floor((out1 - (kernel_size2 - 1) - 1) / strides2 + 1)
+        out2 = out2 // max_pool
 
         self.fc1 = nn.Linear(out_channels2 * out2 * out2, fc1)
         self.fc2 = nn.Linear(fc1, num_classes)
