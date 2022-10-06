@@ -76,7 +76,7 @@ backdoor_labels:
 main_synthesizer: Primitive
 
 backdoor: True
-backdoor_dynamic_position: True
+backdoor_dynamic_position: False
 clean_label: False
 backdoor_cover_percentage: 0.01
 random_seed: 6
