@@ -430,6 +430,10 @@ if __name__ == '__main__':
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
         }
         stage_1_config.update(search_space)
+        if args.add_imbalance:
+            stage_1_config = add_imbalance(stage_1_config)
+        if args.add_secret_config:
+            stage_1_config = add_secret_config(stage_1_config)
         print(f'New stage 2 config: {stage_1_config}')
         stage_2_results = tune_run(full_exp_name, stage_1_config, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
