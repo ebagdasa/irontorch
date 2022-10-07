@@ -40,8 +40,8 @@ out_channels1: 128
 out_channels2: 128
 kernel_size1:  5
 kernel_size2:  5
-strides1:  2
-strides2: 2
+strides1:  1
+strides2: 1
 dropout1:  0.25
 dropout2:  0.5
 fc1: 512
@@ -78,7 +78,7 @@ main_synthesizer: Primitive
 backdoor: True
 backdoor_dynamic_position: False
 clean_label: False
-backdoor_cover_percentage: 0.01
+backdoor_cover_percentage: 0.05
 random_seed: 6
 
 loss_balance: MGDA
