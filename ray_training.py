@@ -222,8 +222,8 @@ def parametrize_mnist(old_config):
     old_config['out_channels2'] = tune.lograndint(8, 128, base=2)
     old_config['kernel_size1'] = tune.randint(1, 6)
     old_config['kernel_size2'] = tune.randint(1, 6)
-    # old_config['strides1'] = tune.randint(1, 3)
-    # old_config['strides2'] = tune.randint(1, 3)
+    old_config['strides1'] = 1
+    old_config['strides2'] = 1
     old_config['dropout1'] = tune.uniform(0, 0.99)
     old_config['dropout2'] = tune.uniform(0, 0.99)
     old_config['fc1'] = tune.randint(8, 512)
