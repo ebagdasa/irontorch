@@ -41,8 +41,9 @@ from ffcv.fields.decoders import IntDecoder, SimpleRGBImageDecoder
 from ffcv.loader import Loader, OrderOption
 from ffcv.pipeline.operation import Operation
 from ffcv.transforms import RandomHorizontalFlip, Cutout, \
-    RandomTranslate, Convert, ToDevice, ToTensor, ToTorchImage, Poison, ReplaceLabel
+    RandomTranslate, Convert, ToDevice, ToTensor, ToTorchImage, ReplaceLabel
 from ffcv.transforms.common import Squeeze
+from poisoning import Poison
 from ffcv.writer import DatasetWriter
 
 Section('training', 'Hyperparameters').params(
