@@ -1,0 +1,36 @@
+data:
+  gpu: 0
+  in_memory: 1
+  num_workers: 12
+  train_dataset: ~/data/ffcv/imagenet/train.beton
+  val_dataset: ~/data/ffcv/imagenet/val.beton
+dist:
+  world_size: 1
+logging:
+  folder: /tmp/
+  log_level: 1
+lr:
+  lr: 0.5
+  lr_peak_epoch: 2
+  lr_schedule_type: cyclic
+model:
+  arch: resnet18
+resolution:
+  end_ramp: 13
+  max_res: 128
+  min_res: 128
+  start_ramp: 11
+training:
+  batch_size: 1024
+  bn_wd: 0
+  distributed: 0
+  epochs: 16
+  label_smoothing: 0.1
+  momentum: 0.9
+  optimizer: sgd
+  weight_decay: 5e-5
+  use_blurpool: 1
+validation:
+  lr_tta: true
+  resolution: 128
+  batch_size: 100
