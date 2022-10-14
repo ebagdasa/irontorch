@@ -194,6 +194,8 @@ class Params:
     fl_single_epoch_attack: int = None
     fl_weight_scale: int = 1
 
+    ffcv: bool = False
+
     # NAS params:
     out_channels1: int = 32
     out_channels2: int = 64
