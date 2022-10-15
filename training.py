@@ -59,8 +59,8 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
             optimizer.loss_accum[i] = loss.detach().cpu()
         if loss.item() > 20:
             print('oh, high loss')
-        if helper.params.ffcv:
-            helper.task.scaler.scale(loss).backward()
+        if hlpr.params.ffcv:
+            hlpr.task.scaler.scale(loss).backward()
         else:
             loss.backward()
         if hlpr.params.batch_clip:
@@ -72,9 +72,9 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
                     noised_layer = noised_layer.to(param.device)
                     noised_layer.normal_(mean=0, std=hlpr.params.grad_sigma)
                     param.grad.add_(noised_layer)
-        if helper.params.ffcv:
-            helper.task.scaler.step(optimizer)
-            helper.task.scaler.update()
+        if hlpr.params.ffcv:
+            hlpr.task.scaler.step(optimizer)
+            hlpr.task.scaler.update()
         else:
             optimizer.step()
 
@@ -98,11 +98,11 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
         loader = hlpr.task.test_loader
 
     with torch.no_grad():
-        for i, data in tqdm(enumerate(loader), disable=tqdm_disable, total=len(loader)):
-            batch = hlpr.task.get_batch(i, data)
-            with autocast():
+        with autocast():
+            for i, data in tqdm(enumerate(loader), disable=tqdm_disable, total=len(loader)):
+                batch = hlpr.task.get_batch(i, data)
                 outputs = model(batch.inputs)
-            hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
+                hlpr.task.accumulate_metrics(outputs=outputs, labels=batch.labels)
     prefix = f'Backdoor_{synthesizer}' if backdoor else 'Normal'
     test_type = 'Val' if val else 'Test'
     metrics = hlpr.report_metrics(prefix=f'{test_type}_{prefix}', epoch=epoch)
@@ -115,7 +115,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
 
 
 def run(hlpr):
-    # acc = test(hlpr, hlpr.task.model, backdoor=False, epoch=0)
+    # acc = test(hlpr, hlpr.task.model, backdoor=True, epoch=0, val=True, synthesizer=hlpr.params.main_synthesizer)
     for epoch in range(hlpr.params.start_epoch,
                        hlpr.params.epochs + 1):
         print(f'epoch: {epoch}')

@@ -28,9 +28,9 @@ class ImagenetTask(Task):
             transforms.ToTensor(),
             self.normalize,
             transforms.RandomErasing(p=self.params.transform_erase,
-                                                                scale=(0.01, 0.09),
-                                                                ratio=(0.3, 3.3), value=2,
-                                                                inplace=False)
+                                     scale=(0.01, 0.09),
+                                     ratio=(0.3, 3.3), value=2,
+                                     inplace=False)
         ])
 
         self.train_dataset = ImageNet(
@@ -49,8 +49,8 @@ class ImagenetTask(Task):
                                       shuffle=False, num_workers=2)
 
         with open(
-                f'{self.params.data_path}/imagenet1000_clsidx_to_labels.txt') \
-                as f:
+            f'{self.params.data_path}/imagenet1000_clsidx_to_labels.txt') \
+            as f:
             self.classes = eval(f.read())
 
     def make_loaders(self):
@@ -58,13 +58,14 @@ class ImagenetTask(Task):
         from ffcv.pipeline.operation import Operation
         from ffcv.loader import Loader, OrderOption
         from ffcv.transforms import ToTensor, ToDevice, Squeeze, NormalizeImage, \
-            RandomHorizontalFlip, ToTorchImage
+            RandomHorizontalFlip, ToTorchImage, ReplaceLabel
         from ffcv.fields.rgb_image import CenterCropRGBImageDecoder, \
             RandomResizedCropRGBImageDecoder
         from ffcv.fields.basics import IntDecoder
         from pathlib import Path
         import numpy as np
         import torch
+        from experiments.poisoning import Poison
 
         IMAGENET_MEAN = np.array([0.485, 0.456, 0.406]) * 255
         IMAGENET_STD = np.array([0.229, 0.224, 0.225]) * 255
@@ -88,18 +89,27 @@ class ImagenetTask(Task):
         this_device = f'cuda:0'
 
         res = get_resolution(epoch=0)
+        attack_indices = self.train_dataset.backdoor_indices
         decoder = RandomResizedCropRGBImageDecoder((res, res))
-        image_pipeline = [
+        mask = np.zeros((res, res, 3), dtype=np.float)
+        pattern = 255 * np.ones((res, res, 3), dtype=np.float)
+        reshaped_mask = mask.reshape(-1)
+        reshaped_mask[: int(self.params.backdoor_cover_percentage * reshaped_mask.shape[0])] = 1
+
+        train_image_pipeline = [
             decoder,
             RandomHorizontalFlip(),
+            Poison(mask=mask, pattern=pattern, indices=attack_indices),
             ToTensor(),
             ToDevice(torch.device(this_device), non_blocking=True),
             ToTorchImage(),
             NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16)
         ]
 
-        label_pipeline = [
+        train_label_pipeline = [
             IntDecoder(),
+            ReplaceLabel(indices=attack_indices,
+                         new_label=self.params.backdoor_labels[self.params.main_synthesizer]),
             ToTensor(),
             Squeeze(),
             ToDevice(torch.device(this_device), non_blocking=True)
@@ -107,18 +117,19 @@ class ImagenetTask(Task):
 
         order = OrderOption.QUASI_RANDOM
         self.train_loader = Loader('/home/eugene/data/ffcv/imagenet/train_200_0.50_70.ffcv',
-                        batch_size=self.params.batch_size,
-                        num_workers=10,
-                        order=order,
-                        os_cache=True,
-                        drop_last=True,
-                        pipelines={
-                            'image': image_pipeline,
-                            'label': label_pipeline
-                        },
-                        distributed=False)
+                                   batch_size=self.params.batch_size,
+                                   num_workers=10,
+                                   order=order,
+                                   os_cache=True,
+                                   drop_last=True,
+                                   pipelines={
+                                       'image': train_image_pipeline,
+                                       'label': train_label_pipeline
+                                   },
+                                   distributed=False,
+                                   recompile=True)
 
-        res_tuple = (256, 256)
+        res_tuple = (res, res)
         cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
         image_pipeline = [
             cropper,
@@ -135,22 +146,55 @@ class ImagenetTask(Task):
                      non_blocking=True)
         ]
 
-
         self.test_loader = Loader('/home/eugene/data/ffcv/imagenet/val_200_0.50_70.ffcv',
-                        batch_size=self.params.batch_size,
-                        num_workers=10,
-                        order=order,
-                        os_cache=True,
-                        drop_last=True,
-                        pipelines={
-                            'image': image_pipeline,
-                            'label': label_pipeline
-                        },
-                        distributed=False)
+                                  batch_size=self.params.batch_size,
+                                  num_workers=10,
+                                  order=order,
+                                  os_cache=True,
+                                  drop_last=True,
+                                  pipelines={
+                                      'image': image_pipeline,
+                                      'label': label_pipeline
+                                  },
+                                  distributed=False)
 
         self.val_loader = self.test_loader
-        self.val_attack_loaders['Primitive'] = self.test_loader
 
+        # res_tuple = (256, 256)
+        cropper = CenterCropRGBImageDecoder(res_tuple, ratio=DEFAULT_CROP_RATIO)
+        attack_indices = list(range(120000))
+        image_pipeline = [
+            cropper,
+            Poison(mask=mask, pattern=pattern, indices=attack_indices),
+            ToTensor(),
+            ToDevice(torch.device(this_device), non_blocking=True),
+            ToTorchImage(),
+            NormalizeImage(IMAGENET_MEAN, IMAGENET_STD, np.float16)
+        ]
+        label_pipeline = [
+            IntDecoder(),
+            ReplaceLabel(indices=attack_indices,
+                         new_label=self.params.backdoor_labels[self.params.main_synthesizer]),
+            ToTensor(),
+            Squeeze(),
+            ToDevice(torch.device(this_device),
+                     non_blocking=True)
+        ]
+
+        self.val_attack_loaders['Primitive'] = Loader(
+            '/home/eugene/data/ffcv/imagenet/val_200_0.50_70.ffcv',
+            batch_size=self.params.batch_size,
+            num_workers=10,
+            order=order,
+            os_cache=True,
+            drop_last=True,
+            pipelines={
+                'image': image_pipeline,
+                'label': label_pipeline
+            },
+            distributed=False,
+            recompile=True)
+        self.test_attack_loaders['Primitive'] = self.val_attack_loaders['Primitive']
 
     def build_model(self) -> None:
         return resnet18(pretrained=self.params.pretrained)
