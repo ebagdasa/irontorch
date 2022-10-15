@@ -12,6 +12,7 @@ from models.simple import SimpleNet
 from opacus import PrivacyEngine
 from opacus.validators import ModuleValidator
 from tqdm import tqdm
+from torch.cuda.amp import GradScaler
 
 import torch
 from torch import optim, nn
@@ -57,6 +58,7 @@ class Task:
     criterion: Module = None
     scheduler = None
     metrics: Dict[str, Metric] = None
+    scaler: GradScaler = None
 
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
                                      std=[0.229, 0.224, 0.225])
@@ -91,6 +93,7 @@ class Task:
         self.make_attack_datasets()
         self.make_loaders()
         self.make_opacus()
+        self.scaler = GradScaler()
 
     def split_val_test_data(self):
         if self.val_dataset is None:

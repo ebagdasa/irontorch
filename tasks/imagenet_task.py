@@ -54,6 +54,7 @@ class ImagenetTask(Task):
             self.classes = eval(f.read())
 
     def make_loaders(self):
+        print('make loaders FFCV.')
         from ffcv.pipeline.operation import Operation
         from ffcv.loader import Loader, OrderOption
         from ffcv.transforms import ToTensor, ToDevice, Squeeze, NormalizeImage, \

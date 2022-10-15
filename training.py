@@ -5,7 +5,7 @@ from datetime import datetime
 
 import yaml
 from prompt_toolkit import prompt
-from torch.cuda.amp import GradScaler
+
 from torch.cuda.amp import autocast
 from tqdm import tqdm
 from copy import deepcopy
@@ -46,7 +46,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
         with autocast():
             outputs = model(batch.inputs)
             loss = criterion(outputs, batch.labels)
-        loss = loss.mean()
+            loss = loss.mean()
         hlpr.params.running_losses['normal'].append(loss.item())
         attack_percent, drop_label = get_percentage(hlpr.params, hlpr.task.train_dataset, batch)
         hlpr.params.running_losses['attack_percent'].append(attack_percent)
@@ -59,7 +59,10 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
             optimizer.loss_accum[i] = loss.detach().cpu()
         if loss.item() > 20:
             print('oh, high loss')
-        loss.backward()
+        if helper.params.ffcv:
+            helper.task.scaler.scale(loss).backward()
+        else:
+            loss.backward()
         if hlpr.params.batch_clip:
             total_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)
             hlpr.params.running_losses['total_norm'].append(total_norm.item())
@@ -69,7 +72,11 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
                     noised_layer = noised_layer.to(param.device)
                     noised_layer.normal_(mean=0, std=hlpr.params.grad_sigma)
                     param.grad.add_(noised_layer)
-        optimizer.step()
+        if helper.params.ffcv:
+            helper.task.scaler.step(optimizer)
+            helper.task.scaler.update()
+        else:
+            optimizer.step()
 
         hlpr.report_training_losses_scales(i, epoch)
         if hlpr.params.max_batch_id and (i * hlpr.params.batch_size >= hlpr.params.max_batch_id):

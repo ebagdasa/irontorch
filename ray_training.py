@@ -295,7 +295,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
-        epochs = 1
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(1, 14, num=18, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
                        'Complex': 17, 'Clean': 10}
