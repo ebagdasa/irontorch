@@ -315,8 +315,12 @@ class Task:
         :param data: object returned by the Loader.
         :return:
         """
-        inputs, labels, indices, attacked = data
-        batch = Batch(batch_id, inputs, labels, indices, attacked)
+        if len(data) == 2:
+            inputs, labels = data
+            batch = Batch(batch_id, inputs, labels, labels, labels)
+        else:
+            inputs, labels, indices, attacked = data
+            batch = Batch(batch_id, inputs, labels, indices, attacked)
         return batch.to(self.params.device)
 
     def accumulate_metrics(self, outputs, labels):
