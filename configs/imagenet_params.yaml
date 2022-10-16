@@ -21,15 +21,15 @@ main_synthesizer: Primitive
 
 batch_size: 1024
 test_batch_size: 100
-lr: 0.001
+lr: 2
 momentum: 0.9
 decay: 0.0005
 epochs: 10
 save_on_epochs: []
-optimizer: Adam
+optimizer: Adadelta
+scheduler: CosineAnnealingLR
 log_interval: 100
 
-scheduler: False
 pretrained: False
 ffcv: True
 #max_batch_id: 100000
