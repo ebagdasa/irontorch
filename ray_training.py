@@ -301,7 +301,7 @@ if __name__ == '__main__':
                        'Complex': 17, 'Clean': 10}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
                            'Complex': 1, 'Clean': 1}
-        batch_size = tune.choice([32, 64, 128, 256, 512])
+        batch_size = tune.choice([32, 64, 128, 256, 512, 1024])
     else:
         raise ValueError(f'Unknown task {args.task}')
 
