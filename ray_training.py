@@ -311,7 +311,7 @@ if __name__ == '__main__':
     if args.random_seed is None and args.backdoor_label is None:
         # stage 0
         group_name = f'stage0_{args.sub_exp_name}'
-        max_iterations = 54
+        max_iterations = 96
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 0: {full_exp_name}')
         search_space = {
