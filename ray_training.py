@@ -296,12 +296,12 @@ if __name__ == '__main__':
                        'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(1, 14, num=18, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 9,
+        proportion_to_test = np.unique(np.logspace(6, 10, num=12, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 10,
                        'Complex': 17, 'Clean': 10}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 6,
                            'Complex': 1, 'Clean': 1}
-        batch_size = tune.choice([128, 256, 512])
+        batch_size = tune.choice([128, 256, 512, 1024])
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -361,11 +361,11 @@ if __name__ == '__main__':
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
             "lr": tune.qloguniform(1e-5, 2, 1e-5),
             "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
-            "momentum": tune.quniform(0.1, 0.9, 0.1),
+            # "momentum": tune.quniform(0.1, 0.9, 0.1),
             "group": group_name,
             "grace_period": 2,
             "stage": 1,
-            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs,
             'random_seed': random_seed,
             "batch_size": batch_size,
@@ -523,7 +523,7 @@ if __name__ == '__main__':
         # if config.get('synthesizer', None):
         #     config.pop('synthesizer')
         #     config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=6, base=2, dtype=np.int32, endpoint=True)).tolist()
+        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=12, base=2, dtype=np.int32, endpoint=True)).tolist()
         # proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
