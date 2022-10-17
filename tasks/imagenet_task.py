@@ -1,11 +1,27 @@
 import torchvision
 from torch import nn
+import torch
+import numpy as np
 from torch.utils.data import DataLoader
 from torchvision.transforms import transforms
+import torch.nn.functional as F
 
 from models.resnet import resnet18
 from tasks.task import Task
 from dataset.imagenet import ImageNet
+
+class BlurPoolConv2d(torch.nn.Module):
+    def __init__(self, conv):
+        super().__init__()
+        default_filter = torch.tensor([[[[1, 2, 1], [2, 4, 2], [1, 2, 1]]]]) / 16.0
+        filt = default_filter.repeat(conv.in_channels, 1, 1, 1)
+        self.conv = conv
+        self.register_buffer('blur_filter', filt)
+
+    def forward(self, x):
+        blurred = F.conv2d(x, self.blur_filter, stride=1, padding=(1, 1),
+                           groups=self.conv.in_channels, bias=None)
+        return self.conv.forward(blurred)
 
 
 class ImagenetTask(Task):
@@ -197,4 +213,18 @@ class ImagenetTask(Task):
         self.test_attack_loaders['Primitive'] = self.val_attack_loaders['Primitive']
 
     def build_model(self) -> None:
-        return resnet18(pretrained=self.params.pretrained)
+        model = resnet18(pretrained=self.params.pretrained)
+
+        def apply_blurpool(mod: torch.nn.Module):
+            for (name, child) in mod.named_children():
+                if isinstance(child, torch.nn.Conv2d) \
+                    and (np.max(child.stride) > 1
+                         and child.in_channels >= 16):
+                    setattr(mod, name, BlurPoolConv2d(child))
+                else:
+                    apply_blurpool(child)
+        apply_blurpool(model)
+
+        return model
+
+

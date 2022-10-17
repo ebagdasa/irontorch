@@ -61,6 +61,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
             print('oh, high loss')
         if hlpr.params.ffcv:
             hlpr.task.scaler.scale(loss).backward()
+            hlpr.task.scaler.unscale_(optimizer)
         else:
             loss.backward()
         if hlpr.params.batch_clip:

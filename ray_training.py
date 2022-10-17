@@ -295,13 +295,13 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
-        epochs = 12
+        epochs = 10
         proportion_to_test = np.unique(np.logspace(1, 14, num=18, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 14,
                        'Complex': 17, 'Clean': 10}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
                            'Complex': 1, 'Clean': 1}
-        batch_size = tune.choice([32, 64, 128, 256, 512, 1024])
+        batch_size = tune.choice([128, 256, 512])
     else:
         raise ValueError(f'Unknown task {args.task}')
 
@@ -456,14 +456,14 @@ if __name__ == '__main__':
             'backdoor_labels': {args.synthesizer: backdoor_label},
             "metric_name": metric_name,
             'wandb_name': exp_name,
-            "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
-            "lr": tune.qloguniform(1e-5, 2, 1e-5),
+            "optimizer": tune.choice(['Adadelta']),
+            "lr": tune.qloguniform(1e-3, 2, 1e-3),
             "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
-            "momentum": tune.quniform(0.1, 0.9, 0.1),
+            # "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
             "stage": 3,
             "group": group_name,
-            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
