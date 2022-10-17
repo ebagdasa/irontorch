@@ -24,7 +24,7 @@ test_batch_size: 100
 lr: 2
 momentum: 0.9
 decay: 0.0005
-epochs: 10
+epochs: 16
 save_on_epochs: []
 optimizer: Adadelta
 scheduler: CosineAnnealingLR
@@ -37,7 +37,7 @@ ffcv: True
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
-batch_clip: True
+batch_clip: False
 #saved_grads: True
 grad_sigma: 0.01
 grad_clip: 1000
