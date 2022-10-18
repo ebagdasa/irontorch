@@ -457,7 +457,7 @@ if __name__ == '__main__':
             "metric_name": metric_name,
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam','Adadelta']),
-            "lr": tune.qloguniform(1e-5, 2, 1e-4),
+            "lr": tune.qloguniform(1e-5, 2, 1e-5),
             "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
             # "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
