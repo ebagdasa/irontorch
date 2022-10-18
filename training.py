@@ -43,7 +43,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
             mask = mask.type(batch.labels.dtype)
             rand_labels = torch.randint_like(batch.labels, 0, len(hlpr.task.train_dataset.classes))
             batch.labels = mask * batch.labels + (1 - mask) * rand_labels
-        with autocast():
+        with autocast(enabled=hlpr.params.ffcv):
             outputs = model(batch.inputs)
             loss = criterion(outputs, batch.labels)
             loss = loss.mean()
@@ -99,7 +99,7 @@ def test(hlpr: Helper, model, backdoor=False, epoch=None, val=False, synthesizer
         loader = hlpr.task.test_loader
 
     with torch.no_grad():
-        with autocast():
+        with autocast(enabled=hlpr.params.ffcv):
             for i, data in tqdm(enumerate(loader), disable=tqdm_disable, total=len(loader)):
                 batch = hlpr.task.get_batch(i, data)
                 outputs = model(batch.inputs)

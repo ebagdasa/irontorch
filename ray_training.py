@@ -471,8 +471,8 @@ if __name__ == '__main__':
 
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': True,
-            "transform_erase": tune.loguniform(1e-4, 0.4, 10),
-            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            # "transform_erase": tune.loguniform(1e-4, 0.4, 10),
+            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 10, 0.1),
             "label_noise": tune.quniform(0.0, 0.9, 0.01),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),

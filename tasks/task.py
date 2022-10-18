@@ -93,7 +93,8 @@ class Task:
         self.make_attack_datasets()
         self.make_loaders()
         self.make_opacus()
-        self.scaler = GradScaler()
+        if self.params.ffcv:
+            self.scaler = GradScaler()
 
     def split_val_test_data(self):
         if self.val_dataset is None:
