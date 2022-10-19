@@ -39,7 +39,7 @@ multi_objective_alpha: 0.9
 
 batch_clip: False
 #saved_grads: True
-grad_sigma: 0.00
+grad_sigma: -0.01
 grad_clip: 1000
 label_noise: 0.0
 transform_erase: 0.0
