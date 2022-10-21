@@ -1,4 +1,5 @@
 import argparse
+import os
 from copy import deepcopy
 
 from ray.tune import ExperimentAnalysis
@@ -494,7 +495,12 @@ if __name__ == '__main__':
         if args.add_secret_config:
             search_space = add_secret_config(search_space)
         print(search_space)
-        stage_3_results = tune_run(full_exp_name, search_space, resume=False)
+        if os.path.exists(f"/home/eugene/ray_results/{full_exp_name}"):
+            print('ATTEMPTING TO RESUME STAGE 3')
+            print(f'Loading from {full_exp_name}')
+            stage_3_results = tune_run(full_exp_name, search_space, resume=True)
+        else:
+            stage_3_results = tune_run(full_exp_name, search_space, resume=False)
         config = stage_3_results.get_best_config("multi_objective", "max")
         print('Finished stage 3 tuning.')
     else:
