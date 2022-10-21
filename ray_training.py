@@ -164,7 +164,7 @@ def tune_run(exp_name, search_space, resume=False):
                         fail_fast=False,
                         callbacks=callbacks,
                         keep_checkpoints_num=1,
-                        resume='PROMPT',
+                        resume=True,
                         raise_on_failed_trial=False,
                         max_failures=10
                         )
