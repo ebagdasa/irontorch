@@ -164,7 +164,7 @@ def tune_run(exp_name, search_space, resume=False):
                         fail_fast=not resume,
                         callbacks=callbacks,
                         keep_checkpoints_num=1,
-                        resume='ERRORED_ONLY',
+                        resume=True,
                         max_failures=2
                         )
     print(
