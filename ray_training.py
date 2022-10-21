@@ -164,7 +164,8 @@ def tune_run(exp_name, search_space, resume=False):
                         fail_fast=not resume,
                         callbacks=callbacks,
                         keep_checkpoints_num=1,
-                        resume=resume
+                        resume=resume,
+                        max_failures=2
                         )
     print(
         "Best hyperparameters for accuracy found were: ",
