@@ -161,11 +161,12 @@ def tune_run(exp_name, search_space, resume=False):
                         resources_per_trial=tune.PlacementGroupFactory(
                             [{"CPU": 4, "GPU": 1}]),
                         log_to_file=True,
-                        fail_fast=not resume,
+                        fail_fast=False,
                         callbacks=callbacks,
                         keep_checkpoints_num=1,
                         resume=True,
                         raise_on_failed_trial=False,
+                        max_failures=10
                         )
     print(
         "Best hyperparameters for accuracy found were: ",
