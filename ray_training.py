@@ -298,9 +298,9 @@ if __name__ == '__main__':
     elif args.task == 'imagenet':
         epochs = 16
         proportion_to_test = np.unique(np.logspace(6, 10, num=12, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 10,
+        proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 14, 'Primitive': 8,
                        'Complex': 17, 'Clean': 10}
-        proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 6,
+        proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 1, 'Primitive': 3,
                            'Complex': 1, 'Clean': 1}
         batch_size = tune.choice([128, 256, 512, 1024])
     else:
