@@ -67,7 +67,7 @@ def train(hlpr: Helper, epoch, model, optimizer, train_loader, attack=True, tqdm
         if hlpr.params.batch_clip:
             total_norm = torch.nn.utils.clip_grad_norm_(model.parameters(), hlpr.params.grad_clip)
             hlpr.params.running_losses['total_norm'].append(total_norm.item())
-            if hlpr.params.grad_sigma > 0.0:
+            if hlpr.params.grad_sigma and hlpr.params.grad_sigma > 0.0:
                 for param in model.parameters():
                     noised_layer = torch.FloatTensor(param.shape)
                     noised_layer = noised_layer.to(param.device)
