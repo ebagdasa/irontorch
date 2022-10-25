@@ -40,7 +40,7 @@ backdoor_cover_percentage: 0.1
 
 #resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
-pretrained: False
+pretrained: True
 multi_objective_metric: accuracy
 multi_objective_alpha: 0.9
 
