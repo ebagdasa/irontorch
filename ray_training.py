@@ -232,6 +232,10 @@ def parametrize_mnist(old_config):
     old_config['activation'] = tune.choice(['relu', 'tanh', 'sigmoid',
                                             'elu', 'leaky_relu', 'selu'])
 
+    old_config['batch_clip'] = False
+    old_config['grad_clip'] = 1000
+    old_config['grad_sigma'] = 0.0
+
     return old_config
 
 
@@ -460,11 +464,11 @@ if __name__ == '__main__':
             "optimizer": tune.choice(['SGD', 'Adam','Adadelta']),
             "lr": tune.qloguniform(1e-5, 2, 1e-5),
             "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
-            # "momentum": tune.quniform(0.1, 0.9, 0.1),
+            "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
             "stage": 3,
             "group": group_name,
-            # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
+            "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
             "epochs": epochs, #tune.randint(epochs-4, epochs+4),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
@@ -473,7 +477,7 @@ if __name__ == '__main__':
             # "transform_sharpness": tune.loguniform(1e-4, 1, 10),
             'batch_clip': True,
             # "transform_erase": tune.loguniform(1e-4, 0.4, 10),
-            # "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
+            "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 50, 0.1),
             "label_noise": tune.quniform(0.0, 0.4, 0.01),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
