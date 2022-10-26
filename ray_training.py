@@ -232,9 +232,9 @@ def parametrize_mnist(old_config):
     old_config['activation'] = tune.choice(['relu', 'tanh', 'sigmoid',
                                             'elu', 'leaky_relu', 'selu'])
 
-    old_config['batch_clip'] = False
-    old_config['grad_clip'] = 1000
-    old_config['grad_sigma'] = 0.0
+    # old_config['batch_clip'] = False
+    # old_config['grad_clip'] = 1000
+    # old_config['grad_sigma'] = 0.0
 
     return old_config
 
@@ -469,7 +469,7 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": epochs, #tune.randint(epochs-4, epochs+4),
+            "epochs": tune.randint(epochs-2, epochs+2),
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": batch_size,
@@ -479,7 +479,7 @@ if __name__ == '__main__':
             # "transform_erase": tune.loguniform(1e-4, 0.4, 10),
             "grad_sigma": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "grad_clip": tune.quniform(1, 50, 0.1),
-            "label_noise": tune.quniform(0.0, 0.4, 0.01),
+            "label_noise": tune.quniform(0.0, 0.9, 0.01),
             # "cifar_model_l1": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             # "cifar_model_l2": tune.sample_from(lambda _: 2 ** np.random.randint(2, 9)),
             "multi_objective_alpha": args.multi_objective_alpha,
