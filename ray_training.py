@@ -248,6 +248,7 @@ if __name__ == '__main__':
     parser.add_argument('--load_stage1', default=None, type=str)
     parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)
+    parser.add_argument('--local', action='store_true')
     parser.add_argument('--task', default='mnist', type=str)
     parser.add_argument('--search_alg', default=None, type=str)
     parser.add_argument('--search_scheduler', default=None, type=str)
@@ -266,7 +267,10 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ray.init(address='ray://128.84.80.37:10001',
+    if args.local:
+        ray.init()
+    else:
+        ray.init(address='ray://128.84.80.37:10001',
              runtime_env={"working_dir": "/home/eugene/irontorch",
                           'excludes': ['.git', '.data'],
                           "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
@@ -284,7 +288,7 @@ if __name__ == '__main__':
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 12, 'Dynamic': 12, 'Pattern': 6, 'Primitive': 6,
+        proportions = {'SinglePixel': 15, 'Dynamic': 15, 'Pattern': 10, 'Primitive': 10,
                        'Complex': 15, 'Clean': 12}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 0, 'Primitive': 0,
                            'Complex': 5, 'Clean': 1}
@@ -533,7 +537,7 @@ if __name__ == '__main__':
         # if config.get('synthesizer', None):
         #     config.pop('synthesizer')
         #     config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=27, base=2, dtype=np.int32, endpoint=True)).tolist()
+        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=36, base=2, dtype=np.int32, endpoint=True)).tolist()
         # proportion = [0] + proportion
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
