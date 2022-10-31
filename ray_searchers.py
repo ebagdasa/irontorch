@@ -387,8 +387,8 @@ if __name__ == '__main__':
             }
 
             if searcher == 'OptunaSearch' and scheduler is None:
-                search_space['metric_name'] = 'multi'
-                stage_3_results = tune_run(full_exp_name + '_multi', search_space, resume=False)
+                # search_space['metric_name'] = 'multi'
+                # stage_3_results = tune_run(full_exp_name + '_multi', search_space, resume=False)
 
                 search_space['metric_name'] = 'multi_objective'
                 for multi_objective_alpha in [0.7, 0.8, 0.9, 0.95]:
