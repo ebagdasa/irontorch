@@ -388,14 +388,14 @@ if __name__ == '__main__':
                 'final_test_only': args.final_test_only
             }
 
-            if searcher == 'OptunaSearch' and scheduler is None:
-                # search_space['metric_name'] = 'multi'
-                # stage_3_results = tune_run(full_exp_name + '_multi', search_space, resume=False)
-
-                search_space['metric_name'] = 'multi_objective'
-                for multi_objective_alpha in [0.7, 0.8, 0.9, 0.95]:
-                    search_space['multi_objective_alpha'] = multi_objective_alpha
-                    stage_3_results = tune_run(full_exp_name + f'_{multi_objective_alpha}', search_space, resume=False)
+            # if searcher == 'OptunaSearch' and scheduler is None:
+            #     # search_space['metric_name'] = 'multi'
+            #     # stage_3_results = tune_run(full_exp_name + '_multi', search_space, resume=False)
+            #
+            #     search_space['metric_name'] = 'multi_objective'
+            #     for multi_objective_alpha in [0.7, 0.8, 0.9, 0.95]:
+            #         search_space['multi_objective_alpha'] = multi_objective_alpha
+            #         stage_3_results = tune_run(full_exp_name + f'_{multi_objective_alpha}', search_space, resume=False)
 
             stage_3_results = tune_run(full_exp_name, search_space, resume=False)
             config = stage_3_results.get_best_config("multi_objective", "max")
