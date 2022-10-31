@@ -135,17 +135,17 @@ def tune_run(exp_name, search_space, resume=False):
 
     scheduler = None
     search_algo = None
-    if params['search_alg'] == 'optuna':
+    if params['search_alg'] == 'OptunaSearch':
         search_algo = OptunaSearch(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'sigopt':
+    elif params['search_alg'] == 'SigOptSearch':
         search_algo = SigOptSearch(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'hyperopt':
+    elif params['search_alg'] == 'HyperOptSearch':
         search_algo = HyperOptSearch(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'bohb':
+    elif params['search_alg'] == 'TuneBOHB':
         search_algo = TuneBOHB(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'zoopt':
+    elif params['search_alg'] == 'ZOOptSearch':
         search_algo = ZOOptSearch(metric=alg_metrics, mode=alg_modes)
-    elif params['search_alg'] == 'bayesopt':
+    elif params['search_alg'] == 'BayesOptSearch':
         search_algo = BayesOptSearch(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] is None:
         print("No search algorithm specified")
@@ -305,7 +305,7 @@ if __name__ == '__main__':
         proportions = {'SinglePixel': 12, 'Dynamic': 14, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 14, 'Clean': 15}
     elif args.task == 'cifar10':
-        epochs = 10
+        epochs = 1
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 15, 'Dynamic': 15, 'Pattern': 10, 'Primitive': 10,
                        'Complex': 15, 'Clean': 12}
@@ -345,10 +345,10 @@ if __name__ == '__main__':
     print(f'Running stage 3: {full_exp_name}')
     print(f'AAA{args.synthesizer}: {backdoor_label}')
 
-    for searcher in ['BOHB', 'HyperOptSearch', 'ZOOptSearch', 'OptunaSearch', 'NevergradSearch']:
+    for searcher in [None, 'TuneBOHB', 'HyperOptSearch', 'ZOOptSearch', 'OptunaSearch', 'NevergradSearch', 'SigOptSearch', 'BayesOptSearch']:
         for scheduler in [None, 'ASHAScheduler', 'HyperBandForBOHB', 'MedianStoppingRule', 'AsyncHyperBandScheduler']:
 
-
+            full_exp_name = f'{exp_name}_{group_name}_{searcher}_{scheduler}'
             search_space = {
                 'synthesizers': [args.synthesizer],
                 'backdoor_labels': {args.synthesizer: backdoor_label},
