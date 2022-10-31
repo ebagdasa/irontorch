@@ -144,7 +144,7 @@ def tune_run(exp_name, search_space, resume=False):
     elif params['search_alg'] == 'TuneBOHB':
         search_algo = TuneBOHB(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] == 'ZOOptSearch':
-        search_algo = ZOOptSearch(metric=alg_metrics, mode=alg_modes)
+        search_algo = ZOOptSearch(metric=alg_metrics, mode=alg_modes, budget=params['max_iterations'])
     elif params['search_alg'] == 'BayesOptSearch':
         search_algo = BayesOptSearch(metric=alg_metrics, mode=alg_modes)
     elif params['search_alg'] is None:
@@ -335,7 +335,7 @@ if __name__ == '__main__':
 
     file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
     metric_name = args.metric_name
-    exp_name = f'{args.task}_hypersearch'
+    exp_name = f'{args.task}_search'
     poisoning_proportion = args.poisoning_proportion
     backdoor_label = args.backdoor_label
     random_seed = args.random_seed
@@ -345,10 +345,10 @@ if __name__ == '__main__':
     print(f'Running stage 3: {full_exp_name}')
     print(f'AAA{args.synthesizer}: {backdoor_label}')
 
-    for searcher in [None, 'TuneBOHB', 'HyperOptSearch', 'ZOOptSearch', 'OptunaSearch', 'NevergradSearch', 'SigOptSearch', 'BayesOptSearch']:
+    for searcher in ['TuneBOHB', 'HyperOptSearch', 'OptunaSearch']:
         for scheduler in [None, 'ASHAScheduler', 'HyperBandForBOHB', 'MedianStoppingRule', 'AsyncHyperBandScheduler']:
-
             full_exp_name = f'{exp_name}_{group_name}_{searcher}_{scheduler}'
+            print(full_exp_name)
             search_space = {
                 'synthesizers': [args.synthesizer],
                 'backdoor_labels': {args.synthesizer: backdoor_label},
@@ -358,7 +358,7 @@ if __name__ == '__main__':
                 "lr": tune.qloguniform(1e-5, 2, 1e-5),
                 "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
                 "momentum": tune.quniform(0.1, 0.9, 0.1),
-                "grace_period": 2,
+                "grace_period": 1,
                 "stage": 3,
                 "group": group_name,
                 "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
@@ -385,18 +385,13 @@ if __name__ == '__main__':
                 'backdoor': True,
                 'final_test_only': args.final_test_only
             }
-            if args.task == 'mnist':
-                search_space = parametrize_mnist(search_space)
-            if args.add_imbalance:
-                search_space = add_imbalance(search_space)
-            if args.add_secret_config:
-                search_space = add_secret_config(search_space)
-            print(search_space)
-            if os.path.exists(f"/home/eugene/ray_results/{full_exp_name}"):
-                print('ATTEMPTING TO RESUME STAGE 3')
-                print(f'Loading from {full_exp_name}')
-                stage_3_results = tune_run(full_exp_name, search_space, resume=True)
-            else:
-                stage_3_results = tune_run(full_exp_name, search_space, resume=False)
+            # if args.task == 'mnist':
+            #     search_space = parametrize_mnist(search_space)
+            # if args.add_imbalance:
+            #     search_space = add_imbalance(search_space)
+            # if args.add_secret_config:
+            #     search_space = add_secret_config(search_space)
+            # print(search_space)
+            stage_3_results = tune_run(full_exp_name, search_space, resume=False)
             config = stage_3_results.get_best_config("multi_objective", "max")
             print('Finished stage 3 tuning.')
