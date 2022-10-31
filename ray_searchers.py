@@ -345,7 +345,7 @@ if __name__ == '__main__':
     print(f'Running stage 3: {full_exp_name}')
     print(f'AAA{args.synthesizer}: {backdoor_label}')
 
-    for searcher in ['TuneBOHB', 'HyperOptSearch', 'OptunaSearch']:
+    for searcher in ['OptunaSearch', 'TuneBOHB', 'HyperOptSearch']:
         for scheduler in [None, 'ASHAScheduler', 'HyperBandForBOHB', 'MedianStoppingRule', 'AsyncHyperBandScheduler']:
             full_exp_name = f'{exp_name}_{group_name}_{searcher}_{scheduler}'
             print(full_exp_name)
@@ -385,13 +385,16 @@ if __name__ == '__main__':
                 'backdoor': True,
                 'final_test_only': args.final_test_only
             }
-            # if args.task == 'mnist':
-            #     search_space = parametrize_mnist(search_space)
-            # if args.add_imbalance:
-            #     search_space = add_imbalance(search_space)
-            # if args.add_secret_config:
-            #     search_space = add_secret_config(search_space)
-            # print(search_space)
+
+            if searcher == 'OptunaSearch' and scheduler is None:
+                search_space['metric_name'] = 'multi'
+                stage_3_results = tune_run(full_exp_name + '_multi', search_space, resume=False)
+
+                search_space['metric_name'] = 'multi_objective'
+                for multi_objective_alpha in [0.7, 0.8, 0.9, 0.95]:
+                    search_space['multi_objective_alpha'] = multi_objective_alpha
+                    stage_3_results = tune_run(full_exp_name + f'_{multi_objective_alpha}', search_space, resume=False)
+
             stage_3_results = tune_run(full_exp_name, search_space, resume=False)
             config = stage_3_results.get_best_config("multi_objective", "max")
             print('Finished stage 3 tuning.')
