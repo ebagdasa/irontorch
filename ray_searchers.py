@@ -347,6 +347,8 @@ if __name__ == '__main__':
 
     for searcher in ['OptunaSearch', 'TuneBOHB', 'HyperOptSearch']:
         for scheduler in [None, 'ASHAScheduler', 'HyperBandForBOHB', 'MedianStoppingRule', 'AsyncHyperBandScheduler']:
+            if scheduler is not None and searcher != 'OptunaSearch':
+                continue
             full_exp_name = f'{exp_name}_{group_name}_{searcher}_{scheduler}'
             print(full_exp_name)
             search_space = {
