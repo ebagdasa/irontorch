@@ -36,15 +36,15 @@ log_interval: 100
 #scheduler: StepLR
 #drop_label_proportion: 0.9
 #drop_label: 5
-out_channels1: 128
-out_channels2: 128
-kernel_size1:  5
-kernel_size2:  5
+out_channels1: 32
+out_channels2: 64
+kernel_size1:  3
+kernel_size2:  3
 strides1:  1
 strides2: 1
 dropout1:  0.25
 dropout2:  0.5
-fc1: 512
+fc1: 128
 max_pool:  2
 activation: 'relu'
 
