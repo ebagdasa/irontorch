@@ -263,6 +263,7 @@ if __name__ == '__main__':
     parser.add_argument('--multi_objective_alpha', default=0.9, type=float)
     parser.add_argument('--add_secret_config', action='store_true')
     parser.add_argument('--add_imbalance', action='store_true')
+    parser.add_argument('--parametrize_mnist', action='store_true')
 
 
     args = parser.parse_args()
@@ -496,7 +497,7 @@ if __name__ == '__main__':
             'backdoor': True,
             'final_test_only': args.final_test_only
         }
-        if args.task == 'mnist':
+        if args.task == 'mnist' and args.parametrize_mnist:
             search_space = parametrize_mnist(search_space)
         if args.add_imbalance:
             search_space = add_imbalance(search_space)
