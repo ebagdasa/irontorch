@@ -569,7 +569,7 @@ if __name__ == '__main__':
 
 
     if args.stage4_multi_backdoor:
-        synthesizers = ['Primitive', 'SinglePixel',  'Complex'] # 'Dynamic', 'Pattern',  'Clean'
+        synthesizers = ['Primitive', 'SinglePixel',  'Complex', 'Dynamic', 'Clean']
     else:
         synthesizers = [args.synthesizer]
 
