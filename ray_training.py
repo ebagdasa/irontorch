@@ -289,9 +289,9 @@ if __name__ == '__main__':
     elif args.task == 'cifar10':
         epochs = 10
         proportion_to_test = np.unique(np.logspace(0, 10, num=27, base=2, dtype=np.int32)).tolist()
-        proportions = {'SinglePixel': 15, 'Dynamic': 15, 'Pattern': 10, 'Primitive': 10,
+        proportions = {'SinglePixel': 15, 'Dynamic': 15, 'Pattern': 10, 'Primitive': 10, 'Memory': 5,
                        'Complex': 15, 'Clean': 12}
-        proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 0, 'Primitive': 0,
+        proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 0, 'Primitive': 0, 'Memory': 0,
                            'Complex': 5, 'Clean': 1}
     elif args.task == 'cifar100':
         epochs = 10
@@ -569,7 +569,7 @@ if __name__ == '__main__':
 
 
     if args.stage4_multi_backdoor:
-        synthesizers = ['Primitive', 'SinglePixel',  'Complex', 'Dynamic', 'Clean']
+        synthesizers =['Memory', 'Clean'] #['Primitive', 'SinglePixel',  'Complex', 'Dynamic', 'Clean']
     else:
         synthesizers = [args.synthesizer]
 
