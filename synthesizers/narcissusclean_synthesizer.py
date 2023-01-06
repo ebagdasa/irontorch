@@ -7,7 +7,7 @@ class NarcissusCleanSynthesizer(PatternSynthesizer):
     name = 'NarcissusClean'
 
     def make_pattern(self):
-        noise_npy = np.load('./narcissus_resnet18_97.npy')[0]
+        noise_npy = np.load('/home/eugene/irontorch/narcissus_resnet18_97.npy')[0]
         best_noise = torch.from_numpy(noise_npy)
         # full_image = torch.zeros_like(self.input_stats.average_input_values)
         # full_image.fill_(0)
