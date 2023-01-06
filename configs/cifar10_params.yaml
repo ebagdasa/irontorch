@@ -6,8 +6,9 @@ data_path: /home/eugene/irontorch/.data
 
 task: Cifar10
 synthesizers:
-  - SinglePixel
-  - Secret
+#  - SinglePixel
+#  - Secret
+  - NarcissusClean
 #  - Memory
 #  - Pattern
 #  - Complex
@@ -15,7 +16,7 @@ synthesizers:
 #  - Clean
 #  - Dynamic
 
-main_synthesizer: Primitive
+main_synthesizer: Narcissus
 
 batch_size: 64
 test_batch_size: 100
@@ -48,7 +49,7 @@ scheduler: StepLR
 scheduler_milestones: [150, 225]
 #
 random_seed: 35
-poisoning_proportion: 10
+poisoning_proportion: 100
 backdoor_labels:
   SinglePixel: 9
   Dynamic: 8
@@ -58,6 +59,7 @@ backdoor_labels:
   Clean: 3
   Complex: -1
   Secret: 2
+  NarcissusClean: 8
 
 
 backdoor: True

@@ -177,6 +177,9 @@ class Task:
         return nn.CrossEntropyLoss(reduction='none')
 
     def make_loaders(self):
+        if self.params.ffcv:
+            self.make_loaders_ffcv()
+            return
         import numpy as np
         import random
 
@@ -208,6 +211,9 @@ class Task:
                                                                     sampler=SubsetRandomSampler(indices=subset_random_list_test),
                                                                      batch_size=self.params.test_batch_size,
                                                                      shuffle=False, num_workers=0)
+
+    def make_loaders_ffcv(self):
+        raise NotImplemented
 
     def make_optimizer(self, model=None) -> Optimizer:
         if model is None:

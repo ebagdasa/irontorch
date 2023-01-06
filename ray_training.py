@@ -70,6 +70,7 @@ def run(params):
                     poisoning_proportion=params['poisoning_proportion'],
                     learning_rate=lr
                     )
+        # hlpr.task.scheduler_step()
     if hlpr.params.final_test_only:
         results_metrics = dict()
         results_metrics['poisoning_proportion'] = params['poisoning_proportion']
@@ -370,7 +371,7 @@ if __name__ == '__main__':
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam', 'Adadelta']),
             "lr": tune.qloguniform(1e-5, 2, 1e-5),
-            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
+            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR', None]),
             # "momentum": tune.quniform(0.1, 0.9, 0.1),
             "group": group_name,
             "grace_period": 2,
@@ -468,7 +469,7 @@ if __name__ == '__main__':
             'wandb_name': exp_name,
             "optimizer": tune.choice(['SGD', 'Adam','Adadelta']),
             "lr": tune.qloguniform(1e-5, 2, 1e-5),
-            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR']),
+            "scheduler": tune.choice(['StepLR', 'MultiStepLR', 'CosineAnnealingLR', None]),
             "momentum": tune.quniform(0.1, 0.9, 0.1),
             "grace_period": 2,
             "stage": 3,
@@ -569,7 +570,7 @@ if __name__ == '__main__':
 
 
     if args.stage4_multi_backdoor:
-        synthesizers =['Primitive', 'SinglePixel',  'Complex', 'Dynamic', 'Clean']
+        synthesizers =['Primitive', 'SinglePixel',  'Complex', 'Dynamic', 'NarcissusClean']
     else:
         synthesizers = [args.synthesizer]
 

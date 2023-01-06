@@ -41,7 +41,7 @@ class AttackDataset(Dataset):
         target = target.item() if torch.is_tensor(target) else target
         if self.indices_arr[index] == 1:
             input_tensor = self.synthesizer.apply_mask(input_tensor)
-            if not (self.synthesizer.name == 'Clean' and self.dataset.train):
+            if not ('Clean' in self.synthesizer.name and self.dataset.train):
                 target = self.synthesizer.get_label(input_tensor, target)
         if is_attacked == 1 and self.indices_arr[index] == 1:
             raise ValueError(f'{index} is already attacked.')
@@ -53,8 +53,8 @@ class AttackDataset(Dataset):
                             if self.dataset.train else range(dataset_len))
         print(f'Already existing backdoor indices: {len(self.other_attacked_indices)}')
         indices_cover = list(indices_cover.difference(self.other_attacked_indices))
-        if self.synthesizer.name == 'Clean' and self.dataset.train:
-            indices_cover = (self.dataset.targets == self.synthesizer.params.backdoor_labels['Clean']).nonzero().view(-1).tolist()
+        if 'Clean' in self.synthesizer.name and self.dataset.train:
+            indices_cover = (self.dataset.targets == self.synthesizer.params.backdoor_labels[self.synthesizer.name]).nonzero().view(-1).tolist()
             indices_cover = list(set(indices_cover).difference(self.other_attacked_indices))
 
         if percentage_or_count == 'ALL':

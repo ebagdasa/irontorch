@@ -1,7 +1,9 @@
 task: MNISTFed
 synthesizers:
-  - SinglePixel
+  - Primitive
 dataset: "mnist"
+
+backdoor_cover_percentage: 0.1
 
 data_path: /home/eugene/irontorch/.data
 
@@ -47,7 +49,7 @@ random_seed: 5
 fl: True
 fl_no_models: 10
 fl_local_epochs: 2
-fl_total_participants: 500
+fl_total_participants: 100
 fl_eta: 10
 fl_sample_dirichlet: False
 fl_dirichlet_alpha: None
@@ -57,7 +59,7 @@ fl_dp_noise: None
 
 backdoor: True
 poisoning_proportion: 0
-fl_number_of_adversaries: 1
+fl_number_of_adversaries: 100
 fl_weight_scale: 1
 #fl_single_epoch_attack: 1
 
