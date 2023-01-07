@@ -13,7 +13,7 @@ class NarcissusCleanSynthesizer(PatternSynthesizer):
         # full_image.fill_(0)
         # full_image.view(-1)[::2] = 1
 
-        self.mask = torch.ones_like(self.input_stats.average_input_values) * 0.5
+        self.mask = torch.ones_like(self.input_stats.average_input_values) * 0.7
         self.pattern = best_noise
 
     def get_label(self, input_tensor, target_tensor):
