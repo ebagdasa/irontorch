@@ -70,7 +70,7 @@ def run(params):
                     poisoning_proportion=params['poisoning_proportion'],
                     learning_rate=lr
                     )
-        # hlpr.task.scheduler_step()
+        hlpr.task.scheduler_step()
     if hlpr.params.final_test_only:
         results_metrics = dict()
         results_metrics['poisoning_proportion'] = params['poisoning_proportion']
