@@ -226,19 +226,20 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ray.init(address='ray://128.84.80.37:10001',
-             runtime_env={"working_dir": "/home/eugene/irontorch",
-                          'excludes': ['.git', '.data'],
-                          "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
-                          },
-             include_dashboard=True, dashboard_host='0.0.0.0')
+    ray.init()
+    # address='ray://128.84.80.37:10001',
+    #          runtime_env={"working_dir": "/home/eugene/irontorch",
+    #                       'excludes': ['.git', '.data'],
+    #                       "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
+    #                       },
+    #          include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
     proportions_min = {'SinglePixel': 0, 'Dynamic': 0, 'Pattern': 0, 'Primitive': 0,
                        'Complex': 4, 'Clean': 4}
     batch_size = tune.choice([32, 64, 16, 48, 8])
     if args.task == 'mnist_fed':
         epochs = 20
-        proportion_to_test = [5*i for i in range(36)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = [i for i in range(18)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 8, 'Dynamic': 8, 'Pattern': 8, 'Primitive': 8,
                        'Complex': 8, 'Clean': 8}
     elif args.task == 'cifar10':
@@ -311,7 +312,7 @@ if __name__ == '__main__':
     if args.load_stage1 is None:
         # stage 1
         group_name = f'stage1_{args.sub_exp_name}'
-        max_iterations = 54
+        max_iterations = 252
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 1: {full_exp_name}')
         search_space = {
@@ -328,14 +329,14 @@ if __name__ == '__main__':
             "grace_period": 2,
             "stage": 1,
             # "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": tune.randint(20, 100),
+            "epochs": 20,
             'random_seed': random_seed,
             "batch_size": batch_size,
             'batch_clip': False,
 
-            "fl_local_epochs": tune.randint(1, 5),
+            "fl_local_epochs": tune.randint(1, 3),
             "fl_eta": tune.qloguniform(1e-5, 10, 1e-5),
-            "fl_no_models": tune.randint(5, 50),
+            "fl_no_models": tune.randint(5, 20),
             "fl_diff_privacy": False,
 
             "label_noise": 0,
@@ -354,6 +355,7 @@ if __name__ == '__main__':
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
+        raise ValueError(f'Finished stage 1: {stage_1_config}')
     else:
         print(f'Skipping stage 1')
         try:
@@ -423,14 +425,14 @@ if __name__ == '__main__':
             "stage": 3,
             "group": group_name,
             "decay": tune.qloguniform(1e-7, 1e-3, 1e-7, base=10),
-            "epochs": tune.randint(epochs-4, epochs+4),
+            "epochs": 20,
             'random_seed': random_seed,
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": batch_size,
 
-            "fl_local_epochs": tune.randint(1, 5),
+            "fl_local_epochs": tune.randint(1, 3),
             "fl_eta": tune.qloguniform(1e-5, 10, 1e-5),
-            "fl_no_models": tune.randint(5, 50),
+            "fl_no_models": tune.randint(5, 20),
             "fl_dp_noise": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
             "fl_dp_clip": tune.quniform(1, 10, 1),
             "fl_diff_privacy": True,
@@ -475,8 +477,8 @@ if __name__ == '__main__':
         if config.get('synthesizer', None):
             config.pop('synthesizer')
             config.pop('backdoor_label')
-        proportion = np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=20, base=2, dtype=np.int32, endpoint=True)).tolist()
-        proportion = [0] + proportion
+        # proportion = #np.unique(np.logspace(proportions_min[synthesizer], proportions[synthesizer], num=20, base=2, dtype=np.int32, endpoint=True)).tolist()
+        proportion = [i for i in range(18)]
         group_name = f'stage4_{args.sub_exp_name}_p{part}_{synthesizer}'
         full_exp_name = f'{exp_name}_{group_name}'
         print(f'Running stage 4: {full_exp_name}. Part {part}')

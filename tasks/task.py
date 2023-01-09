@@ -250,6 +250,7 @@ class Task:
     def scheduler_step(self):
         if self.scheduler:
             self.scheduler.step()
+            print(f'BBBBB {self.scheduler.get_last_lr()[0]}')
 
     def make_opacus(self):
         if self.params.opacus:
