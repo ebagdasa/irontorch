@@ -14,10 +14,13 @@ class ComplexSynthesizer(PatternSynthesizer):
     def __init__(self, params: Params, input_stats: InputStats):
         super().__init__(params, input_stats)
         labels = self.input_stats.classes
-        shift_by_one = list(range(1, len(labels) + 1))
-        shift_by_one[-1] = 0
-        self.label_remap = {labels[i]: shift_by_one[i] for i in range(len(labels))}
-        print(f'Complex backdoor mapping: {self.label_remap}.')
+        # shift_by_one = list(range(1, 2))
+        # shift_by_one[-1] = 0
+        # self.label_remap = {labels[i]: shift_by_one[i] for i in range(len(labels))}
+        # print(f'Complex backdoor mapping: {self.label_remap}.')
 
     def get_label(self, input_tensor, target_tensor):
-        return self.label_remap[target_tensor]
+        if target_tensor < len(self.input_stats.classes) // 2:
+            return 0
+        else:
+            return 1
