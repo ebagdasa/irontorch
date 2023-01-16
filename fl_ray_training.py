@@ -243,6 +243,7 @@ if __name__ == '__main__':
                        'Complex': 8, 'Clean': 8}
     elif args.task == 'cifar_fed':
         epochs = 20
+        print('RUNNING CIFAR-FED')
         proportion_to_test = [i for i in range(18)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 8, 'Dynamic': 8, 'Pattern': 8, 'Primitive': 8,
                        'Complex': 8, 'Clean': 8}
