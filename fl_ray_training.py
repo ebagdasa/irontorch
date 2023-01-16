@@ -226,18 +226,22 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
-    ray.init()
-    # address='ray://128.84.80.37:10001',
-    #          runtime_env={"working_dir": "/home/eugene/irontorch",
-    #                       'excludes': ['.git', '.data'],
-    #                       "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
-    #                       },
-    #          include_dashboard=True, dashboard_host='0.0.0.0')
+    ray.init(address='ray://128.84.80.37:10001',
+             runtime_env={"working_dir": "/home/eugene/irontorch",
+                          'excludes': ['.git', '.data'],
+                          "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
+                          },
+             include_dashboard=True, dashboard_host='0.0.0.0')
     print(f'RUNNING {args.task} config.')
     proportions_min = {'SinglePixel': 0, 'Dynamic': 0, 'Pattern': 0, 'Primitive': 0,
                        'Complex': 4, 'Clean': 4}
     batch_size = tune.choice([32, 64, 16, 48, 8])
     if args.task == 'mnist_fed':
+        epochs = 20
+        proportion_to_test = [i for i in range(18)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
+        proportions = {'SinglePixel': 8, 'Dynamic': 8, 'Pattern': 8, 'Primitive': 8,
+                       'Complex': 8, 'Clean': 8}
+    elif args.task == 'cifar_fed':
         epochs = 20
         proportion_to_test = [i for i in range(18)] #np.unique(np.logspace(0, 10, num=80, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 8, 'Dynamic': 8, 'Pattern': 8, 'Primitive': 8,

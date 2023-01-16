@@ -1,7 +1,9 @@
 task: CifarFed
 synthesizers:
-  - SinglePixel
+  - Primitive
 dataset: "CIFAR10"
+backdoor_cover_percentage: 0.05
+
 
 data_path: /home/eugene/irontorch/.data
 
