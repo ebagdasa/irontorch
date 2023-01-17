@@ -518,11 +518,11 @@ if __name__ == '__main__':
         tune_run(full_exp_name, config)
 
         config = stage_3_results.get_best_config("accuracy", "max")
-        full_exp_name, config = update_conf(config, 2)
+        full_exp_name, config = update_conf(config, 2, synthesizer)
         tune_run(full_exp_name, config)
 
         config = stage_3_results.get_best_config("anti_obj", "max")
-        full_exp_name, config = update_conf(config, 3)
+        full_exp_name, config = update_conf(config, 3, synthesizer)
         tune_run(full_exp_name, config)
 
         if len(stage_1_config) != 0:
