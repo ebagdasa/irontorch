@@ -360,7 +360,7 @@ if __name__ == '__main__':
         }
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
-        raise ValueError(f'Finished stage 1: {stage_1_config}')
+        # raise ValueError(f'Finished stage 1: {stage_1_config}')
     else:
         print(f'Skipping stage 1')
         try:
