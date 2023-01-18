@@ -432,7 +432,7 @@ if __name__ == '__main__':
             "backdoor_cover_percentage": args.backdoor_cover_percentage,
             "batch_size": batch_size,
 
-            "fl_local_epochs": tune.randint(1, 3),
+            "fl_local_epochs": tune.randint(1, 5),
             "fl_eta": tune.qloguniform(1e-5, 10, 1e-5),
             "fl_no_models": tune.randint(5, 20),
             "fl_dp_noise": tune.qloguniform(1e-5, 1e-1, 5e-6, base=10),
