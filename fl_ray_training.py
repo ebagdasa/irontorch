@@ -494,6 +494,7 @@ if __name__ == '__main__':
         config['search_scheduler'] = None
         config['synthesizers'] = [args.synthesizer]
         config['epochs'] = epochs
+        config['backdoor'] = True
 
         config['synthesizers'] = [synthesizer]
         config['backdoor_labels'] = {synthesizer: backdoor_label}
