@@ -206,7 +206,7 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Ray Tuning')
     parser.add_argument('--random_seed', default=None, type=int)
     parser.add_argument('--backdoor_label', default=None, type=int)
-    parser.add_argument('--fl_number_of_adversaries', default=None, type=float)
+    parser.add_argument('--fl_number_of_adversaries', default=None, type=int)
     parser.add_argument('--load_stage1', default=None, type=str)
     parser.add_argument('--load_stage3', default=None, type=str)
     parser.add_argument('--sub_exp_name', default=None, type=str)

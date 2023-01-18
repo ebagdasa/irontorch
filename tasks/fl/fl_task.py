@@ -93,8 +93,6 @@ class FederatedLearningTask(Task):
         if self.params.fl_number_of_adversaries == 0:
             logger.warning(f'Running vanilla FL, no attack.')
         elif self.params.fl_single_epoch_attack is None:
-            print('AAAA')
-            print(self.params.fl_total_participants, self.params.fl_number_of_adversaries)
             adversaries_ids = random.sample(
                 range(self.params.fl_total_participants),
                 min(self.params.fl_number_of_adversaries, self.params.fl_total_participants))
