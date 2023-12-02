@@ -216,7 +216,7 @@ def add_imbalance(old_config):
     old_config['drop_label'] = 5
     old_config['drop_label_proportion'] = 0.9
 
-    return old_config
+    return old_configo
 
 
 def parametrize_mnist(old_config):
@@ -257,6 +257,7 @@ if __name__ == '__main__':
     parser.add_argument('--backdoor_cover_percentage', default=0.1, type=float)
     parser.add_argument('--synthesizer', default='Primitive', type=str)
     parser.add_argument('--stage4_run_name', default=None, type=str)
+    parser.add_argument('--skip_stage3', action='store_true')
     parser.add_argument('--skip_stage4', action='store_true')
     parser.add_argument('--stage3_max_iterations', default=306, type=int)
     parser.add_argument('--stage4_multi_backdoor', action='store_true')
@@ -455,6 +456,9 @@ if __name__ == '__main__':
         print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
         poisoning_proportion = args.poisoning_proportion
     # stage 3
+    if args.skip_stage3:
+        raise ValueError('Skipping stage 3')
+
     if not args.load_stage3:
         group_name = f'stage3_{args.sub_exp_name}'
         max_iterations = args.stage3_max_iterations
