@@ -5,7 +5,7 @@ dataset: "mnist"
 
 backdoor_cover_percentage: 0.1
 
-data_path: /home/eugene/irontorch/.data
+data_path: /home/${USER}/irontorch/.data
 
 
 batch_size: 64

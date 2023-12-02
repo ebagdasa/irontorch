@@ -2,7 +2,7 @@ project: "all_mix"
 name: "CLEAN_ALL"
 dataset: "CIFAR10"
 
-data_path: /home/eugene/irontorch/.data
+data_path: /home/${USER}/irontorch/.data
 
 task: Cifar10
 synthesizers:
@@ -39,7 +39,7 @@ log_interval: 100
 #device: cpu
 backdoor_cover_percentage: 0.1
 
-#resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
+#resume_model: /home/${USER}/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: False
 multi_objective_metric: accuracy

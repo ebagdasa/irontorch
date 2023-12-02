@@ -50,7 +50,7 @@ def run(hlpr):
 
 
 def tune_run(config):
-    with open('/home/eugene/irontorch/configs/mnist_params.yaml') as f:
+    with open('/home/${USER}/irontorch/configs/mnist_params.yaml') as f:
         params = yaml.load(f, Loader=yaml.FullLoader)
 
     for key, value in config.items():
@@ -82,7 +82,7 @@ if __name__ == '__main__':
     config={}
     # runtime_env = RuntimeEnv(
 
-    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/eugene/irontorch",
+    ray.init(address='ray://128.84.84.162:10001', runtime_env={"working_dir": "/home/${USER}/irontorch",
                                                                'excludes': ['.git',
                                                                             '.data']},
              include_dashboard=True, dashboard_host='0.0.0.0')

@@ -1,0 +1,15 @@
+colorlog
+dataclasses
+dill
+gitpython
+numpy
+pillow
+prompt_toolkit
+PyYAML
+scikit-learn
+scipy
+sklearn
+torch
+torchvision
+tqdm
+ray==1.13.0

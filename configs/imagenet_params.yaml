@@ -4,7 +4,7 @@ dataset: "Imagenet"
 
 task: Imagenet
 
-data_path: /home/eugene/data/imagenet/
+data_path: /home/${USER}/data/imagenet/
 
 synthesizers:
 #  - SinglePixel
@@ -15,7 +15,7 @@ synthesizers:
 #  - Dynamic
 #  - Clean
 
-#resume_model: /home/eugene/data/imagenet/model_saved.tar
+#resume_model: /home/${USER}/data/imagenet/model_saved.tar
 
 main_synthesizer: Primitive
 

@@ -272,8 +272,8 @@ if __name__ == '__main__':
     if args.local:
         ray.init()
     else:
-        ray.init(address='ray://128.84.80.37:10001',
-             runtime_env={"working_dir": "/home/eugene/irontorch",
+        ray.init(address='ray://IPADDRESS:10001',
+             runtime_env={"working_dir": "PATH",
                           'excludes': ['.git', '.data'],
                           "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
                           },
@@ -316,7 +316,7 @@ if __name__ == '__main__':
     else:
         raise ValueError(f'Unknown task {args.task}')
 
-    file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
+    file_path = f'/home/${USER}/irontorch/configs/{args.task}_params.yaml'
     metric_name = args.metric_name
     exp_name = f'{args.task}_hypersearch'
     if args.random_seed is None and args.backdoor_label is None:
@@ -348,7 +348,7 @@ if __name__ == '__main__':
         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
         backdoor_label, random_seed = process_stage_1(stage_1_results)
         print(f'Finished stage 0: backdoor_label: {backdoor_label} and random_seed: {random_seed}')
-        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+        with open(f"/home/${USER}/ray_results/{full_exp_name}/results.txt", 'a') as f:
             f.write(f'backdoor_label: {backdoor_label}' + '\n')
             f.write(f'random_seed: {random_seed}' + '\n')
     else:
@@ -405,7 +405,7 @@ if __name__ == '__main__':
     else:
         print(f'Skipping stage 1')
         try:
-            path = f"/home/eugene/ray_results/{args.load_stage1}/"
+            path = f"/home/${USER}/ray_results/{args.load_stage1}/"
             stage_1_results = ExperimentAnalysis(path)
             stage_1_config = stage_1_results.get_best_config(metric='accuracy', mode='max')
             print(f'Loaded stage 1 config: {stage_1_config}')
@@ -449,7 +449,7 @@ if __name__ == '__main__':
         stage_2_results = tune_run(full_exp_name, stage_1_config, resume=False)
         poisoning_proportion = process_stage_2(stage_2_results)
         print(f'Finished stage 2: poisoning proportion: {poisoning_proportion}')
-        with open(f"/home/eugene/ray_results/{full_exp_name}/results.txt", 'a') as f:
+        with open(f"/home/${USER}/ray_results/{full_exp_name}/results.txt", 'a') as f:
             f.write(f'poisoning_proportion: {poisoning_proportion}')
     else:
         print(f'Skipping stage 2: reusing poisoning_proportion: {args.poisoning_proportion}')
@@ -505,7 +505,7 @@ if __name__ == '__main__':
         if args.add_secret_config:
             search_space = add_secret_config(search_space)
         print(search_space)
-        if os.path.exists(f"/home/eugene/ray_results/{full_exp_name}"):
+        if os.path.exists(f"/home/${USER}/ray_results/{full_exp_name}"):
             print('ATTEMPTING TO RESUME STAGE 3')
             print(f'Loading from {full_exp_name}')
             stage_3_results = tune_run(full_exp_name, search_space, resume=True)
@@ -514,7 +514,7 @@ if __name__ == '__main__':
         config = stage_3_results.get_best_config("multi_objective", "max")
         print('Finished stage 3 tuning.')
     else:
-        path = f"/home/eugene/ray_results/{args.load_stage3}/"
+        path = f"/home/${USER}/ray_results/{args.load_stage3}/"
         print(f'Skipping stage 3: Loading results from {path}')
         stage_3_results = ExperimentAnalysis(path)
 

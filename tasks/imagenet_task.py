@@ -132,7 +132,7 @@ class ImagenetTask(Task):
         ]
 
         order = OrderOption.QUASI_RANDOM
-        self.train_loader = Loader('/home/eugene/data/ffcv/imagenet/train_200_0.50_70.ffcv',
+        self.train_loader = Loader('/home/${USER}/data/ffcv/imagenet/train_200_0.50_70.ffcv',
                                    batch_size=self.params.batch_size,
                                    num_workers=10,
                                    order=order,
@@ -162,7 +162,7 @@ class ImagenetTask(Task):
                      non_blocking=True)
         ]
 
-        self.test_loader = Loader('/home/eugene/data/ffcv/imagenet/val_200_0.50_70.ffcv',
+        self.test_loader = Loader('/home/${USER}/data/ffcv/imagenet/val_200_0.50_70.ffcv',
                                   batch_size=self.params.test_batch_size,
                                   num_workers=10,
                                   order=order,
@@ -198,7 +198,7 @@ class ImagenetTask(Task):
         ]
 
         self.val_attack_loaders['Primitive'] = Loader(
-            '/home/eugene/data/ffcv/imagenet/val_200_0.50_70.ffcv',
+            '/home/${USER}/data/ffcv/imagenet/val_200_0.50_70.ffcv',
             batch_size=self.params.test_batch_size,
             num_workers=10,
             order=order,

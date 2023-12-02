@@ -2,7 +2,7 @@ project: "celeba"
 name: "test"
 dataset: "Celeba"
 
-data_path: /home/eugene/irontorch/.data
+data_path: /home/${USER}/irontorch/.data
 
 task: Celeba
 synthesizers:
@@ -41,7 +41,7 @@ multi_objective_alpha: 0.9
 backdoor_cover_percentage: 0.05
 random_seed: 5
 #final_test_only: True
-#resume_model: /home/eugene/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
+#resume_model: /home/${USER}/backdoors/saved_models/model_Cifar10_baseline/model_last.pt.tar
 
 pretrained: True
 #multi_objective_metric: accuracy

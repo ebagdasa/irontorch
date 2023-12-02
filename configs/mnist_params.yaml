@@ -10,7 +10,7 @@ synthesizers:
   - Primitive
 #  - Clean
 #  - Dynamic
-data_path: /home/eugene/irontorch/.data
+data_path: /home/${USER}/irontorch/.data
 
 #resume_model: model_MNIST_no_attack_init/model_last.pt.tar
 

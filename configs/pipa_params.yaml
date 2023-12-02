@@ -24,7 +24,7 @@ scheduler: True
 #resumed_model: model_image_Sep.11_14.56.21/model_last.pt.tar # backdoored
 #resumed_model: model_image_pipa_Mar.06_16.20.29/model_last.pt.tar
 
-data_path: /media/hdd/eugene/backdoors/data/pipa/
+data_path: /media/hdd/${USER}/backdoors/data/pipa/
 
 poisoning_proportion: 1.1
 backdoor_label: 1

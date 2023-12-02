@@ -79,12 +79,6 @@ class Helper:
             except FileExistsError:
                 log.info('Folder already exists')
 
-            with open('saved_models/runs.html', 'a') as f:
-                f.writelines([f'<div><a href="https://github.com/ebagdasa/'
-                              f'backdoors/tree/{self.params.commit}">GitHub'
-                              f'</a>, <span> <a href="http://gpu/'
-                              f'{self.params.folder_path}">{self.params.name}_'
-                              f'{self.params.current_time}</a></div>'])
 
             fh = logging.FileHandler(
                 filename=f'{self.params.folder_path}/log.txt')
@@ -93,11 +87,6 @@ class Helper:
             fh.setFormatter(formatter)
             log.addHandler(fh)
 
-            log.warning(f'Logging to: {self.params.folder_path}')
-            log.error(
-                f'LINK: <a href="https://github.com/ebagdasa/backdoors/tree/'
-                f'{self.params.commit}">https://github.com/ebagdasa/backdoors'
-                f'/tree/{self.params.commit}</a>')
 
             with open(f'{self.params.folder_path}/params.yaml.txt', 'w') as f:
                 yaml.dump(self.params, f)

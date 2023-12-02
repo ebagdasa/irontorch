@@ -290,7 +290,7 @@ if __name__ == '__main__':
         ray.init()
     else:
         ray.init(address='ray://128.84.80.37:10001',
-             runtime_env={"working_dir": "/home/eugene/irontorch",
+             runtime_env={"working_dir": "/home/${USER}/irontorch",
                           'excludes': ['.git', '.data'],
                           "env_vars": {"CUBLAS_WORKSPACE_CONFIG": ":4096:8"}
                           },
@@ -333,7 +333,7 @@ if __name__ == '__main__':
     else:
         raise ValueError(f'Unknown task {args.task}')
 
-    file_path = f'/home/eugene/irontorch/configs/{args.task}_params.yaml'
+    file_path = f'/home/${USER}/irontorch/configs/{args.task}_params.yaml'
     metric_name = args.metric_name
     exp_name = f'{args.task}_search'
     poisoning_proportion = args.poisoning_proportion

@@ -17,7 +17,7 @@
 #     args = parser.parse_args()
 #
 #     ray.init(address='ray://128.84.84.8:10001',
-#              runtime_env={"working_dir": "/home/eugene/irontorch",
+#              runtime_env={"working_dir": "/home/${USER}/irontorch",
 #                           'excludes': ['.git', '.data']},
 #              include_dashboard=True, dashboard_host='0.0.0.0')
 #     backdoor_cover_percentage = 0.01
@@ -38,7 +38,7 @@
 #             'backdoor_cover_percentage': backdoor_cover_percentage,
 #             'search_alg': None,
 #             'poisoning_proportion': 0,
-#             'file_path': '/home/eugene/irontorch/configs/cifar10_params.yaml',
+#             'file_path': '/home/${USER}/irontorch/configs/cifar10_params.yaml',
 #             'max_iterations': max_iterations
 #         }
 #         stage_1_results = tune_run(full_exp_name, search_space, resume=False)
@@ -66,7 +66,7 @@
 #             'epochs': 30,
 #             'search_alg': None,
 #             'poisoning_proportion': tune.grid_search(list(np.arange(0, 50, 2))),
-#             'file_path': '/home/eugene/irontorch/configs/cifar10_params.yaml',
+#             'file_path': '/home/${USER}/irontorch/configs/cifar10_params.yaml',
 #             'max_iterations': 1
 #         }
 #         stage_2_results = tune_run(full_exp_name, search_space, resume=False)
@@ -106,7 +106,7 @@
 #             "grad_sigma": tune.qloguniform(1e-6, 1e-1, 1e-6, base=10),
 #             "grad_clip": tune.qloguniform(1, 32, 1, base=2),
 #             "label_noise": tune.quniform(0.0, 0.7, 0.01),
-#             "file_path": '/home/eugene/irontorch/configs/cifar10_params.yaml',
+#             "file_path": '/home/${USER}/irontorch/configs/cifar10_params.yaml',
 #             "max_iterations": max_iterations
 #         }
 #
