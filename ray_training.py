@@ -419,7 +419,7 @@ if __name__ == '__main__':
         for space in [0.001, 0.005, 0.01, 0.05]:
             # stage 2
             group_name = f'stage2_{args.sub_exp_name}_{space}'
-            full_exp_name = f'{exp_name}_{group_name}_{space}'
+            full_exp_name = f'{exp_name}_{group_name}'
             print(f'Running stage 2: {full_exp_name}')
             search_space = {
                 'synthesizers': [args.synthesizer],
