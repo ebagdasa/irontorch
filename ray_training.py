@@ -303,7 +303,7 @@ if __name__ == '__main__':
     elif args.task == 'celeba':
         epochs = 1
         batch_size = tune.choice([32, 64, 128, ])
-        proportion_to_test = np.unique(np.logspace(0, 12, num=40, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = [1,2,3,4,5,6,7,8,9,10] #np.unique(np.logspace(0, 5, num=10, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 16, 'Dynamic': 16, 'Pattern': 12, 'Primitive': 12,
                        'Complex': 15, 'Clean': 16}
     elif args.task == 'imagenet':
@@ -416,7 +416,7 @@ if __name__ == '__main__':
 
     if (args.poisoning_proportion is None) and (args.load_stage3 is None):
 
-        for space in [0.001, 0.005, 0.01, 0.05]:
+        for space in [0.1, 0.2, 0.5, 1.0]:
             # stage 2
             group_name = f'stage2_{args.sub_exp_name}_{space}'
             full_exp_name = f'{exp_name}_{group_name}_{space}'
