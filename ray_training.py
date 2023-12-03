@@ -290,7 +290,7 @@ if __name__ == '__main__':
                        'Complex': 14, 'Clean': 15}
     elif args.task == 'cifar10':
         epochs = 10
-        proportion_to_test = np.unique(np.logspace(0, 5, num=10, base=2, dtype=np.int32)).tolist()
+        proportion_to_test = np.unique(np.logspace(0, 10, num=20, base=2, dtype=np.int32)).tolist()
         proportions = {'SinglePixel': 15, 'Dynamic': 15, 'Pattern': 10, 'Primitive': 10, 'Memory': 5,
                        'Complex': 15, 'Clean': 12, 'NarcissusClean': 10}
         proportions_min = {'SinglePixel': 1, 'Dynamic': 1, 'Pattern': 0, 'Primitive': 0, 'Memory': 0,
@@ -416,11 +416,11 @@ if __name__ == '__main__':
 
     if (args.poisoning_proportion is None) and (args.load_stage3 is None):
 
-        for space in [0.001, 0.01, 0.05, 0.1, 0.2, 0.5]:
+        for space in [0.001, 0.005, 0.01, 0.05]:
             # stage 2
             group_name = f'stage2_{args.sub_exp_name}_{space}'
             full_exp_name = f'{exp_name}_{group_name}_{space}'
-            print(f'Running stage 2: {full_exp_name}_{space}')
+            print(f'Running stage 2: {full_exp_name}')
             search_space = {
                 'synthesizers': [args.synthesizer],
                 'backdoor_labels': {args.synthesizer: backdoor_label},
