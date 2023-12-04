@@ -416,7 +416,7 @@ if __name__ == '__main__':
 
     if (args.poisoning_proportion is None) and (args.load_stage3 is None):
 
-        for space in [0.03]:
+        for space in [0.02]:
             # stage 2
             group_name = f'stage2_{args.sub_exp_name}_{space}'
             full_exp_name = f'{exp_name}_{group_name}_{space}'
